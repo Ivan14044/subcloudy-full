@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<title>SubCloudy — Экономия на подписках и сервисах с умным помощником</title>
+	<meta name="description" content="SubCloudy помогает экономить на подписках и сервисах: аналитика расходов, рекомендации, автоматизация и удобная оплата. Попробуйте уже сегодня.">
+	<meta name="keywords" content="SubCloudy, подписки, экономия, сервисы, аналитика, автоматизация, AI, помощник">
+	<link rel="canonical" href="/">
+	<meta property="og:type" content="website">
+	<meta property="og:title" content="SubCloudy — Экономия на подписках и сервисах с умным помощником">
+	<meta property="og:description" content="SubCloudy помогает экономить на подписках и сервисах: аналитика расходов, рекомендации, автоматизация и удобная оплата.">
+	<meta property="og:image" content="/src/assets/logo.webp">
+	<meta property="og:site_name" content="SubCloudy">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="SubCloudy — Экономия на подписках и сервисах с умным помощником">
+	<meta name="twitter:description" content="SubCloudy помогает экономить на подписках и сервисах.">
+	<meta name="twitter:image" content="/src/assets/logo.webp">
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		"name": "SubCloudy",
+		"url": "/",
+		"logo": "/src/assets/logo.webp"
+	}
+	</script>
+    <link rel="icon" type="image/webp" href="/src/assets/logo.webp"/>
+    <!-- Иконки MDI для Vuetify (если нужны) -->
+    <link rel="stylesheet" href="/node_modules/@mdi/font/css/materialdesignicons.min.css">
+
+	<!-- Лёгкие прелоады ключевых изображений -->
+	<link rel="preload" as="image" href="/src/assets/logo.webp" imagesrcset="/src/assets/logo.webp" imagesizes="100vw">
+
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+        document.documentElement.classList.toggle('dark', isDark);
+      })();
+    </script>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
