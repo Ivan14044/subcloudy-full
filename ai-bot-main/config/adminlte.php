@@ -345,9 +345,9 @@ return [
 
 
         [
-            'text' => 'Сессии браузера',
+            'text' => 'История активности',
             'url' => 'browser-sessions',
-            'icon' => 'fas fa-fw mr-1 fa-window-maximize',
+            'icon' => 'fas fa-fw mr-1 fa-history',
             'active' => ['browser-sessions*'],
         ],
 

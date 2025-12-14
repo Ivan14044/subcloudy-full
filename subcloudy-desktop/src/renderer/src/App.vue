@@ -1,10 +1,12 @@
 <template>
   <router-view />
+  <UpdateNotification />
 </template>
 
 <script setup lang="ts">
 import { onMounted, onErrorCaptured } from 'vue';
 import { useDarkMode } from './composables/useDarkMode';
+import UpdateNotification from './components/UpdateNotification.vue';
 
 const { init } = useDarkMode();
 

@@ -1,6 +1,8 @@
-import { BrowserView, BrowserWindow, session as electronSession } from 'electron';
+import { BrowserView, BrowserWindow, session as electronSession, app } from 'electron';
+import { join } from 'path';
 import { AuthManager } from './auth';
 import { SecurityManager } from './security';
+import { ActivityLogger } from './activityLogger';
 import { createServiceWindow } from './windows/serviceWindow';
 import Store from 'electron-store';
 
@@ -31,6 +33,7 @@ interface Service {
 interface ServiceSession {
   id: string;
   serviceId: number;
+  serviceName: string;
   window: BrowserWindow;
   userId: number;
   startedAt: Date;
@@ -40,13 +43,15 @@ interface ServiceSession {
 export class ServiceManager {
   private authManager: AuthManager;
   private securityManager: SecurityManager;
+  private activityLogger: ActivityLogger;
   private store: Store;
   private activeSessions: Map<string, ServiceSession> = new Map();
   private inactivityTimeout = 30 * 60 * 1000; // 30 минут
 
-  constructor(authManager: AuthManager, securityManager: SecurityManager, store: Store) {
+  constructor(authManager: AuthManager, securityManager: SecurityManager, store: Store, activityLogger: ActivityLogger) {
     this.authManager = authManager;
     this.securityManager = securityManager;
+    this.activityLogger = activityLogger;
     this.store = store;
 
     // Периодическая проверка неактивных сессий
@@ -147,6 +152,7 @@ export class ServiceManager {
       const sessionData: ServiceSession = {
         id: sessionId,
         serviceId,
+        serviceName: serviceName || `Service ${serviceId}`,
         window: serviceWindow,
         userId: user.id,
         startedAt: new Date(),
@@ -158,7 +164,12 @@ export class ServiceManager {
       // Отслеживание закрытия окна
       serviceWindow.on('closed', () => {
         console.log('[Services] Service window closed:', sessionId);
-        this.activeSessions.delete(sessionId);
+        // Останавливаем сервис при закрытии окна (только если сессия еще существует)
+        if (this.activeSessions.has(sessionId)) {
+          this.stopService(sessionId).catch(err => {
+            console.error('[Services] Error stopping service on window close:', err);
+          });
+        }
       });
 
       // Отслеживание активности
@@ -170,7 +181,14 @@ export class ServiceManager {
       });
 
       // Логирование запуска
-      this.logServiceActivity(user.id, serviceId, 'session_started');
+      this.activityLogger.logActivity(
+        user.id,
+        serviceId,
+        sessionData.serviceName,
+        'session_started',
+        undefined,
+        sessionId
+      );
 
       console.log('[Services] Service launched successfully!');
       return { success: true, sessionId };
@@ -193,8 +211,17 @@ export class ServiceManager {
     }
 
     try {
-      // Логирование остановки
-      this.logServiceActivity(session.userId, session.serviceId, 'session_stopped');
+      // Расчет длительности сессии
+      const duration = Math.round((Date.now() - session.startedAt.getTime()) / 1000); // в секундах
+      // Логирование остановки (обновит существующую запись session_started)
+      this.activityLogger.logActivity(
+        session.userId,
+        session.serviceId,
+        session.serviceName,
+        'session_stopped',
+        duration,
+        sessionId
+      );
 
       // Закрытие окна
       if (session.window && !session.window.isDestroyed()) {
@@ -244,22 +271,6 @@ export class ServiceManager {
     }
   }
 
-  /**
-   * Логирование активности (можно отправлять на backend)
-   */
-  private async logServiceActivity(userId: number, serviceId: number, action: string) {
-    try {
-      const api = this.authManager.getApiInstance();
-      await api.post('/desktop/log', {
-        user_id: userId,
-        service_id: serviceId,
-        action,
-        timestamp: Date.now()
-      });
-    } catch (error) {
-      console.error('[Services] Failed to log activity:', error);
-    }
-  }
 
   /**
    * Получение активных сессий

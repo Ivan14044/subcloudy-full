@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DesktopActivityLog;
 use App\Models\Service;
 use App\Models\User;
 use App\Services\AssignServiceAccount;
@@ -189,18 +190,89 @@ class DesktopController extends Controller
     public function logActivity(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
-            'service_id' => 'required|integer',
-            'action' => 'required|string',
-            'timestamp' => 'required|integer'
+            'user_id' => 'required|integer|exists:users,id',
+            'service_id' => 'required|integer|exists:services,id',
+            'action' => 'required|string|in:session_started,session_stopped',
+            'timestamp' => 'required|integer',
+            'duration' => 'nullable|integer|min:0',
+            'service_name' => 'nullable|string|max:255',
+            'session_id' => 'nullable|string|max:255',
         ]);
 
-        // Здесь можно сохранять логи в БД или отправлять в систему мониторинга
+        // Получаем название сервиса
+        $service = Service::with('translations')->find($request->service_id);
+        $serviceName = $request->service_name ?? "Service {$request->service_id}";
+        
+        // Если название не передано или это дефолтное, пытаемся получить из БД
+        if (!$request->service_name || str_starts_with($serviceName, 'Service ')) {
+            if ($service) {
+                try {
+                    if (method_exists($service, 'getTranslation')) {
+                        $serviceName = $service->getTranslation('name', 'en') ?? $service->getTranslation('name', 'ru') ?? $service->name ?? $serviceName;
+                    } elseif ($service->name) {
+                        $serviceName = $service->name;
+                    }
+                } catch (\Throwable $e) {
+                    \Log::warning('[Desktop] Failed to get service name', ['error' => $e->getMessage()]);
+                }
+            }
+        }
+
+        // Сохраняем в БД
+        try {
+            // Если это session_stopped и есть session_id, обновляем существующую запись
+            if ($request->action === 'session_stopped' && $request->session_id) {
+                $existingLog = DesktopActivityLog::where('session_id', $request->session_id)
+                    ->where('action', 'session_started')
+                    ->where('user_id', $request->user_id)
+                    ->where('service_id', $request->service_id)
+                    ->first();
+                
+                if ($existingLog) {
+                    // Обновляем существующую запись
+                    $existingLog->update([
+                        'action' => 'session_stopped',
+                        'duration' => $request->duration,
+                        'service_name' => $serviceName, // Обновляем название на случай, если оно изменилось
+                    ]);
+                    $log = $existingLog;
+                } else {
+                    // Если не найдена запись session_started, создаем новую
+                    $log = DesktopActivityLog::create([
+                        'session_id' => $request->session_id,
+                        'user_id' => $request->user_id,
+                        'service_id' => $request->service_id,
+                        'service_name' => $serviceName,
+                        'action' => $request->action,
+                        'timestamp' => $request->timestamp,
+                        'duration' => $request->duration,
+                        'ip' => $request->ip(),
+                    ]);
+                }
+            } else {
+                // Создаем новую запись для session_started или если нет session_id
+                $log = DesktopActivityLog::create([
+                    'session_id' => $request->session_id,
+                    'user_id' => $request->user_id,
+                    'service_id' => $request->service_id,
+                    'service_name' => $serviceName,
+                    'action' => $request->action,
+                    'timestamp' => $request->timestamp,
+                    'duration' => $request->duration,
+                    'ip' => $request->ip(),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+
+        // Также логируем в файл для отладки
         \Log::info('[Desktop Activity]', [
             'user_id' => $request->user_id,
             'service_id' => $request->service_id,
             'action' => $request->action,
             'timestamp' => $request->timestamp,
+            'duration' => $request->duration,
             'ip' => $request->ip()
         ]);
 

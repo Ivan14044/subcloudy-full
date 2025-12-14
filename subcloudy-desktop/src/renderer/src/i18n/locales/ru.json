@@ -77,6 +77,69 @@
   "checkout": {
     "credit_card": "Банковская карта",
     "crypto": "Криптовалюта"
+  },
+  "updater": {
+    "updateAvailable": "Доступно обновление",
+    "newVersionAvailable": "Доступна новая версия {version}",
+    "downloading": "Скачивание...",
+    "size": "Размер",
+    "download": "Скачать",
+    "installNow": "Установить сейчас",
+    "later": "Позже",
+    "downloadInBackground": "Скачивается в фоне",
+    "checking": "Проверка обновлений...",
+    "error": "Ошибка обновления"
+  },
+  "history": {
+    "title": "История активности",
+    "loading": "Загрузка истории...",
+    "empty": "История пуста",
+    "emptyDesc": "Здесь будет отображаться история запуска сервисов",
+    "date": "Дата/Время",
+    "service": "Сервис",
+    "action": "Действие",
+    "duration": "Длительность",
+    "sessionStarted": "Запущен",
+    "sessionStopped": "Остановлен",
+    "filters": {
+      "dateRange": "Период",
+      "service": "Сервис",
+      "action": "Действие",
+      "allServices": "Все сервисы",
+      "allActions": "Все действия",
+      "today": "Сегодня",
+      "week": "Неделя",
+      "month": "Месяц",
+      "allTime": "Все время"
+    },
+    "export": "Экспорт",
+    "exportCSV": "Экспорт в CSV",
+    "exportJSON": "Экспорт в JSON",
+    "clear": "Очистить историю",
+    "clearConfirm": "Вы уверены, что хотите очистить всю историю?",
+    "syncStatus": "Синхронизация",
+    "synced": "Синхронизировано",
+    "syncing": "Синхронизировать",
+    "notSynced": "не синхронизировано",
+    "lastSync": "Последняя синхронизация",
+    "loadMore": "Загрузить еще",
+    "seconds": "сек",
+    "minutes": "мин",
+    "hours": "ч",
+    "filters": {
+      "dateRange": "Период",
+      "service": "Сервис",
+      "action": "Действие",
+      "allServices": "Все сервисы",
+      "allActions": "Все действия",
+      "today": "Сегодня",
+      "week": "Неделя",
+      "month": "Месяц",
+      "allTime": "Все время",
+      "custom": "Произвольный период",
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания"
+    }
   }
 }
 

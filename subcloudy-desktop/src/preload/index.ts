@@ -48,12 +48,47 @@ const electronAPI = {
       ipcRenderer.invoke('app:close')
   },
 
+  // Обновления
+  updater: {
+    checkForUpdates: (force = false) => 
+      ipcRenderer.invoke('updater:checkForUpdates', force),
+    downloadUpdate: () => 
+      ipcRenderer.invoke('updater:downloadUpdate'),
+    installUpdate: () => 
+      ipcRenderer.invoke('updater:installUpdate'),
+    getStatus: () => 
+      ipcRenderer.invoke('updater:getStatus'),
+    getSettings: () => 
+      ipcRenderer.invoke('updater:getSettings'),
+    updateSettings: (settings: any) => 
+      ipcRenderer.invoke('updater:updateSettings', settings),
+    onStatusChange: (callback: (status: any) => void) => {
+      ipcRenderer.on('updater:status-changed', (_, status) => callback(status));
+      return () => ipcRenderer.removeAllListeners('updater:status-changed');
+    }
+  },
+
+  // История активности
+  activity: {
+    getHistory: (filters?: any) => 
+      ipcRenderer.invoke('activity:getHistory', filters),
+    exportHistory: (format: 'csv' | 'json', filters?: any) => 
+      ipcRenderer.invoke('activity:exportHistory', format, filters),
+    clearHistory: () => 
+      ipcRenderer.invoke('activity:clearHistory'),
+    sync: () => 
+      ipcRenderer.invoke('activity:sync'),
+    getSyncStats: () => 
+      ipcRenderer.invoke('activity:getSyncStats')
+  },
+
   // Подписка на события
   on: (channel: string, callback: (...args: any[]) => void) => {
     const validChannels = [
       'session-expired',
       'service-error',
-      'auth-error'
+      'auth-error',
+      'updater:status-changed'
     ];
     
     if (validChannels.includes(channel)) {

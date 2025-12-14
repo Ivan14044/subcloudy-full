@@ -73,14 +73,8 @@ Route::prefix('/')
             Route::resource('settings', SettingController::class)->only(['index', 'store']);
             Route::resource('service-accounts', ServiceAccountController::class)->except(['show']);
 
-            // Browser sessions management
+            // Activity history (desktop app logs)
             Route::get('browser-sessions', [BrowserSessionController::class, 'index'])->name('browser-sessions.index');
-            Route::get('browser-sessions/data', [BrowserSessionController::class, 'data'])->name('browser-sessions.data');
-            Route::post('browser-sessions/start', [BrowserSessionController::class, 'start'])->name('browser-sessions.start');
-            Route::post('browser-sessions/start-json', [BrowserSessionController::class, 'startJson'])->name('browser-sessions.start-json');
-            Route::post('browser-sessions/stop-pid', [BrowserSessionController::class, 'stopByPid'])->name('browser-sessions.stop-pid');
-            Route::post('browser-sessions/stop-port', [BrowserSessionController::class, 'stopByPort'])->name('browser-sessions.stop-port');
-            Route::post('browser-sessions/stop-all', [BrowserSessionController::class, 'stopAll'])->name('browser-sessions.stop-all');
 
             // Admin notifications
             Route::get('admin_notifications/get', [AdminNotificationController::class, 'get'])->name('admin_notifications.get');

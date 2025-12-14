@@ -71,4 +71,10 @@ linux:
 publish:
   provider: generic
   url: https://updates.subcloudy.com
+  channel: latest
+
+# Updater Configuration
+updater:
+  provider: generic
+  url: https://updates.subcloudy.com
 

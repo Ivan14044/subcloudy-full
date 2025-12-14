@@ -77,6 +77,69 @@
   "checkout": {
     "credit_card": "Credit Card",
     "crypto": "Cryptocurrency"
+  },
+  "updater": {
+    "updateAvailable": "Update Available",
+    "newVersionAvailable": "New version {version} is available",
+    "downloading": "Downloading...",
+    "size": "Size",
+    "download": "Download",
+    "installNow": "Install Now",
+    "later": "Later",
+    "downloadInBackground": "Downloading in background",
+    "checking": "Checking for updates...",
+    "error": "Update error"
+  },
+  "history": {
+    "title": "Activity History",
+    "loading": "Loading history...",
+    "empty": "History is empty",
+    "emptyDesc": "Service launch history will be displayed here",
+    "date": "Date/Time",
+    "service": "Service",
+    "action": "Action",
+    "duration": "Duration",
+    "sessionStarted": "Started",
+    "sessionStopped": "Stopped",
+    "filters": {
+      "dateRange": "Period",
+      "service": "Service",
+      "action": "Action",
+      "allServices": "All services",
+      "allActions": "All actions",
+      "today": "Today",
+      "week": "Week",
+      "month": "Month",
+      "allTime": "All time"
+    },
+    "export": "Export",
+    "exportCSV": "Export to CSV",
+    "exportJSON": "Export to JSON",
+    "clear": "Clear History",
+    "clearConfirm": "Are you sure you want to clear all history?",
+    "syncStatus": "Sync Status",
+    "synced": "Synced",
+    "syncing": "Sync",
+    "notSynced": "not synced",
+    "lastSync": "Last sync",
+    "loadMore": "Load More",
+    "seconds": "sec",
+    "minutes": "min",
+    "hours": "h",
+    "filters": {
+      "dateRange": "Period",
+      "service": "Service",
+      "action": "Action",
+      "allServices": "All services",
+      "allActions": "All actions",
+      "today": "Today",
+      "week": "Week",
+      "month": "Month",
+      "allTime": "All time",
+      "custom": "Custom range",
+      "startDate": "Start Date",
+      "endDate": "End Date"
+    }
   }
 }
 

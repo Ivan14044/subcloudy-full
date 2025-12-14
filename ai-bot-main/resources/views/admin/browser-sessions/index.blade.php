@@ -1,23 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', __('admin.browser_sessions'))
+@section('title', __('admin.activity_history'))
 
 @section('content_header')
-    <div class="d-flex align-items-center w-100">
-        <h1 class="mb-0">{{ __('admin.browser_sessions') }}</h1>
-        <div class="ml-auto d-flex align-items-center">
-            <div class="btn-group" role="group">
-                <button id="manual-refresh" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-sync-alt mr-1"></i> Обновить
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-secondary">
-                    <label class="mb-0 d-flex align-center justify-content-center" style="cursor: pointer; gap: 5px">
-                        <input type="checkbox" id="auto-refresh-checkbox"> Автообновление (30с)
-                    </label>
-                </button>
-            </div>
-        </div>
-    </div>
+    <h1>{{ __('admin.activity_history') }}</h1>
 @stop
 
 @section('content')
@@ -37,228 +23,184 @@
             @endif
 
             <div class="card">
-                <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title">Активные сессии</h3>
-                    <div class="ml-auto">
-                        <form action="{{ route('admin.browser-sessions.start') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-primary">+ Запустить</button>
-                        </form>
-                        <form action="{{ route('admin.browser-sessions.stop-all') }}" method="POST" class="d-inline ml-2" id="stop-all-form">
-                            @csrf
-                            <input type="hidden" name="clean" value="1">
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmStopAllModal">Остановить все</button>
-                        </form>
-                    </div>
+                <div class="card-header">
+                    <h3 class="card-title">{{ __('admin.activity_history') }}</h3>
                 </div>
-                <div class="card-body position-relative" id="sessions-wrapper">
-                    <div id="sessions-loader" class="overlay d-none">
-                        <i class="fas fa-2x fa-sync-alt fa-spin position-absolute text-primary" style="top: 100px; z-index: 2;"></i>
+                <div class="card-body">
+                    <!-- Фильтры -->
+                    <form method="GET" action="{{ route('admin.browser-sessions.index') }}" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>{{ __('admin.user') }}</label>
+                                    <select name="user_id" class="form-control">
+                                        <option value="">{{ __('admin.all') }}</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>
+                                                {{ $user->name ?? $user->email }} (ID: {{ $user->id }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>{{ __('admin.service') }}</label>
+                                    <select name="service_id" class="form-control" style="z-index: 1000;">
+                                        <option value="">{{ __('admin.all') }}</option>
+                                        @foreach($services as $service)
+                                            @php
+                                                $serviceName = $service->name ?? "Service {$service->id}";
+                                                if (method_exists($service, 'getTranslation')) {
+                                                    try {
+                                                        $serviceName = $service->getTranslation('name', app()->getLocale()) 
+                                                            ?? $service->getTranslation('name', 'en') 
+                                                            ?? $service->name 
+                                                            ?? "Service {$service->id}";
+                                                    } catch (\Exception $e) {
+                                                        $serviceName = $service->name ?? "Service {$service->id}";
+                                                    }
+                                                }
+                                            @endphp
+                                            <option value="{{ $service->id }}" {{ request('service_id') == $service->id ? 'selected' : '' }}>
+                                                {{ $serviceName }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>{{ __('admin.action') }}</label>
+                                    <select name="action" class="form-control">
+                                        <option value="">{{ __('admin.all') }}</option>
+                                        <option value="session_started" {{ request('action') == 'session_started' ? 'selected' : '' }}>Запущен</option>
+                                        <option value="session_stopped" {{ request('action') == 'session_stopped' ? 'selected' : '' }}>Остановлен</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>{{ __('admin.start_date') }}</label>
+                                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>{{ __('admin.end_date') }}</label>
+                                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">{{ __('admin.filter') }}</button>
+                                <a href="{{ route('admin.browser-sessions.index') }}" class="btn btn-secondary">{{ __('admin.reset') }}</a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Таблица истории -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th style="width: 180px">{{ __('admin.date_time') }}</th>
+                                <th style="width: 200px">{{ __('admin.user') }}</th>
+                                <th style="width: 200px">{{ __('admin.service') }}</th>
+                                <th style="width: 120px">{{ __('admin.action') }}</th>
+                                <th style="width: 120px">{{ __('admin.duration') }}</th>
+                                <th style="width: 120px">IP</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @forelse($logs as $log)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::createFromTimestampMs($log->timestamp)->format('Y-m-d H:i:s') }}</td>
+                                    <td>
+                                        @if($log->user)
+                                            <a href="{{ route('admin.users.edit', $log->user_id) }}" target="_blank">
+                                                {{ $log->user->name ?? $log->user->email }} (ID: {{ $log->user_id }})
+                                            </a>
+                                        @else
+                                            ID: {{ $log->user_id }}
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @php
+                                            // Приоритет: service_name из записи лога (переданное из desktop app)
+                                            $serviceName = $log->service_name;
+                                            
+                                            // Если service_name не указан, пытаемся получить из связанной модели Service
+                                            if (!$serviceName && $log->service) {
+                                                try {
+                                                    $serviceName = $log->service->getTranslation('name', 'ru') 
+                                                        ?? $log->service->getTranslation('name', 'en') 
+                                                        ?? $log->service->name 
+                                                        ?? "Service {$log->service_id}";
+                                                } catch (\Exception $e) {
+                                                    $serviceName = $log->service->name ?? "Service {$log->service_id}";
+                                                }
+                                            }
+                                            
+                                            // Если все еще нет названия, используем дефолтное
+                                            if (!$serviceName) {
+                                                $serviceName = "Service {$log->service_id}";
+                                            }
+                                        @endphp
+                                        {{ $serviceName }}
+                                    </td>
+                                    <td>
+                                        @if($log->action === 'session_started')
+                                            <span class="badge badge-success">Запущен</span>
+                                        @elseif($log->action === 'session_stopped')
+                                            <span class="badge badge-secondary">Остановлен</span>
+                                        @else
+                                            <span class="badge badge-info">{{ $log->action }}</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($log->action === 'session_stopped' && $log->duration !== null && $log->duration >= 0)
+                                            @php
+                                                $seconds = $log->duration;
+                                                $days = intdiv($seconds, 86400);
+                                                $seconds %= 86400;
+                                                $hours = intdiv($seconds, 3600);
+                                                $seconds %= 3600;
+                                                $minutes = intdiv($seconds, 60);
+                                                $seconds %= 60;
+                                                $parts = [];
+                                                if ($days > 0) $parts[] = $days . 'д';
+                                                if ($hours > 0) $parts[] = $hours . 'ч';
+                                                if ($minutes > 0) $parts[] = $minutes . 'м';
+                                                if ($seconds > 0 || empty($parts)) $parts[] = $seconds . 'с';
+                                            @endphp
+                                            {{ implode(' ', $parts) }}
+                                        @elseif($log->action === 'session_started')
+                                            <span class="text-muted">—</span>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $log->ip ?? '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">
+                                        {{ __('admin.no_records') }}
+                                    </td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
                     </div>
-                    <table id="browser-sessions-table" class="table table-bordered table-striped" style="min-height: 130px">
-                        <thead>
-                        <tr>
-                            <th style="width: 80px">Порт</th>
-                            <th style="width: 120px">PID</th>
-                            <th style="width: 220px">{{ __('admin.user') }}</th>
-                            <th>URL</th>
-                            <th style="width: 160px">Время работы</th>
-                            <th style="width: 120px">{{ __('admin.active') }}</th>
-                            <th style="width: 60px">{{ __('admin.action') }}</th>
-                        </tr>
-                        </thead>
-                        <tbody id="sessions-body">
-                        </tbody>
-                    </table>
+
+                    <!-- Пагинация -->
+                    <div class="mt-3">
+                        {{ $logs->links() }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 @stop
-
-@section('js')
-<script>
-    (function() {
-        const dataUrl = @json($dataUrl);
-        const body = document.getElementById('sessions-body');
-        const manualBtn = document.getElementById('manual-refresh');
-        const autoCb = document.getElementById('auto-refresh-checkbox');
-        const browserSessionsTable = document.getElementById('browser-sessions-table');
-
-        function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.appendChild(document.createTextNode(str));
-            return div.innerHTML;
-        }
-
-        async function fetchSessions(forceBadgeUpdate = false) {
-            const loader = document.getElementById('sessions-loader');
-            if (loader) {
-                loader.classList.remove('d-none');
-                browserSessionsTable.style.opacity = '0.5';
-            }
-
-            try {
-                const res = await fetch(dataUrl, { cache: 'no-cache' });
-                if (!res.ok) return;
-                const data = await res.json();
-                const sessions = Array.isArray(data.sessions) ? data.sessions : [];
-                let html = '';
-                for (const s of sessions) {
-                    const urlCell = s.url ? `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.url)}</a>` : '-';
-                    const activeBadge = s.active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>';
-                    const userCell = (s.user && s.user.edit_url)
-                        ? (() => {
-                            const hasNameOrEmail = !!(s.user.name || s.user.email);
-                            const label = hasNameOrEmail
-                                ? `${s.user.name || s.user.email} (ID ${s.user.id})`
-                                : `ID ${s.user.id}`;
-                            return `<a href="${escapeHtml(s.user.edit_url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>`;
-                          })()
-                        : '-';
-                    const uptimeCell = s.uptime_human ? escapeHtml(s.uptime_human) : '-';
-                    const stopByPidForm = (s.active && s.xpra_pid) ? `
-                        <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#confirmStopPidModal${s.xpra_pid}"><i class="fas fa-stop"></i></button>
-                        <div class="modal fade" id="confirmStopPidModal${s.xpra_pid}" tabindex="-1" role="dialog" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title">Остановить сессию</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                              </div>
-                              <div class="modal-body">Вы уверены, что хотите остановить сессию с PID ${s.xpra_pid}?</div>
-                              <div class="modal-footer">
-                                <form action="{{ route('admin.browser-sessions.stop-pid') }}" method="POST" class="d-inline">
-                                  @csrf
-                                  <input type="hidden" name="pid" value="${s.xpra_pid}">
-                                  <button type="submit" class="btn btn-danger">Остановить</button>
-                                </form>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                    ` : '';
-                    html += `
-                        <tr>
-                            <td>${s.port}</td>
-                            <td>${s.xpra_pid ?? '-'}</td>
-                            <td>${userCell}</td>
-                            <td>${urlCell}</td>
-                            <td>${uptimeCell}</td>
-                            <td>${activeBadge}</td>
-                            <td>${stopByPidForm}</td>
-                        </tr>
-                        ${s.active && s.xpra_pid ? `
-                        <div class="modal fade" id="confirmStopPidModal${s.xpra_pid}" tabindex="-1" role="dialog" aria-hidden="true">
-                          <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h5 class="modal-title">Остановить сессию</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                              </div>
-                              <div class="modal-body">Вы уверены, что хотите остановить сессию с PID ${s.xpra_pid}?</div>
-                              <div class="modal-footer">
-                                <form action="{{ route('admin.browser-sessions.stop-pid') }}" method="POST" class="d-inline">
-                                  @csrf
-                                  <input type="hidden" name="pid" value="${s.xpra_pid}">
-                                  <button type="submit" class="btn btn-danger">Остановить</button>
-                                </form>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        ` : ''}
-                    `;
-                }
-                body.innerHTML = html;
-                // Backend renders the sidebar badge; no JS badge updates here
-            } catch (_) {}
-            finally {
-                if (loader) {
-                    loader.classList.add('d-none');
-                    browserSessionsTable.style.opacity = '1';
-                }
-            }
-        }
-
-        const KEY = 'browserSessionsAutoRefresh';
-        let timer = null;
-        let isModalOpen = false;
-        // No JS-based sidebar badge; count is rendered on backend
-
-        function setTimer(enabled) {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-            }
-            if (enabled) {
-                timer = setInterval(function(){
-                    if (!isModalOpen) {
-                        fetchSessions();
-                    }
-                }, 30000);
-            }
-        }
-
-        function initAutoRefresh() {
-            const saved = localStorage.getItem(KEY);
-            const enabled = saved === '1';
-            autoCb.checked = enabled;
-            setTimer(enabled);
-        }
-
-        autoCb.addEventListener('change', function() {
-            const enabled = !!this.checked;
-            localStorage.setItem(KEY, enabled ? '1' : '0');
-            setTimer(enabled);
-            if (enabled) fetchSessions();
-        });
-
-        manualBtn && manualBtn.addEventListener('click', function(e){ e.preventDefault(); fetchSessions(true); });
-
-        // Bootstrap modal submit for Stop All (use delegation to ensure listener exists even if modal is after script)
-        (function(){
-            const form = document.getElementById('stop-all-form');
-            if (!form) return;
-            document.addEventListener('click', function(e){
-                const isConfirmBtn = (e.target && (e.target.id === 'confirmStopAllSubmit' || (e.target.closest && e.target.closest('#confirmStopAllSubmit'))));
-                if (isConfirmBtn) {
-                    e.preventDefault();
-                    form.submit();
-                }
-            });
-        })();
-
-        initAutoRefresh();
-        fetchSessions(true);
-
-        // Pause auto-refresh while any Bootstrap modal is open
-        if (window.$ && $.fn && $.fn.modal) {
-            $(document).on('shown.bs.modal', function(){ isModalOpen = true; });
-            $(document).on('hidden.bs.modal', function(){ isModalOpen = false; });
-        }
-    })();
-</script>
-
-<!-- Confirm Stop All Modal -->
-<div class="modal fade" id="confirmStopAllModal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Остановить все сессии</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      </div>
-      <div class="modal-body">Это остановит все сессии и очистит профили. Продолжить?</div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="confirmStopAllSubmit">Остановить все</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
-      </div>
-    </div>
-  </div>
- </div>
-@stop
-
-
-

@@ -145,3 +145,84 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child:before
 #service-accounts-table tr.table-danger:hover {
     background-color: #f5c6cb !important;
 }
+
+/* Исправление видимости выпадающих списков select */
+select.form-control {
+    position: relative;
+    z-index: 1;
+}
+
+select.form-control:focus {
+    z-index: 9999 !important;
+    position: relative;
+}
+
+/* Убеждаемся, что родительские контейнеры не обрезают выпадающие списки */
+.card-body,
+.form-group,
+.row,
+.col-md-3,
+.col-md-2 {
+    overflow: visible !important;
+    position: relative;
+}
+
+/* Стили для option элементов в select */
+select.form-control option {
+    background-color: #fff;
+    color: #495057;
+    padding: 8px 12px;
+}
+
+select.form-control option:hover,
+select.form-control option:focus {
+    background-color: #f8f9fa;
+}
+
+/* Улучшение видимости для выпадающих списков в формах фильтров */
+form.mb-4 select.form-control {
+    z-index: 10;
+    position: relative;
+}
+
+form.mb-4 select.form-control:focus {
+    z-index: 10000 !important;
+    position: relative;
+}
+
+/* Убеждаемся, что выпадающий список не обрезается */
+form.mb-4 {
+    position: relative;
+    z-index: 1;
+}
+
+form.mb-4 .form-group {
+    position: relative;
+    z-index: auto;
+}
+
+form.mb-4 .form-group:has(select:focus) {
+    z-index: 10001 !important;
+    position: relative;
+}
+
+/* Альтернативный способ для браузеров без поддержки :has() */
+form.mb-4 select.form-control:focus {
+    z-index: 10000 !important;
+    position: relative;
+}
+
+/* Улучшение видимости option элементов */
+select.form-control option {
+    display: block;
+    padding: 8px 12px;
+    background-color: #fff;
+    color: #495057;
+    white-space: nowrap;
+}
+
+select.form-control option:hover,
+select.form-control option:checked {
+    background-color: #007bff;
+    color: #fff;
+}

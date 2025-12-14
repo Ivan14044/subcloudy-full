@@ -3,6 +3,7 @@ import { join } from 'path';
 import { AuthManager } from './auth';
 import { ServiceManager } from './services';
 import { SecurityManager } from './security';
+import { ActivityLogger } from './activityLogger';
 import { OAuthManager } from './oauth';
 import Store from 'electron-store';
 
@@ -24,6 +25,7 @@ let mainWindow: BrowserWindow | null = null;
 let authManager: AuthManager;
 let serviceManager: ServiceManager;
 let securityManager: SecurityManager;
+let activityLogger: ActivityLogger;
 let oauthManager: OAuthManager;
 
 // Отключаем аппаратное ускорение для большей стабильности
@@ -53,7 +55,8 @@ if (!gotTheLock) {
     const apiUrl = process.env.API_URL || 'http://127.0.0.1:8000/api';
     authManager = new AuthManager(store);
     securityManager = new SecurityManager();
-    serviceManager = new ServiceManager(authManager, securityManager, store);
+    activityLogger = new ActivityLogger(store, authManager);
+    serviceManager = new ServiceManager(authManager, securityManager, store, activityLogger);
     oauthManager = new OAuthManager(apiUrl.replace('/api', '')); // Убираем /api для OAuth URL
 
     console.log('[SubCloudy] Managers initialized');

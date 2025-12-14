@@ -77,6 +77,69 @@
   "checkout": {
     "credit_card": "Банківська картка",
     "crypto": "Криптовалюта"
+  },
+  "updater": {
+    "updateAvailable": "Доступне оновлення",
+    "newVersionAvailable": "Доступна нова версія {version}",
+    "downloading": "Завантаження...",
+    "size": "Розмір",
+    "download": "Завантажити",
+    "installNow": "Встановити зараз",
+    "later": "Пізніше",
+    "downloadInBackground": "Завантажується у фоні",
+    "checking": "Перевірка оновлень...",
+    "error": "Помилка оновлення"
+  },
+  "history": {
+    "title": "Історія активності",
+    "loading": "Завантаження історії...",
+    "empty": "Історія порожня",
+    "emptyDesc": "Тут буде відображатися історія запуску сервісів",
+    "date": "Дата/Час",
+    "service": "Сервіс",
+    "action": "Дія",
+    "duration": "Тривалість",
+    "sessionStarted": "Запущено",
+    "sessionStopped": "Зупинено",
+    "filters": {
+      "dateRange": "Період",
+      "service": "Сервіс",
+      "action": "Дія",
+      "allServices": "Всі сервіси",
+      "allActions": "Всі дії",
+      "today": "Сьогодні",
+      "week": "Тиждень",
+      "month": "Місяць",
+      "allTime": "Весь час"
+    },
+    "export": "Експорт",
+    "exportCSV": "Експорт в CSV",
+    "exportJSON": "Експорт в JSON",
+    "clear": "Очистити історію",
+    "clearConfirm": "Ви впевнені, що хочете очистити всю історію?",
+    "syncStatus": "Синхронізація",
+    "synced": "Синхронізовано",
+    "syncing": "Синхронізувати",
+    "notSynced": "не синхронізовано",
+    "lastSync": "Остання синхронізація",
+    "loadMore": "Завантажити ще",
+    "seconds": "сек",
+    "minutes": "хв",
+    "hours": "год",
+    "filters": {
+      "dateRange": "Період",
+      "service": "Сервіс",
+      "action": "Дія",
+      "allServices": "Всі сервіси",
+      "allActions": "Всі дії",
+      "today": "Сьогодні",
+      "week": "Тиждень",
+      "month": "Місяць",
+      "allTime": "Весь час",
+      "custom": "Довільний період",
+      "startDate": "Дата початку",
+      "endDate": "Дата закінчення"
+    }
   }
 }
 

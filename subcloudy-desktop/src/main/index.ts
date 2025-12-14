@@ -3,6 +3,8 @@ import { join } from 'path';
 import { AuthManager } from './auth';
 import { ServiceManager } from './services';
 import { SecurityManager } from './security';
+import { UpdateManager } from './updater';
+import { ActivityLogger } from './activityLogger';
 import { createMainWindow } from './windows/mainWindow';
 import Store from 'electron-store';
 
@@ -16,6 +18,8 @@ let mainWindow: BrowserWindow | null = null;
 let authManager: AuthManager;
 let serviceManager: ServiceManager;
 let securityManager: SecurityManager;
+let updateManager: UpdateManager;
+let activityLogger: ActivityLogger;
 
 // Отключаем аппаратное ускорение для большей стабильности
 app.disableHardwareAcceleration();
@@ -41,7 +45,9 @@ if (!gotTheLock) {
     // Инициализация менеджеров
     authManager = new AuthManager(store);
     securityManager = new SecurityManager();
-    serviceManager = new ServiceManager(authManager, securityManager, store);
+    activityLogger = new ActivityLogger(store, authManager);
+    serviceManager = new ServiceManager(authManager, securityManager, store, activityLogger);
+    updateManager = new UpdateManager(store);
 
     console.log('[SubCloudy] Managers initialized');
     
@@ -70,6 +76,14 @@ if (!gotTheLock) {
     console.log('[SubCloudy] Setting up IPC handlers...');
     setupIPCHandlers();
     console.log('[SubCloudy] IPC handlers ready');
+
+    // Запуск периодической проверки обновлений (с задержкой 5 секунд)
+    if (app.isPackaged) {
+      setTimeout(() => {
+        updateManager.checkForUpdates();
+        updateManager.startPeriodicCheck();
+      }, 5000);
+    }
 
     app.on('activate', async () => {
       if (BrowserWindow.getAllWindows().length === 0) {
@@ -165,6 +179,66 @@ function setupIPCHandlers() {
 
   ipcMain.handle('app:close', () => {
     mainWindow?.close();
+  });
+
+  // Обновления
+  ipcMain.handle('updater:checkForUpdates', async (_, force = false) => {
+    return await updateManager.checkForUpdates(force);
+  });
+
+  ipcMain.handle('updater:downloadUpdate', async () => {
+    return await updateManager.downloadUpdate();
+  });
+
+  ipcMain.handle('updater:installUpdate', async () => {
+    return await updateManager.installUpdate();
+  });
+
+  ipcMain.handle('updater:getStatus', () => {
+    return updateManager.getUpdateInfo();
+  });
+
+  ipcMain.handle('updater:getSettings', () => {
+    return updateManager.getSettings();
+  });
+
+  ipcMain.handle('updater:updateSettings', (_, settings) => {
+    updateManager.updateSettings(settings);
+    return { success: true };
+  });
+
+  // Подписка на изменения статуса обновлений для отправки в renderer
+  updateManager.onStatusChange((status) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('updater:status-changed', status);
+    }
+  });
+
+  // История активности
+  ipcMain.handle('activity:getHistory', (_, filters) => {
+    return activityLogger.getHistory(filters);
+  });
+
+  ipcMain.handle('activity:exportHistory', (_, format, filters) => {
+    if (format === 'csv') {
+      return activityLogger.exportToCSV(filters);
+    } else if (format === 'json') {
+      return activityLogger.exportToJSON(filters);
+    }
+    throw new Error('Invalid export format');
+  });
+
+  ipcMain.handle('activity:clearHistory', () => {
+    activityLogger.clearHistory();
+    return { success: true };
+  });
+
+  ipcMain.handle('activity:sync', async () => {
+    return await activityLogger.syncWithBackend();
+  });
+
+  ipcMain.handle('activity:getSyncStats', () => {
+    return activityLogger.getSyncStats();
   });
 }
 

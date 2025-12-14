@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage.vue';
 import ServicesPage from './pages/ServicesPage.vue';
 import ProfilePage from './pages/ProfilePage.vue';
 import SubscriptionsPage from './pages/SubscriptionsPage.vue';
+import HistoryPage from './pages/HistoryPage.vue';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -31,6 +32,12 @@ const routes: RouteRecordRaw[] = [
     path: '/subscriptions',
     name: 'Subscriptions',
     component: SubscriptionsPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/history',
+    name: 'History',
+    component: HistoryPage,
     meta: { requiresAuth: true }
   },
   {
