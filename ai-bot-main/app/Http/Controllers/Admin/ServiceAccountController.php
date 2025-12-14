@@ -17,7 +17,11 @@ class ServiceAccountController extends Controller
         $serviceAccounts = ServiceAccount::with('service')
             ->withCount('users')
             ->orderBy('id', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($account) {
+                $account->earliest_subscription_expiry = $account->getEarliestSubscriptionExpiry();
+                return $account;
+            });
 
         return view('admin.service-accounts.index', compact('serviceAccounts'));
     }

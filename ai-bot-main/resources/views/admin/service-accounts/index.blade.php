@@ -19,24 +19,33 @@
                     <a href="{{ route('admin.service-accounts.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                 </div>
                 <div class="card-body">
-                    <table id="service-accounts-table" class="table table-bordered table-striped">
+                    <div class="table-responsive">
+                        <table id="service-accounts-table" class="table table-bordered table-striped table-hover nowrap" style="width:100%">
                         <thead>
                         <tr>
                             <th style="width: 40px">{{ __('admin.id') }}</th>
                             <th>{{ __('admin.service') }}</th>
-                            <th>{{ __('admin.login') }}</th>
+                            <th class="none">{{ __('admin.login') }}</th>
                             <th>{{ __('admin.status') }}</th>
-                            <th>{{ __('admin.users') }}</th>
-                            <th>{{ __('admin.used') }}</th>
-                            <th>{{ __('admin.last_used_at') }}</th>
-                            <th>{{ __('admin.created_at') }}</th>
-                            <th>{{ __('admin.expiring_at') }}</th>
+                            <th style="width: 100px">{{ __('admin.users') }}</th>
+                            <th style="width: 120px">{{ __('admin.subscription_expires') }}</th>
+                            <th class="none">{{ __('admin.used') }}</th>
+                            <th class="none">{{ __('admin.last_used_at') }}</th>
+                            <th class="none">{{ __('admin.created_at') }}</th>
+                            <th class="none">{{ __('admin.expiring_at') }}</th>
                             <th style="width: 70px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach ($serviceAccounts as $serviceAccount)
-                            <tr>
+                            @php
+                                $earliestExpiry = $serviceAccount->earliest_subscription_expiry;
+                                $isExpiringSoon = $earliestExpiry && $earliestExpiry->isFuture() && $earliestExpiry->diffInDays(now()) <= 7;
+                                $isExpiringVerySoon = $earliestExpiry && $earliestExpiry->isFuture() && $earliestExpiry->diffInDays(now()) <= 3;
+                                $isExpired = $earliestExpiry && $earliestExpiry->isPast();
+                                $rowClass = $isExpiringVerySoon ? 'table-danger' : ($isExpiringSoon ? 'table-warning' : '');
+                            @endphp
+                            <tr class="{{ $rowClass }}">
                                 <td>{{ $serviceAccount->id }}</td>
                                 <td>
                                     @if($serviceAccount->service->logo)
@@ -47,7 +56,7 @@
                                     @endif
                                     {{ $serviceAccount->service->admin_name }}
                                 </td>
-                                <td>
+                                <td class="none">
                                     @if(!empty($serviceAccount->credentials['email']))
                                         <span class="text-muted">{{ $serviceAccount->credentials['email'] }}</span>
                                     @else
@@ -80,14 +89,28 @@
                                         @endif
                                     </span>
                                 </td>
-                                <td>{{ $serviceAccount->used }}</td>
-                                <td data-order="{{ strtotime($serviceAccount->last_used_at) }}">
+                                <td>
+                                    @if($earliestExpiry)
+                                        <span class="text-muted">{{ $earliestExpiry->format('Y-m-d') }}</span>
+                                        @if($isExpiringVerySoon)
+                                            <span class="badge badge-danger ml-1" title="{{ __('admin.expires_very_soon') }}">!</span>
+                                        @elseif($isExpiringSoon)
+                                            <span class="badge badge-warning ml-1" title="{{ __('admin.expires_soon') }}">~</span>
+                                        @elseif($isExpired)
+                                            <span class="badge badge-secondary ml-1" title="{{ __('admin.expired') }}">×</span>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td class="none">{{ $serviceAccount->used }}</td>
+                                <td class="none" data-order="{{ strtotime($serviceAccount->last_used_at) }}">
                                     {{ \Carbon\Carbon::parse($serviceAccount->last_used_at)->format('Y-m-d H:i') }}
                                 </td>
-                                <td data-order="{{ strtotime($serviceAccount->created_at) }}">
+                                <td class="none" data-order="{{ strtotime($serviceAccount->created_at) }}">
                                     {{ \Carbon\Carbon::parse($serviceAccount->created_at)->format('Y-m-d H:i') }}
                                 </td>
-                                <td data-order="{{ $serviceAccount->expiring_at ? strtotime($serviceAccount->expiring_at) : 0 }}">
+                                <td class="none" data-order="{{ $serviceAccount->expiring_at ? strtotime($serviceAccount->expiring_at) : 0 }}">
                                     {{ $serviceAccount->expiring_at ? \Carbon\Carbon::parse($serviceAccount->expiring_at)->format('Y-m-d H:i') : null }}
                                 </td>
                                 <td>
@@ -136,6 +159,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -147,9 +171,23 @@
         $(document).ready(function () {
             $('#service-accounts-table').DataTable({
                 "order": [[0, "desc"]],
+                "responsive": true,
+                "scrollX": true,
+                "scrollCollapse": true,
+                "autoWidth": false,
                 "columnDefs": [
-                    {"orderable": false, "targets": 8}
-                ]
+                    {"orderable": false, "targets": 10},
+                    {"responsivePriority": 1, "targets": 0}, // ID
+                    {"responsivePriority": 2, "targets": 1}, // Service
+                    {"responsivePriority": 3, "targets": 10}, // Actions
+                    {"responsivePriority": 4, "targets": 2}, // Login
+                    {"responsivePriority": 5, "targets": 3}, // Status
+                    {"responsivePriority": 6, "targets": 4}, // Users
+                    {"responsivePriority": 7, "targets": 5}, // Subscription Expires
+                ],
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Russian.json"
+                }
             });
         });
     </script>

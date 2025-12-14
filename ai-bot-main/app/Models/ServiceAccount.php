@@ -59,4 +59,26 @@ class ServiceAccount extends Model
     {
         return $this->users()->count();
     }
+
+    /**
+     * Получить самую раннюю дату истечения подписки среди пользователей аккаунта
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function getEarliestSubscriptionExpiry(): ?\Carbon\Carbon
+    {
+        $userIds = $this->users()->pluck('users.id');
+        
+        if ($userIds->isEmpty()) {
+            return null;
+        }
+        
+        $earliestExpiry = \App\Models\Subscription::whereIn('user_id', $userIds)
+            ->where('status', \App\Models\Subscription::STATUS_ACTIVE)
+            ->where('service_id', $this->service_id)
+            ->whereNotNull('next_payment_at')
+            ->min('next_payment_at');
+        
+        return $earliestExpiry ? \Carbon\Carbon::parse($earliestExpiry) : null;
+    }
 }
