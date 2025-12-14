@@ -108,7 +108,7 @@ class PromocodeController extends Controller
 
             $this->syncServices($promocode, $servicesPayload);
 
-            return redirect()->route('admin.promocodes.index')->with('success', 'Promocode successfully created.');
+            return redirect()->route('admin.promocodes.index')->with('success', __('admin.promocode.created'));
         }
 
         $batchId = $manualBatchId ?: (string) Str::uuid();
@@ -223,14 +223,14 @@ class PromocodeController extends Controller
             ? route('admin.promocodes.edit', $promocode->id)
             : route('admin.promocodes.index');
 
-        return redirect($route)->with('success', 'Promocode successfully updated.');
+        return redirect($route)->with('success', __('admin.promocode.updated'));
     }
 
     public function destroy(Promocode $promocode)
     {
         $promocode->delete();
 
-        return redirect()->route('admin.promocodes.index')->with('success', 'Promocode successfully deleted.');
+        return redirect()->route('admin.promocodes.index')->with('success', __('admin.promocode.deleted'));
     }
 
     public function bulkDestroy(Request $request)

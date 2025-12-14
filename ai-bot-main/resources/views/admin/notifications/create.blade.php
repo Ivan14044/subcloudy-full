@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Mass notification')
+@section('title', 'Массовое уведомление')
 
 @section('content_header')
-    <h1>Mass notification</h1>
+    <h1>Массовое уведомление</h1>
 @stop
 
 @section('content')
@@ -11,22 +11,22 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Notification data</h3>
+                    <h3 class="card-title">{{ __('admin.notification_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.notifications.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="form-group">
-                            <label for="target">Target Users</label>
+                            <label for="target">Целевые пользователи</label>
                             <select name="target" id="target" class="form-control @error('target') is-invalid @enderror">
-                                <option value="all" {{ old('target') == 'all' ? 'selected' : '' }}>All users</option>
+                                <option value="all" {{ old('target') == 'all' ? 'selected' : '' }}>Все пользователи</option>
                                 <option value="active_subscribers"
-                                        {{ old('target') == 'active_subscribers' ? 'selected' : '' }}>Users with an active subscription</option>
+                                        {{ old('target') == 'active_subscribers' ? 'selected' : '' }}>Пользователи с активной подпиской</option>
                                 <option value="inactive_subscribers"
-                                        {{ old('target') == 'inactive_subscribers' ? 'selected' : '' }}>Users with inactive subscriptions (expired or canceled)</option>
+                                        {{ old('target') == 'inactive_subscribers' ? 'selected' : '' }}>Пользователи с неактивными подписками (истекшими или отмененными)</option>
                                 <option value="never_subscribed"
-                                        {{ old('target') == 'never_subscribed' ? 'selected' : '' }}>Users who never had a subscription</option>
+                                        {{ old('target') == 'never_subscribed' ? 'selected' : '' }}>Пользователи, которые никогда не имели подписки</option>
                             </select>
                             @error('target')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -34,9 +34,9 @@
                         </div>
 
                         <div class="form-group d-none" id="service-group">
-                            <label for="service_id">Service</label>
+                            <label for="service_id">{{ __('admin.service') }}</label>
                             <select name="service_id" id="service_id" class="form-control @error('service_id') is-invalid @enderror">
-                                <option value="" {{ old('service_id', '') == '' ? 'selected' : '' }}>All services</option>
+                                <option value="" {{ old('service_id', '') == '' ? 'selected' : '' }}>Все сервисы</option>
                                 @foreach($services as $service)
                                     <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>{{ $service->code }}</option>
                                 @endforeach
@@ -89,8 +89,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Send notifications</button>
-                        <a href="{{ route('admin.notifications.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Отправить уведомления</button>
+                        <a href="{{ route('admin.notifications.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

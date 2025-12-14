@@ -49,7 +49,7 @@
     "price_monthly": "<strong>{price} {currency}</strong> por mes",
     "add_to_cart": "Añadir al carrito",
     "go_to_checkout": "Ir a caja",
-    "open": "Abrir navegador",
+    "open": "Usar en la aplicación",
     "get_trial": "Probar",
     "trial_period": "{price} de prueba"
   },
@@ -278,5 +278,14 @@
   "savings": {
     "title": "Tus <span class='gradient-text'>ahorros</span> en suscripciones",
     "description": "Paga menos y obtén los mismos servicios sin pagar de más."
+  },
+  "downloadApp": {
+    "title": "Usa la aplicación de escritorio",
+    "description": "Para usar el servicio, necesitas descargar e instalar la aplicación de escritorio SubCloudy",
+    "info": "Después de instalar la aplicación, podrás abrir y usar todas tus suscripciones directamente desde la aplicación.",
+    "windows": "Descargar para Windows",
+    "macos": "Descargar para macOS",
+    "back": "Atrás",
+    "note": "La aplicación está disponible para Windows y macOS"
   }
 }

@@ -21,24 +21,24 @@ const pageStore = usePageStore();
 const { locale } = useI18n();
 
 function applySeo() {
-	try {
-		const page = pageStore.page;
-		if (!page) return;
-		const data = page[locale.value];
-		if (!data) return;
-		updateWebPageSEO({
-			title: data.title,
-			description: (data.content || '').replace(/<[^>]+>/g, '').slice(0, 220),
-			canonical: window.location.pathname
-		});
-	} catch {}
+    try {
+        const page = pageStore.page;
+        if (!page) return;
+        const data = page[locale.value];
+        if (!data) return;
+        updateWebPageSEO({
+            title: data.title,
+            description: (data.content || '').replace(/<[^>]+>/g, '').slice(0, 220),
+            canonical: window.location.pathname
+        });
+    } catch {}
 }
 
 onMounted(() => {
-	applySeo();
+    applySeo();
 });
 
 watch(() => [pageStore.page, locale.value], () => {
-	applySeo();
+    applySeo();
 });
 </script>

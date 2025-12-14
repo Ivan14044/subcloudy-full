@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit page #' . $page->id)
+@section('title', __('admin.edit_page') . ' #' . $page->id)
 
 @section('content_header')
-    <h1>Edit page #{{ $page->id }}</h1>
+    <h1>{{ __('admin.edit_page') }} #{{ $page->id }}</h1>
 @stop
 
 @section('content')
@@ -15,14 +15,14 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Page data</h3>
+                    <h3 class="card-title">{{ __('admin.page_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.pages.update', $page) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name">{{ __('admin.name') }}</label>
                             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $page->name) }}">
                             @error('name')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -31,7 +31,7 @@
 
                         @csrf
                         <div class="form-group">
-                            <label for="slug">Slug</label>
+                            <label for="slug">{{ __('admin.slug') }}</label>
                             <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $page->slug) }}">
                             @error('slug')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -39,10 +39,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', $page->is_active) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', $page->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', $page->is_active) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', $page->is_active) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -110,9 +110,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

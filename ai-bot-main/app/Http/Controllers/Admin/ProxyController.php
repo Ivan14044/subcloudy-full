@@ -26,7 +26,7 @@ class ProxyController extends Controller
 
         Proxy::create($validated);
 
-        return redirect()->route('admin.proxies.index')->with('success', 'Proxy successfully created.');
+        return redirect()->route('admin.proxies.index')->with('success', __('admin.proxy.created'));
     }
 
     public function edit(Proxy $proxy)
@@ -44,14 +44,14 @@ class ProxyController extends Controller
             ? route('admin.proxies.edit', $proxy->id)
             : route('admin.proxies.index');
 
-        return redirect($route)->with('success', 'Proxy successfully updated.');
+        return redirect($route)->with('success', __('admin.proxy.updated'));
     }
 
     public function destroy(Proxy $proxy)
     {
         $proxy->delete();
 
-        return redirect()->route('admin.proxies.index')->with('success', 'Proxy successfully deleted.');
+        return redirect()->route('admin.proxies.index')->with('success', __('admin.proxy.deleted'));
     }
 
     private function getRules(): array

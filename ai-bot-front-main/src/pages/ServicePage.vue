@@ -230,43 +230,11 @@ const openService = async () => {
     const current = service.value;
     if (!current) return;
 
-    const url = '/session-start/' + current.id;
-
-    const isMobile =
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-            navigator.userAgent
-        ) || window.innerWidth <= 768;
-
-    if (isMobile) {
-        window.open(url, '_blank');
-    } else {
-        const screenWidth = window.screen.width;
-        const screenHeight = window.screen.height;
-
-        const windowWidth = Math.floor(screenWidth * 0.8);
-        const windowHeight = Math.floor(screenHeight * 0.8);
-
-        const left = Math.floor((screenWidth - windowWidth) / 2);
-        const top = Math.floor((screenHeight - windowHeight) / 2);
-
-        const features = `
-            toolbar=no,
-            location=no,
-            status=no,
-            menubar=no,
-            scrollbars=yes,
-            resizable=yes,
-            width=${windowWidth},
-            height=${windowHeight},
-            left=${left},
-            top=${top},
-            popup=yes,
-            noopener=no,
-            noreferrer=no
-        `;
-
-        window.open(url, '_blank', features.replace(/\s+/g, ''));
-    }
+    // Перенаправляем на страницу с информацией о необходимости скачать приложение
+    router.push({
+        path: '/download-app',
+        query: { serviceId: current.id }
+    });
 };
 
 const canShowTrialButton = computed(() => {

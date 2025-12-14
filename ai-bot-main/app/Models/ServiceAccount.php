@@ -17,6 +17,7 @@ class ServiceAccount extends Model
         'expiring_at',
         'last_used_at',
         'is_active',
+        'max_users',
     ];
 
     protected $casts = [
@@ -34,5 +35,28 @@ class ServiceAccount extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_service_accounts')->withTimestamps();
+    }
+
+    /**
+     * Проверяет, доступен ли аккаунт для назначения новому пользователю
+     *
+     * @return bool
+     */
+    public function isAvailable(): bool
+    {
+        if ($this->max_users === null) {
+            return true; // Без ограничений
+        }
+        return $this->users()->count() < $this->max_users;
+    }
+
+    /**
+     * Получить текущее количество пользователей на аккаунте
+     *
+     * @return int
+     */
+    public function getUsersCountAttribute(): int
+    {
+        return $this->users()->count();
     }
 }

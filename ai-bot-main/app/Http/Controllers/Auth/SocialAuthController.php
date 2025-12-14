@@ -37,12 +37,15 @@ class SocialAuthController extends Controller
     }
 
     /**
-     * Получение информации о пользователе из Google
+     * Получение информации о пользователя из Google
      */
-    public function handleGoogleCallback()
+    public function handleGoogleCallback(Request $request)
     {
         try {
-            Log::info('Google callback begin');
+            Log::info('Google callback begin', [
+                'from_desktop' => $request->has('from_desktop')
+            ]);
+            
             $googleUser = Socialite::driver('google')->user();
 
             Log::info('Google user received', [
@@ -71,13 +74,22 @@ class SocialAuthController extends Controller
                     'google_id' => $googleUser->getId(),
                     'provider' => 'google',
                     'avatar' => $googleUser->getAvatar(),
-                    'password' => Hash::make(Str::random(12)),
+                    'password' => Hash::make(\Illuminate\Support\Str::random(12)),
                 ]);
             }
 
             // Проверка на блокировку
             if ($user->is_blocked) {
                 Log::warning('User blocked', ['id' => $user->id]);
+                
+                // Для desktop возвращаем JSON
+                if ($request->has('from_desktop')) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Ваш аккаунт заблокирован'
+                    ]);
+                }
+                
                 return view('auth.callback', [
                     'success' => false,
                     'error' => 'Ваш аккаунт заблокирован',
@@ -91,7 +103,19 @@ class SocialAuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
             $user->active_services = $user->activeServices();
             $userData = $user->only(['id', 'name', 'email', 'avatar']);
+            $userData['active_services'] = $user->active_services;
 
+            // Для desktop приложения возвращаем JSON
+            if ($request->has('from_desktop')) {
+                Log::info('Returning JSON for desktop app');
+                return response()->json([
+                    'success' => true,
+                    'token' => $token,
+                    'user' => $userData
+                ]);
+            }
+
+            // Для web возвращаем HTML с postMessage
             return view('auth.callback', [
                 'success' => true,
                 'token' => $token,
@@ -105,6 +129,14 @@ class SocialAuthController extends Controller
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
+
+            // Для desktop возвращаем JSON
+            if ($request->has('from_desktop')) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Ошибка авторизации: ' . $e->getMessage()
+                ]);
+            }
 
             return view('auth.callback', [
                 'success' => false,
@@ -121,8 +153,16 @@ class SocialAuthController extends Controller
         try {
             $telegramData = $request->all();
 
+            Log::info('Telegram callback', [
+                'from_desktop' => $request->has('from_desktop'),
+                'has_id' => isset($telegramData['id'])
+            ]);
+
             if (!$this->validateTelegramData($telegramData)) {
-                return response()->json(['error' => 'Invalid Telegram data'], 401);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Invalid Telegram data'
+                ], 401);
             }
 
             $user = User::where('telegram_id', $telegramData['id'])->first();
@@ -157,15 +197,28 @@ class SocialAuthController extends Controller
             }
 
             if ($user->is_blocked) {
-                return response()->json(['error' => 'Account blocked'], 403);
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Account blocked'
+                ], 403);
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
             $user->active_services = $user->activeServices();
+            $userData = $user->only(['id', 'name', 'email', 'avatar', 'telegram_username']);
+            $userData['active_services'] = $user->active_services;
 
-            return response()->json(['token' => $token, 'user' => $user]);
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'user' => $userData
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            Log::error('Telegram callback error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

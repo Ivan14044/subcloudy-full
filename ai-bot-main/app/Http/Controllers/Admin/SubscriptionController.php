@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Subscription;
 use App\Models\Service;
 use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
@@ -42,7 +43,7 @@ class SubscriptionController extends Controller
             ? redirect($request->input('return_url'))
             : redirect()->route('admin.subscriptions.index');
 
-        return $redirectUrl->with('success', 'Subscription successfully created.');
+        return $redirectUrl->with('success', __('admin.subscription.created'));
     }
 
     public function edit(Subscription $subscription)
@@ -65,7 +66,7 @@ class SubscriptionController extends Controller
             ? redirect($request->input('return_url'))
             : redirect()->route('admin.subscriptions.index');
 
-        return $redirectUrl->with('success', 'Subscription successfully updated.');
+        return $redirectUrl->with('success', __('admin.subscription.updated'));
     }
 
     public function destroy(Request $request, Subscription $subscription)
@@ -76,17 +77,32 @@ class SubscriptionController extends Controller
             ? redirect($request->input('return_url'))
             : redirect()->route('admin.subscriptions.index');
 
-        return $redirectUrl->with('success', 'Subscription successfully deleted.');
+        return $redirectUrl->with('success', __('admin.subscription.deleted'));
     }
 
-    public function transactions(Subscription $subscription)
+    public function transactions(Request $request, Subscription $subscription)
     {
-        $transactions = $subscription->transactions()
-            ->orderByDesc('created_at')
-            ->get();
+        $query = $subscription->transactions();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        $transactions = $query->orderByDesc('created_at')->get();
         $user = $subscription->user;
 
         return view('admin.subscriptions.transactions', compact('transactions', 'subscription', 'user'));
+    }
+
+    public function updateTransactionStatus(Request $request, Transaction $transaction)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'in:pending,completed,failed,refunded'],
+        ]);
+
+        $transaction->update(['status' => $validated['status']]);
+
+        return redirect()->back()->with('success', __('admin.transaction_status.updated'));
     }
 
     public function updateNextPayment(Request $request, Subscription $subscription)

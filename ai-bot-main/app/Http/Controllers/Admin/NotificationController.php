@@ -57,14 +57,14 @@ class NotificationController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.notifications.index')->with('success', 'Notifications successfully created.');
+        return redirect()->route('admin.notifications.index')->with('success', __('admin.notification.created'));
     }
 
     public function destroy(Notification $notification)
     {
         $notification->delete();
 
-        return redirect()->route('admin.notifications.index')->with('success', 'Notification successfully deleted.');
+        return redirect()->route('admin.notifications.index')->with('success', __('admin.notification.deleted'));
     }
 
     private function getRules($id = false)

@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Settings')
+@section('title', __('admin.settings'))
 
 @section('content_header')
-    <h1>Settings</h1>
+    <h1>{{ __('admin.settings') }}</h1>
 @stop
 
 @section('content')
@@ -20,19 +20,19 @@
                         <li class="nav-item">
                             <a class="nav-link active"
                                id="tab_subscriptions" data-toggle="pill" href="#content_subscriptions" role="tab">
-                                Subscriptions settings
+                                Настройки подписок
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link"
                                id="tab_header_menu" data-toggle="pill" href="#content_header_menu" role="tab">
-                                Header menu
+                                Меню шапки
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link"
                                id="tab_footer_menu" data-toggle="pill" href="#content_footer_menu" role="tab">
-                                Footer menu
+                                Меню подвала
                             </a>
                         </li>
                         <li class="nav-item">
@@ -57,7 +57,7 @@
                                 <input type="hidden" name="form" value="subscriptions">
                                 @csrf
                                 <div class="form-group">
-                                    <label for="trial_days">Trial days</label>
+                                    <label for="trial_days">Пробные дни</label>
                                     <input type="text" name="trial_days" id="trial_days" class="form-control @error('trial_days') is-invalid @enderror"
                                            value="{{ old('trial_days', \App\Models\Option::get('trial_days')) }}">
                                     @error('trial_days')
@@ -66,7 +66,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="currency">Currency</label>
+                                    <label for="currency">Валюта</label>
                                     <select name="currency" id="currency" class="form-control @error('currency') is-invalid @enderror">
                                         <option value="usd" {{ old('currency', $currency) == 'usd' ? 'selected' : '' }}>USD</option>
                                         <option value="eur" {{ old('currency', $currency) == 'eur' ? 'selected' : '' }}>EUR</option>
@@ -87,7 +87,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="discount_2">Discount for 2 services (%)</label>
+                                    <label for="discount_2">Скидка за 2 сервиса (%)</label>
                                     <input type="number" step="1" min="0" max="99" name="discount_2" id="discount_2" class="form-control @error('discount_2') is-invalid @enderror"
                                            value="{{ old('discount_2', \App\Models\Option::get('discount_2')) }}">
                                     @error('discount_2')
@@ -96,7 +96,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="discount_3">Discount for 3 services (%)</label>
+                                    <label for="discount_3">Скидка за 3 сервиса (%)</label>
                                     <input type="number" step="1" min="0" max="99" name="discount_3" id="discount_3" class="form-control @error('discount_3') is-invalid @enderror"
                                            value="{{ old('discount_3', \App\Models\Option::get('discount_3')) }}">
                                     @error('discount_3')
@@ -104,7 +104,7 @@
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Save</button>
+                                <button type="submit" class="btn btn-primary">{{ __('admin.save') }}</button>
                             </form>
                         </div>
                         <div class="tab-pane" id="content_header_menu" role="tabpanel">
@@ -154,7 +154,7 @@
                                                     <ul class="list-group mb-3 menu-list" data-type="header" data-lang="{{ $code }}"></ul>
                                                 </div>
                                             @endforeach
-                                            <button type="submit" class="btn btn-primary">Save</button>
+                                            <button type="submit" class="btn btn-primary">{{ __('admin.save') }}</button>
                                         </div>
                                     </form>
                                 </div>
@@ -185,10 +185,10 @@
                                                     <div class="mb-4">
                                                         <div class="row g-1 align-items-center">
                                                             <div class="col-md-4">
-                                                                <input type="text" class="form-control" name="title" placeholder="Title">
+                                                                <input type="text" class="form-control" name="title" placeholder="Название">
                                                             </div>
                                                             <div class="col-md-4">
-                                                                <input type="text" class="form-control" name="link" placeholder="Link">
+                                                                <input type="text" class="form-control" name="link" placeholder="Ссылка">
                                                             </div>
                                                             <div class="col-md-2">
                                                                 <div class="form-check">
@@ -207,7 +207,7 @@
                                                     <ul class="list-group mb-3 menu-list" data-type="footer" data-lang="{{ $code }}"></ul>
                                                 </div>
                                             @endforeach
-                                            <button type="submit" class="btn btn-primary">Save</button>
+                                            <button type="submit" class="btn btn-primary">{{ __('admin.save') }}</button>
                                         </div>
                                     </form>
                                 </div>
@@ -217,7 +217,7 @@
                             <form method="POST" action="{{ route('admin.settings.store') }}">
                                 @csrf
                                 <input type="hidden" name="form" value="cookie">
-                                <label for="">Display cookie consent for these countries</label>
+                                <label for="">Отображать согласие на использование cookie для этих стран</label>
                                 <div class="row">
                                     @foreach(config('countries') as $code => $name)
                                         <div class="col-md-4">
@@ -242,7 +242,7 @@
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                <button type="submit" class="btn btn-primary mt-3">{{ __('admin.save') }}</button>
                             </form>
                         </div>
                         <div class="tab-pane" id="content_smtp" role="tabpanel">
@@ -250,7 +250,7 @@
                                 @csrf
                                 <input type="hidden" name="form" value="smtp">
                                 <div class="form-group">
-                                    <label for="from_address">From address</label>
+                                    <label for="from_address">Адрес отправителя</label>
                                     <input type="email" name="from_address" id="from_address"
                                            class="form-control @error('from_address') is-invalid @enderror"
                                            value="{{ old('from_address', \App\Models\Option::get('from_address')) }}">
@@ -259,7 +259,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="from_name">From name</label>
+                                    <label for="from_name">Имя отправителя</label>
                                     <input type="text" name="from_name" id="from_name"
                                            class="form-control @error('from_name') is-invalid @enderror"
                                            value="{{ old('from_name', \App\Models\Option::get('from_name')) }}">
@@ -268,7 +268,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="host">Host</label>
+                                    <label for="host">Хост</label>
                                     <input type="text" name="host" id="host"
                                            class="form-control @error('host') is-invalid @enderror"
                                            value="{{ old('host', \App\Models\Option::get('host')) }}">
@@ -277,7 +277,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="port">Port</label>
+                                    <label for="port">Порт</label>
                                     <input type="text" name="port" id="port"
                                            class="form-control @error('port') is-invalid @enderror"
                                            value="{{ old('port', \App\Models\Option::get('port')) }}">
@@ -286,7 +286,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="encryption">Encryption</label>
+                                    <label for="encryption">Шифрование</label>
                                     <input type="text" name="encryption" id="encryption"
                                            class="form-control @error('encryption') is-invalid @enderror"
                                            value="{{ old('encryption', \App\Models\Option::get('encryption')) }}">
@@ -295,7 +295,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="username">Username</label>
+                                    <label for="username">Имя пользователя</label>
                                     <input type="text" name="username" id="username"
                                            class="form-control @error('username') is-invalid @enderror"
                                            value="{{ old('username', \App\Models\Option::get('username')) }}">
@@ -304,7 +304,7 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="password">Password</label>
+                                    <label for="password">Пароль</label>
                                     <input type="text" name="password" id="password"
                                            class="form-control @error('password') is-invalid @enderror"
                                            value="{{ old('password', \App\Models\Option::get('password')) }}">
@@ -313,7 +313,7 @@
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-primary mt-3">Save</button>
+                                <button type="submit" class="btn btn-primary mt-3">{{ __('admin.save') }}</button>
                             </form>
                         </div>
                         

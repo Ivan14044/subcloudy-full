@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Add page')
+@section('title', __('admin.add_page'))
 
 @section('content_header')
-    <h1>Add page</h1>
+    <h1>{{ __('admin.add_page') }}</h1>
 @stop
 
 @section('content')
@@ -11,13 +11,13 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Page data</h3>
+                    <h3 class="card-title">{{ __('admin.page_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.pages.store') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name">{{ __('admin.name') }}</label>
                             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
                             @error('name')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -26,7 +26,7 @@
 
                         @csrf
                         <div class="form-group">
-                            <label for="slug">Slug</label>
+                            <label for="slug">{{ __('admin.slug') }}</label>
                             <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}">
                             @error('slug')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -34,10 +34,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -63,7 +63,7 @@
                                     @foreach(config('langs') as $code => $flag)
                                         <div class="tab-pane fade show {{ $code == 'en' ? 'active' : null }}" id="tab_content_{{ $code }}" role="tabpanel">
                                             <div class="form-group">
-                                                <label for="meta_title_{{ $code }}">Meta title</label>
+                                                <label for="meta_title_{{ $code }}">Мета заголовок</label>
                                                 <input type="text" name="meta_title[{{ $code }}]" id="meta_title_{{ $code }}"
                                                        class="form-control @error('meta_title_.' . $code) is-invalid @enderror"
                                                        value="{{ old('meta_title_.' . $code) }}">
@@ -72,7 +72,7 @@
                                                 @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label for="meta_description_{{ $code }}">Meta description</label>
+                                                <label for="meta_description_{{ $code }}">Мета описание</label>
                                                 <input type="text" name="meta_description[{{ $code }}]" id="meta_description_{{ $code }}"
                                                        class="form-control @error('meta_description_.' . $code) is-invalid @enderror"
                                                        value="{{ old('meta_description_.' . $code) }}">
@@ -105,8 +105,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

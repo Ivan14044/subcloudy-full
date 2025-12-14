@@ -222,7 +222,8 @@ class CryptomusController extends Controller
                     'amount' => ($promoType === 'free_access' && $promoFreeMap->has($service->id)) ? 0.00 : $service->amount,
                     'currency' => Option::get('currency'),
                     'payment_method' => 'crypto',
-                    'subscription_id' => $subId
+                    'subscription_id' => $subId,
+                    'status' => \App\Models\Transaction::STATUS_COMPLETED,
                 ]);
 
                 $totalAmount += $service->amount;

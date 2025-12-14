@@ -49,7 +49,7 @@
     "price_monthly": "<strong>{price} {currency}</strong> 每月",
     "add_to_cart": "添加到购物车",
     "go_to_checkout": "前往结算",
-    "open": "打开浏览器",
+    "open": "在应用中使用",
     "get_trial": "获取试用",
     "trial_period": "{price} 试用"
   },
@@ -278,5 +278,14 @@
   "savings": {
     "title": "您在订阅中的<span class='gradient-text'>节省</span>",
     "description": "少花钱 — 获得同样的服务，无需多付。"
+  },
+  "downloadApp": {
+    "title": "使用桌面应用程序",
+    "description": "要使用该服务，您需要下载并安装 SubCloudy 桌面应用程序",
+    "info": "安装应用程序后，您将能够直接从应用程序中打开和使用所有订阅。",
+    "windows": "下载 Windows 版",
+    "macos": "下载 macOS 版",
+    "back": "返回",
+    "note": "该应用程序适用于 Windows 和 macOS"
   }
 }

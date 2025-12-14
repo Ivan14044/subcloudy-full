@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Service accounts')
+@section('title', __('admin.service_accounts'))
 
 @section('content_header')
-    <h1>Service accounts</h1>
+    <h1>{{ __('admin.service_accounts') }}</h1>
 @stop
 
 @section('content')
@@ -15,21 +15,23 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service account list</h3>
-                    <a href="{{ route('admin.service-accounts.create') }}" class="btn btn-primary float-right">+ Add</a>
+                    <h3 class="card-title">{{ __('admin.service_accounts_list') }}</h3>
+                    <a href="{{ route('admin.service-accounts.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                 </div>
                 <div class="card-body">
                     <table id="service-accounts-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Service</th>
-                            <th>Status</th>
-                            <th>Used</th>
-                            <th>Last used at</th>
-                            <th>Created at</th>
-                            <th>Expiring at</th>
-                            <th style="width: 70px">Action</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.service') }}</th>
+                            <th>{{ __('admin.login') }}</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th>{{ __('admin.users') }}</th>
+                            <th>{{ __('admin.used') }}</th>
+                            <th>{{ __('admin.last_used_at') }}</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th>{{ __('admin.expiring_at') }}</th>
+                            <th style="width: 70px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -46,11 +48,37 @@
                                     {{ $serviceAccount->service->admin_name }}
                                 </td>
                                 <td>
-                                    @if(!$serviceAccount->is_active)
-                                        <span class="badge badge-danger">Inactive</span>
+                                    @if(!empty($serviceAccount->credentials['email']))
+                                        <span class="text-muted">{{ $serviceAccount->credentials['email'] }}</span>
                                     @else
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="text-muted">—</span>
                                     @endif
+                                </td>
+                                <td>
+                                    @if(!$serviceAccount->is_active)
+                                        <span class="badge badge-danger">{{ __('admin.inactive') }}</span>
+                                    @else
+                                        <span class="badge badge-success">{{ __('admin.active') }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    @php
+                                        $usersCount = $serviceAccount->users_count ?? 0;
+                                        $maxUsers = $serviceAccount->max_users;
+                                    @endphp
+                                    <span class="text-muted">
+                                        <strong>{{ $usersCount }}</strong>
+                                        @if($maxUsers !== null)
+                                            <span>/ {{ $maxUsers }}</span>
+                                            @if($usersCount >= $maxUsers)
+                                                <span class="badge badge-warning ml-1" title="{{ __('admin.limit_reached') }}">!</span>
+                                            @elseif($usersCount >= ($maxUsers * 0.8))
+                                                <span class="badge badge-info ml-1" title="{{ __('admin.near_limit') }}">~</span>
+                                            @endif
+                                        @else
+                                            <span>/ ∞</span>
+                                        @endif
+                                    </span>
                                 </td>
                                 <td>{{ $serviceAccount->used }}</td>
                                 <td data-order="{{ strtotime($serviceAccount->last_used_at) }}">
@@ -78,14 +106,14 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this account?
+                                                    {{ __('admin.are_you_sure_delete_service_account') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form
@@ -93,11 +121,11 @@
                                                         method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}
                                                         </button>
                                                     </form>
                                                     <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal">Cancel
+                                                            data-dismiss="modal">{{ __('admin.cancel') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -120,7 +148,7 @@
             $('#service-accounts-table').DataTable({
                 "order": [[0, "desc"]],
                 "columnDefs": [
-                    {"orderable": false, "targets": 6}
+                    {"orderable": false, "targets": 8}
                 ]
             });
         });

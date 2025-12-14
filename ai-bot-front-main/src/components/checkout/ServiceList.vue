@@ -56,11 +56,11 @@
                         </div>
                         <div class="text-right xl:flex xl:items-center">
                             <div class="text-lg font-bold">
-                                {{ cartStore.isFree(item.id) ? formatter.format(0) : formatter.format(item.trial_amount) }}
+                                {{ formatter && formatter.format ? (cartStore.isFree(item.id) ? formatter.format(0) : formatter.format(item.trial_amount)) : '0.00' }}
                             </div>
                             <div class="text-xs text-dark dark:text-white xl:ml-2">
                                 <span class="hidden xl:!inline-flex mr-1"> / </span>
-                                {{ pluralizeDays(optionStore.options.trial_days, locale) }}
+                                {{ pluralizeDays(optionStore.options?.trial_days || 3, locale) }}
                             </div>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                         </div>
                         <div class="text-right xl:flex xl:items-center">
                             <div class="text-lg font-bold">
-                                {{ cartStore.isFree(item.id) ? formatter.format(0) : formatter.format(item.amount) }}
+                                {{ formatter && formatter.format ? (cartStore.isFree(item.id) ? formatter.format(0) : formatter.format(item.amount)) : '0.00' }}
                             </div>
                             <div class="text-xs text-dark dark:text-white xl:ml-2">
                                 <span class="hidden xl:!inline-flex mr-1"> / </span
@@ -98,6 +98,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useCartStore } from '@/stores/cart';
 import { usePromoStore } from '@/stores/promo';
 import { useOptionStore } from '@/stores/options';
@@ -112,11 +113,24 @@ const optionStore = useOptionStore();
 const { locale, t } = useI18n();
 const { showConfirm } = useAlert();
 
-const formatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: optionStore.options.currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
+const formatter = computed(() => {
+    try {
+        const currency = optionStore.options?.currency || 'USD';
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    } catch (error) {
+        // Fallback formatter if Intl.NumberFormat fails
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+    }
 });
 
 const getTranslation = (service: any, key: string) => {
@@ -163,6 +177,7 @@ const isPromoFreeLocked = (id: number) => {
         promoStore.result.type === 'free_access'
     );
 };
+
 </script>
 
 <style scoped>

@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Administrators')
+@section('title', __('admin.admins'))
 
 @section('content_header')
-    <h1>Administrators</h1>
+    <h1>{{ __('admin.admins') }}</h1>
 @stop
 
 @section('content')
@@ -15,19 +15,19 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Administrators list</h3>
-                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary float-right">+ Add</a>
+                    <h3 class="card-title">{{ __('admin.admins_list') }}</h3>
+                    <a href="{{ route('admin.admins.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                 </div>
                 <div class="card-body">
                     <table id="admins-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Created at</th>
-                            <th style="width: 110px">Action</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.name') }}</th>
+                            <th>{{ __('admin.email') }}</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th style="width: 110px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,9 +38,9 @@
                                 <td>{{ $user->email }}</td>
                                 <td>
                                     @if($user->is_blocked)
-                                        <span class="badge badge-danger">Blocked</span>
+                                        <span class="badge badge-danger">{{ __('admin.blocked') }}</span>
                                     @else
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-success">{{ __('admin.active') }}</span>
                                     @endif
                                 </td>
                                 <td data-order="{{ strtotime($user->created_at) }}">
@@ -63,21 +63,21 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this admin?
+                                                    {{ __('admin.are_you_sure_delete_admin') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form action="{{ route('admin.admins.destroy', $user) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
                                                     </form>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -87,20 +87,20 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="blockModalLabel">{{ $user->is_blocked ? 'Unblock' : 'Block' }} User</h5>
+                                                    <h5 class="modal-title" id="blockModalLabel">{{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }} {{ __('admin.admins') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to {{ $user->is_blocked ? 'unblock' : 'block' }} this admin?
+                                                    {{ $user->is_blocked ? __('admin.are_you_sure_unblock') : __('admin.are_you_sure_block') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form action="{{ route('admin.admins.block', $user) }}" method="POST" class="d-inline">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-warning">{{ $user->is_blocked ? 'Unblock' : 'Block' }}</button>
+                                                        <button type="submit" class="btn btn-warning">{{ $user->is_blocked ? __('admin.unblock') : __('admin.block') }}</button>
                                                     </form>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </div>
                                         </div>

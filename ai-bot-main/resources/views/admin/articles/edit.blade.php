@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit Article')
+@section('title', __('admin.edit_article'))
 
 @section('content_header')
-    <h1>Edit Article</h1>
+    <h1>{{ __('admin.edit_article') }}</h1>
 @endsection
 
 @section('content')
@@ -17,12 +17,12 @@
                         @method('PUT')
 
                         <div class="form-group">
-                            <label for="categories">Categories</label>
+                            <label for="categories">{{ __('admin.categories') }}</label>
                             <select name="categories[]" id="categories" class="select2 form-control @error('categories') is-invalid @enderror" multiple>
                                 @php($selected = $article->categories->pluck('id')->toArray())
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" {{ in_array($category->id, old('categories', $selected)) ? 'selected' : '' }}>
-                                        {{ $category->admin_name ?? 'Category #' . $category->id }}
+                                        {{ $category->admin_name ?? 'Категория #' . $category->id }}
                                     </option>
                                 @endforeach
                             </select>
@@ -32,10 +32,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ $article->status == 'published' ? 'selected' : '' }}>Published</option>
-                                <option value="0" {{ $article->status == 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="1" {{ $article->status == 'published' ? 'selected' : '' }}>{{ __('admin.published') }}</option>
+                                <option value="0" {{ $article->status == 'draft' ? 'selected' : '' }}>{{ __('admin.draft') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -43,7 +43,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="img">Article Image</label>
+                            <label for="img">{{ __('admin.image') }}</label>
                             @if($article->img)
                                 <input type="hidden" name="img_text" value="{{ $article->img }}">
                             @endif
@@ -51,7 +51,7 @@
                             @if ($article->img)
                                 <div id="articleImage" class="mt-2">
                                     <img src="{{ url($article->img) }}" class="img-fluid img-bordered" style="width: 150px;">
-                                    <a href="#" onclick="removeArticleImage(event)" class="d-block mt-1">Delete</a>
+                                    <a href="#" onclick="removeArticleImage(event)" class="d-block mt-1">{{ __('admin.delete') }}</a>
                                 </div>
                             @endif
                             @error('img')
@@ -117,9 +117,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </section>

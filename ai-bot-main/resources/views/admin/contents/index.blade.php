@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Contents')
+@section('title', __('admin.contents'))
 
 @section('content_header')
-    <h1>Contents</h1>
+    <h1>{{ __('admin.contents') }}</h1>
 @stop
 
 @section('content')
@@ -15,17 +15,17 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Contents list</h3>
-                    <a href="{{ route('admin.contents.create') }}" class="btn btn-primary float-right">+ Add</a>
+                    <h3 class="card-title">{{ __('admin.contents_list') }}</h3>
+                    <a href="{{ route('admin.contents.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                 </div>
                 <div class="card-body">
                     <table id="contents-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Name</th>
-                            <th>Code</th>
-                            <th style="width: 110px">Action</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.name') }}</th>
+                            <th>{{ __('admin.code') }}</th>
+                            <th style="width: 110px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -48,22 +48,21 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                        <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        This will permanently delete the content.
-                                                        Are you sure you want to continue?
+                                                        {{ __('admin.are_you_sure_delete_content') }}
                                                     </div>
                                                     <div class="modal-footer">
                                                         <form action="{{ route('admin.contents.destroy', $content) }}" method="POST" class="d-inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                            <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
                                                         </form>
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                     </div>
                                                 </div>
                                             </div>

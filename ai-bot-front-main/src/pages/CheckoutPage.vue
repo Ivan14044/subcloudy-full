@@ -1,7 +1,7 @@
 <template>
     <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative z-1">
         <div
-            v-if="cartStore.items.length"
+            v-if="hasCartItems"
             class="mx-auto grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem]"
         >
             <div class="flex items-center justify-between mt-6 mb-2 lg:col-span-2">
@@ -280,9 +280,13 @@ const isApplied = computed(
     () => !!promo.code && !!promo.result && !promo.error && promo.code === inputCode.value
 );
 
+// Computed property for cart items check
+const hasCartItems = computed(() => cartStore.items.length > 0);
+
 // Discounts (from options, only if > 0)
 const itemCount = computed(() => cartStore.items.length);
 const discountPercent = computed(() => {
+    if (!optionStore.options) return 0;
     const d2 = Number(optionStore.options.discount_2 || 0);
     const d3 = Number(optionStore.options.discount_3 || 0);
     if (itemCount.value >= 3) return d3 > 0 ? d3 : 0;
@@ -304,6 +308,7 @@ const isZeroTotalWithServices = computed(
 );
 
 const upsellPercent = computed(() => {
+    if (!optionStore.options) return 0;
     const d2 = Number(optionStore.options.discount_2 || 0);
     const d3 = Number(optionStore.options.discount_3 || 0);
     if (itemCount.value === 1) return d2 > 0 ? d2 : 0;
@@ -312,7 +317,8 @@ const upsellPercent = computed(() => {
 });
 
 const formatCurrency = (value: number) => {
-    return `${value.toFixed(2)} ${optionStore.options.currency.toUpperCase()}`;
+    const currency = (optionStore.options?.currency || 'USD').toUpperCase();
+    return `${value.toFixed(2)} ${currency}`;
 };
 
 const nextPaymentPerItem = computed(() => {

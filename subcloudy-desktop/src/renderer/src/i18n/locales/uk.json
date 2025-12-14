@@ -1,0 +1,82 @@
+{
+  "auth": {
+    "loginTitle": "Вхід в систему",
+    "loginSubtitle": "Введіть ваші дані для доступу до сервісів",
+    "email": "Електронна пошта",
+    "password": "Пароль",
+    "rememberMe": "Запам'ятати мене",
+    "forgotPassword": "Забули пароль?",
+    "loginButton": "Увійти",
+    "signingIn": "Виконується вхід...",
+    "noAccount": "Немає акаунта?",
+    "register": "Зареєструватися",
+    "loginWith": "Або увійдіть за допомогою",
+    "subscriptions": "Мої підписки",
+    "profile": "Профіль"
+  },
+  "services": {
+    "title": "Ваші сервіси",
+    "logout": "Вийти",
+    "loading": "Завантаження ваших сервісів...",
+    "noServices": "Немає активних сервісів",
+    "noServicesDesc": "У вас поки немає активних підписок.",
+    "browseServices": "Переглянути сервіси на сайті",
+    "activeServices": "Ваші активні сервіси",
+    "clickToLaunch": "Натисніть на зелену кнопку щоб запустити сервіс",
+    "launchError": "Не вдалося запустити сервіс",
+    "openService": "Відкрити сервіс",
+    "backToServices": "Назад до сервісів",
+    "card": {
+      "show_more": "Показати більше",
+      "back_to_front_side": "Торкніться картки, щоб повернутися"
+    }
+  },
+  "subscriptions": {
+    "title": "Мої підписки",
+    "active_tab": "Активні",
+    "inactive_tab": "Неактивні",
+    "month": "міс",
+    "days_left": "днів залишилось",
+    "expires_on": "Закінчується",
+    "expires_soon": "⚠️ Скоро закінчується!",
+    "expires_very_soon": "⚠️ Закінчується дуже скоро!",
+    "expires_tomorrow": "⚠️ Закінчується завтра!",
+    "next_payment": "Наступний платіж",
+    "payment_method_label": "Спосіб оплати",
+    "created_label": "Створена",
+    "next_payment_label": "Наступний платіж",
+    "cancel": "Скасувати підписку",
+    "renew": "Відновити",
+    "status_active": "✓ Активна",
+    "status_canceled": "✗ Скасована",
+    "status_ended": "Завершена",
+    "cancel_confirm": "Ви впевнені, що хочете скасувати автопродовження? Підписка буде активна до кінця оплаченого періоду.",
+    "renew_confirm": "Відновити автоматичне продовження підписки?",
+    "toggle_success": "Підписка успішно оновлена!",
+    "toggle_error": "Помилка зміни підписки",
+    "empty_active": "У вас немає активних підписок",
+    "empty_inactive": "У вас немає завершених підписок",
+    "loading": "Завантаження підписок..."
+  },
+  "profile": {
+    "title": "Налаштування профілю",
+    "name": "Ім'я",
+    "email": "Email",
+    "password": "Новий пароль",
+    "confirmPassword": "Підтвердіть пароль",
+    "namePlaceholder": "Ваше ім'я",
+    "emailPlaceholder": "your@@email.com",
+    "passwordPlaceholder": "Залиште пустим, щоб не змінювати",
+    "confirmPasswordPlaceholder": "Повторіть новий пароль",
+    "saveButton": "Зберегти зміни",
+    "saving": "Збереження...",
+    "success": "✅ Профіль успішно оновлено!",
+    "error": "❌ Помилка оновлення профілю",
+    "passwordMismatch": "Паролі не співпадають"
+  },
+  "checkout": {
+    "credit_card": "Банківська картка",
+    "crypto": "Криптовалюта"
+  }
+}
+

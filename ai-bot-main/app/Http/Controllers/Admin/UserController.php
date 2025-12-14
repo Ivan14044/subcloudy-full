@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Service;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -52,7 +54,7 @@ class UserController extends Controller
             ],
         ]);
 
-        return redirect()->route('admin.users.index')->with('success', 'User successfully created.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.user.created'));
     }
 
     public function edit(User $user)
@@ -95,14 +97,14 @@ class UserController extends Controller
             ? route('admin.users.edit', $user->id)
             : route('admin.users.index');
 
-        return redirect($route)->with('success', 'User successfully updated.');
+        return redirect($route)->with('success', __('admin.user.updated'));
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'User successfully deleted.');
+        return redirect()->route('admin.users.index')->with('success', __('admin.user.deleted'));
     }
 
     public function block(User $user)
@@ -191,5 +193,91 @@ class UserController extends Controller
             ->get();
 
         return view('admin.subscriptions.index', compact('subscriptions', 'user'));
+    }
+
+    public function bulkUpdateStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|exists:users,id',
+            'status' => 'required|in:active,blocked,pending',
+        ]);
+
+        $userIds = $validated['user_ids'];
+        $status = $validated['status'];
+
+        DB::transaction(function () use ($userIds, $status) {
+            foreach ($userIds as $userId) {
+                $user = User::find($userId);
+                if ($user && !$user->is_admin) {
+                    switch ($status) {
+                        case 'active':
+                            $user->is_blocked = 0;
+                            $user->is_pending = 0;
+                            break;
+                        case 'blocked':
+                            $user->is_blocked = 1;
+                            $user->is_pending = 0;
+                            break;
+                        case 'pending':
+                            $user->is_blocked = 0;
+                            $user->is_pending = 1;
+                            break;
+                    }
+                    $user->save();
+                }
+            }
+        });
+
+        $count = count($userIds);
+        return redirect()->route('admin.users.index')
+            ->with('success', __('admin.bulk_operation_success', ['count' => $count]));
+    }
+
+    public function bulkAddFreeDays(Request $request)
+    {
+        $validated = $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|exists:users,id',
+            'days' => 'required|integer|min:1|max:365',
+            'service_id' => 'nullable|integer|exists:services,id',
+        ]);
+
+        $userIds = $validated['user_ids'];
+        $days = $validated['days'];
+        $serviceId = $validated['service_id'] ?? null;
+
+        DB::transaction(function () use ($userIds, $days, $serviceId) {
+            foreach ($userIds as $userId) {
+                $user = User::find($userId);
+                if ($user && !$user->is_admin) {
+                    $query = Subscription::where('user_id', $userId)
+                        ->where('status', Subscription::STATUS_ACTIVE);
+
+                    if ($serviceId) {
+                        $query->where('service_id', $serviceId);
+                    }
+
+                    $subscriptions = $query->get();
+
+                    foreach ($subscriptions as $subscription) {
+                        $currentDate = $subscription->next_payment_at 
+                            ? Carbon::parse($subscription->next_payment_at)
+                            : Carbon::now();
+                        
+                        if ($currentDate->lt(Carbon::now())) {
+                            $currentDate = Carbon::now();
+                        }
+
+                        $subscription->next_payment_at = $currentDate->addDays($days);
+                        $subscription->save();
+                    }
+                }
+            }
+        });
+
+        $count = count($userIds);
+        return redirect()->route('admin.users.index')
+            ->with('success', __('admin.bulk_operation_success', ['count' => $count]));
     }
 }

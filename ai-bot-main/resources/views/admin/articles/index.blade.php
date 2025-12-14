@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Articles')
+@section('title', __('admin.articles'))
 
 @section('content_header')
-    <h1>Articles</h1>
+    <h1>{{ __('admin.articles') }}</h1>
 @endsection
 
 @section('content')
@@ -15,21 +15,21 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Articles list</h3>
-                    <a href="{{ route('admin.articles.create') }}" class="btn btn-primary float-right">+ Add</a>
-                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary float-right mr-2">Categories</a>
+                    <h3 class="card-title">{{ __('admin.articles_list') }}</h3>
+                    <a href="{{ route('admin.articles.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
+                    <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary float-right mr-2">{{ __('admin.categories') }}</a>
                 </div>
                 <div class="card-body">
                     <table id="articles-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Image</th>
-                            <th>Status</th>
-                            <th>Created at</th>
-                            <th style="width: 90px">Actions</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.name') }}</th>
+                            <th>Категория</th>
+                            <th>Изображение</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th style="width: 90px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -55,9 +55,9 @@
                                 </td>
                                 <td>
                                     @if ($article->status === 'published')
-                                        <span class="badge badge-success">Published</span>
+                                        <span class="badge badge-success">Опубликовано</span>
                                     @else
-                                        <span class="badge badge-warning text-dark">Draft</span>
+                                        <span class="badge badge-warning text-dark">Черновик</span>
                                     @endif
                                 </td>
                                 <td data-order="{{ strtotime($article->created_at) }}">
@@ -81,14 +81,14 @@
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="deleteModalLabel{{ $article->id }}">
-                                                        Confirm Deletion</h5>
+                                                        {{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this article?
+                                                    {{ __('admin.are_you_sure_delete_article') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form
@@ -96,11 +96,11 @@
                                                         method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}
                                                         </button>
                                                     </form>
                                                     <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal">Cancel
+                                                            data-dismiss="modal">{{ __('admin.cancel') }}
                                                     </button>
                                                 </div>
                                             </div>

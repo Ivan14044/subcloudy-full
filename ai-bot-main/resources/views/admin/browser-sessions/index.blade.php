@@ -1,18 +1,18 @@
 @extends('adminlte::page')
 
-@section('title', 'Browser Sessions')
+@section('title', __('admin.browser_sessions'))
 
 @section('content_header')
     <div class="d-flex align-items-center w-100">
-        <h1 class="mb-0">Browser Sessions</h1>
+        <h1 class="mb-0">{{ __('admin.browser_sessions') }}</h1>
         <div class="ml-auto d-flex align-items-center">
             <div class="btn-group" role="group">
                 <button id="manual-refresh" class="btn btn-sm btn-outline-primary">
-                    <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    <i class="fas fa-sync-alt mr-1"></i> Обновить
                 </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary">
                     <label class="mb-0 d-flex align-center justify-content-center" style="cursor: pointer; gap: 5px">
-                        <input type="checkbox" id="auto-refresh-checkbox"> Auto-refresh (30s)
+                        <input type="checkbox" id="auto-refresh-checkbox"> Автообновление (30с)
                     </label>
                 </button>
             </div>
@@ -38,16 +38,16 @@
 
             <div class="card">
                 <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title">Active Sessions</h3>
+                    <h3 class="card-title">Активные сессии</h3>
                     <div class="ml-auto">
                         <form action="{{ route('admin.browser-sessions.start') }}" method="POST" class="d-inline">
                             @csrf
-                            <button type="submit" class="btn btn-primary">+ Start</button>
+                            <button type="submit" class="btn btn-primary">+ Запустить</button>
                         </form>
                         <form action="{{ route('admin.browser-sessions.stop-all') }}" method="POST" class="d-inline ml-2" id="stop-all-form">
                             @csrf
                             <input type="hidden" name="clean" value="1">
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmStopAllModal">Stop All</button>
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#confirmStopAllModal">Остановить все</button>
                         </form>
                     </div>
                 </div>
@@ -58,13 +58,13 @@
                     <table id="browser-sessions-table" class="table table-bordered table-striped" style="min-height: 130px">
                         <thead>
                         <tr>
-                            <th style="width: 80px">Port</th>
+                            <th style="width: 80px">Порт</th>
                             <th style="width: 120px">PID</th>
-                            <th style="width: 220px">User</th>
+                            <th style="width: 220px">{{ __('admin.user') }}</th>
                             <th>URL</th>
-                            <th style="width: 160px">Uptime</th>
-                            <th style="width: 120px">Active</th>
-                            <th style="width: 60px">Action</th>
+                            <th style="width: 160px">Время работы</th>
+                            <th style="width: 120px">{{ __('admin.active') }}</th>
+                            <th style="width: 60px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody id="sessions-body">
@@ -123,17 +123,17 @@
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title">Stop Session</h5>
+                                <h5 class="modal-title">Остановить сессию</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                               </div>
-                              <div class="modal-body">Are you sure you want to stop session with PID ${s.xpra_pid}?</div>
+                              <div class="modal-body">Вы уверены, что хотите остановить сессию с PID ${s.xpra_pid}?</div>
                               <div class="modal-footer">
                                 <form action="{{ route('admin.browser-sessions.stop-pid') }}" method="POST" class="d-inline">
                                   @csrf
                                   <input type="hidden" name="pid" value="${s.xpra_pid}">
-                                  <button type="submit" class="btn btn-danger">Stop</button>
+                                  <button type="submit" class="btn btn-danger">Остановить</button>
                                 </form>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                               </div>
                             </div>
                           </div>
@@ -154,17 +154,17 @@
                           <div class="modal-dialog" role="document">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title">Stop Session</h5>
+                                <h5 class="modal-title">Остановить сессию</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                               </div>
-                              <div class="modal-body">Are you sure you want to stop session with PID ${s.xpra_pid}?</div>
+                              <div class="modal-body">Вы уверены, что хотите остановить сессию с PID ${s.xpra_pid}?</div>
                               <div class="modal-footer">
                                 <form action="{{ route('admin.browser-sessions.stop-pid') }}" method="POST" class="d-inline">
                                   @csrf
                                   <input type="hidden" name="pid" value="${s.xpra_pid}">
-                                  <button type="submit" class="btn btn-danger">Stop</button>
+                                  <button type="submit" class="btn btn-danger">Остановить</button>
                                 </form>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                               </div>
                             </div>
                           </div>
@@ -247,13 +247,13 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Stop All Sessions</h5>
+        <h5 class="modal-title">Остановить все сессии</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
-      <div class="modal-body">This will stop all sessions and clean profiles. Continue?</div>
+      <div class="modal-body">Это остановит все сессии и очистит профили. Продолжить?</div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="confirmStopAllSubmit">Stop All</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmStopAllSubmit">Остановить все</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
       </div>
     </div>
   </div>

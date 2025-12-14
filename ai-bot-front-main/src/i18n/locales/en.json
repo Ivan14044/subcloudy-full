@@ -49,7 +49,7 @@
     "price_monthly": "<strong>{price} {currency}</strong> per month",
     "add_to_cart": "Add to cart",
     "go_to_checkout": "Go to Checkout",
-    "open": "Open browser",
+    "open": "Use in app",
     "get_trial": "Get Trial",
     "trial_period": "{price} Trial"
   },
@@ -278,5 +278,14 @@
   "savings": {
     "title": "Your <span class='gradient-text'>savings</span> on subscriptions",
     "description": "Pay less — get the same services without overpaying."
+  },
+  "downloadApp": {
+    "title": "Use desktop application",
+    "description": "To use the service, you need to download and install the SubCloudy desktop application",
+    "info": "After installing the application, you will be able to open and use all your subscriptions directly from the application.",
+    "windows": "Download for Windows",
+    "macos": "Download for macOS",
+    "back": "Back",
+    "note": "The application is available for Windows and macOS"
   }
 }

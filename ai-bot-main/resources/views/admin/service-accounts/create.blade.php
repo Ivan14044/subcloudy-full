@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Add service account')
+@section('title', __('admin.add_service_account'))
 
 @section('content_header')
-    <h1>Add service account</h1>
+    <h1>{{ __('admin.add_service_account') }}</h1>
 @stop
 
 @section('content')
@@ -11,13 +11,13 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service account data</h3>
+                    <h3 class="card-title">{{ __('admin.service_account_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.service-accounts.store') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="type">Service</label>
+                            <label for="type">{{ __('admin.service') }}</label>
                             <select name="service_id" id="service_id"
                                     class="form-control @error('service_id') is-invalid @enderror">
                                 @foreach($services as $service)
@@ -37,11 +37,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active"
                                     class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -59,22 +59,15 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="profile_id">Profile ID</label>
-                            <div class="input-group">
-                                <input type="text" name="profile_id" id="profile_id" readonly
-                                       class="form-control @error('profile_id') is-invalid @enderror"
-                                       value="{{ old('profile_id') }}">
-                                <input type="hidden" name="session_pid" id="session_pid"
-                                       value="{{ old('session_pid') }}">
-                                <input type="hidden" name="session_port" id="session_port"
-                                       value="{{ old('session_port') }}">
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-primary" id="start-browser-session">
-                                        Start Browser
-                                    </button>
-                                </div>
-                            </div>
-                            @error('profile_id')
+                            <label for="max_users">{{ __('admin.max_users_per_account') }}</label>
+                            <input type="number" name="max_users" id="max_users" min="1" max="1000"
+                                   class="form-control @error('max_users') is-invalid @enderror"
+                                   value="{{ old('max_users') }}"
+                                   placeholder="{{ __('admin.unlimited') }}">
+                            <small class="form-text text-muted">
+                                {{ __('admin.max_users_per_account_hint') }}
+                            </small>
+                            @error('max_users')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
@@ -83,8 +76,44 @@
 
                         <div class="form-group">
                             <label style="font-size: 125%">Credentials</label>
+                            
+                            <!-- Импорт cookies для Desktop App автологина -->
+                            <div class="alert alert-info">
+                                <strong>💡 Для автоматического входа в Desktop App:</strong>
+                                <ol class="mb-0 pl-3">
+                                    <li>Установите расширение <a href="https://chrome.google.com/webstore/detail/editthiscookie/fngmhnnpilhplaeedifhccceomclgfbg" target="_blank">EditThisCookie</a></li>
+                                    <li>Откройте сервис и войдите в premium аккаунт</li>
+                                    <li>Кликните на иконку расширения → Export</li>
+                                    <li>Скопируйте JSON и вставьте ниже</li>
+                                </ol>
+                            </div>
+
                             <div class="form-group">
-                                <label for="email">Email</label>
+                                <label for="cookies_import">
+                                    Cookies Import (JSON)
+                                    <small class="text-muted">- для автологина в Desktop приложении</small>
+                                </label>
+                                <textarea 
+                                    name="cookies_import" 
+                                    id="cookies_import"
+                                    class="form-control @error('cookies_import') is-invalid @enderror"
+                                    rows="8"
+                                    placeholder='[{"name":"__Secure-next-auth.session-token","value":"...","domain":".chatgpt.com","path":"/","secure":true,"httpOnly":true}]'
+                                >{{ old('cookies_import') }}</textarea>
+                                <small class="form-text text-muted">
+                                    Вставьте экспортированные cookies в формате JSON. Пример:
+                                    <code>[{"name":"cookie_name","value":"cookie_value","domain":".example.com"}]</code>
+                                </small>
+                                @error('cookies_import')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                                <div id="cookies-status" class="mt-2"></div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="form-group">
+                                <label for="email">Email <small class="text-muted">(опционально, для справки)</small></label>
                                 <input type="text" name="credentials[email]" id="email"
                                        class="form-control @error('credentials.email') is-invalid @enderror"
                                        value="{{ old('credentials.email') }}">
@@ -93,7 +122,7 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <label for="password">Password</label>
+                                <label for="password">Password <small class="text-muted">(опционально, для справки)</small></label>
                                 <input type="text" name="credentials[password]" id="password"
                                        class="form-control @error('credentials.password') is-invalid @enderror"
                                        value="{{ old('credentials.password') }}">
@@ -103,8 +132,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.service-accounts.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.service-accounts.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>
@@ -114,101 +143,67 @@
 
 @push('js')
     <script>
+      // Валидация и обработка импорта cookies
       (function() {
-        const btn = document.getElementById('start-browser-session');
-        const form = document.querySelector('form[action="{{ route('admin.service-accounts.store') }}"]');
-        const imageInput = document.getElementById('profile_id');
-        const pidInput = document.getElementById('session_pid');
-        const portInput = document.getElementById('session_port');
-        const serviceSelect = document.getElementById('service_id');
+        const cookiesTextarea = document.getElementById('cookies_import');
+        const statusDiv = document.getElementById('cookies-status');
+        const form = document.querySelector('form');
 
-        function setFormDisabled(disabled) {
-          if (!form) return;
-          form.style.opacity = disabled ? '0.5' : '1';
-          if (disabled) form.classList.add('pe-none'); else form.classList.remove('pe-none');
-          const controls = form.querySelectorAll('input, select, textarea, button');
-          controls.forEach(el => disabled ? el.setAttribute('disabled', 'disabled') : el.removeAttribute('disabled'));
-          const links = form.querySelectorAll('a');
-          links.forEach(a => {
-            if (disabled) {
-              a.classList.add('disabled');
-              a.style.pointerEvents = 'none';
-            } else {
-              a.classList.remove('disabled');
-              a.style.pointerEvents = '';
+        if (cookiesTextarea) {
+          // Валидация при вводе
+          cookiesTextarea.addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (!value) {
+              statusDiv.innerHTML = '';
+              return;
+            }
+
+            try {
+              const cookies = JSON.parse(value);
+              
+              if (!Array.isArray(cookies)) {
+                throw new Error('Cookies должны быть массивом');
+              }
+
+              const count = cookies.length;
+              statusDiv.innerHTML = `<div class="alert alert-success">✅ Найдено ${count} cookie(s). Формат корректен!</div>`;
+              
+              // Показать первые несколько для проверки
+              const preview = cookies.slice(0, 3).map(c => `<li><strong>${c.name}</strong> для домена <code>${c.domain || 'N/A'}</code></li>`).join('');
+              if (count > 0) {
+                statusDiv.innerHTML += `<small class="text-muted">Примеры:<ul class="mb-0">${preview}</ul></small>`;
+              }
+            } catch (e) {
+              statusDiv.innerHTML = `<div class="alert alert-danger">❌ Ошибка формата: ${e.message}</div>`;
+            }
+          });
+
+          // При отправке формы - объединяем cookies с credentials
+          form && form.addEventListener('submit', function(e) {
+            const cookiesValue = cookiesTextarea.value.trim();
+            
+            if (cookiesValue) {
+              try {
+                const cookies = JSON.parse(cookiesValue);
+                
+                // Создаем скрытое поле с cookies для отправки
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'credentials[cookies]';
+                input.value = JSON.stringify(cookies);
+                form.appendChild(input);
+                
+                console.log('Cookies will be saved:', cookies.length);
+              } catch (e) {
+                e.preventDefault();
+                alert('Ошибка в формате cookies! Проверьте JSON.');
+                return false;
+              }
             }
           });
         }
-
-        btn && btn.addEventListener('click', async function() {
-          setFormDisabled(true);
-
-          try {
-            function generateProfileId() {
-              if (window.crypto && window.crypto.getRandomValues) {
-                const bytes = new Uint8Array(16);
-                window.crypto.getRandomValues(bytes);
-                return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
-              }
-              const chars = 'abcdef0123456789';
-              let s = '';
-              for (let i = 0; i < 32; i++) s += chars[Math.floor(Math.random() * chars.length)];
-              return s;
-            }
-
-            const profile = generateProfileId();
-            if (imageInput) imageInput.value = profile;
-
-            const selected = serviceSelect ? serviceSelect.options[serviceSelect.selectedIndex] : null;
-            const appLink = selected?.dataset.link || 'https://google.com/';
-            const appTitle = selected?.dataset.title || 'SubCloudy';
-
-            const payload = {
-              app: appLink,
-              title: appTitle,
-              profile: profile,
-              kiosk: 0
-            };
-
-            const res = await fetch("{{ route('admin.browser-sessions.start-json') }}", {
-              method: 'POST',
-              headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-              const txt = await res.text().catch(() => '');
-              throw new Error(`HTTP ${res.status} ${res.statusText}: ${txt || 'failed to start'}`);
-            }
-
-            const data = await res.json();
-            if (!data.ok) throw new Error(data.error || 'Failed to start');
-
-            if (pidInput && data.pid) pidInput.value = String(data.pid);
-            if (portInput && data.port) portInput.value = String(data.port);
-
-            if (data.url) {
-              setTimeout(() => {
-                window.open(data.url, '_blank', 'noopener');
-                setFormDisabled(false);
-              }, 4000);
-            } else {
-              setFormDisabled(false);
-            }
-          } catch (e) {
-            setFormDisabled(false);
-            alert('Failed to start browser session');
-          }
-        });
       })();
+
     </script>
-    <style>
-        .pe-none {
-            pointer-events: none;
-        }
-    </style>
 @endpush
 

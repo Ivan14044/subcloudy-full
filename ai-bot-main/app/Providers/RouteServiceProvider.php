@@ -29,9 +29,19 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         $this->routes(function () {
+            // API routes с опциональным доменом (для локальной разработки)
+            $apiDomain = env('API_URL');
+            
+            if ($apiDomain && $apiDomain !== 'localhost' && !str_contains($apiDomain, '127.0.0.1')) {
+                Route::middleware('api')
+                    ->domain($apiDomain)
+                    ->group(base_path('routes/api.php'));
+            } else {
+                // Для локальной разработки без домена
             Route::middleware('api')
-                ->domain(env('API_URL', 'api.subcloudy.com'))
+                    ->prefix('api')
                 ->group(base_path('routes/api.php'));
+            }
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));

@@ -44,6 +44,10 @@ const props = defineProps<{
     isLoading?: boolean; // оставляем для обратной совместимости, но не используем (как и раньше)
 }>();
 
+defineEmits<{
+    callHideLoader: [];
+}>();
+
 const loadingStore = useLoadingStore();
 const hasOverlay = computed(() => props.overlay !== false);
 

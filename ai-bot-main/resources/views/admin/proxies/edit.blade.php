@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit proxy #' . $proxy->id)
+@section('title', __('admin.edit_proxy') . ' #' . $proxy->id)
 
 @section('content_header')
-    <h1>Edit proxy #{{ $proxy->id }}</h1>
+    <h1>{{ __('admin.edit_proxy') }} #{{ $proxy->id }}</h1>
 @stop
 
 @section('content')
@@ -17,14 +17,14 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Proxy data</h3>
+                    <h3 class="card-title">{{ __('admin.proxy_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.proxies.update', $proxy) }}">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
-                            <label for="type">Type</label>
+                            <label for="type">{{ __('admin.type_filter') }}</label>
                             <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
                                 <option value="HTTPS" {{ old('type', $proxy->type) == 'HTTPS' ? 'selected' : '' }}>HTTPS</option>
                                 <option value="HTTP" {{ old('type', $proxy->type) == 'HTTP' ? 'selected' : '' }}>HTTP</option>
@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Address</label>
+                            <label for="address">Адрес</label>
                             <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" value="{{ old('address', $proxy->address) }}">
                             @error('address')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="credentials">Credentials</label>
+                            <label for="credentials">Учетные данные</label>
                             <input type="text" name="credentials" id="credentials" class="form-control @error('credentials') is-invalid @enderror" value="{{ old('credentials', $proxy->credentials) }}">
                             @error('credentials')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -53,10 +53,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', $proxy->is_active) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', $proxy->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', $proxy->is_active) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', $proxy->is_active) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -312,9 +312,9 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.proxies.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.proxies.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

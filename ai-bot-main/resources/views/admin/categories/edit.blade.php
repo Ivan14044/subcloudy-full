@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit Category')
+@section('title', __('admin.edit_category'))
 
 @section('content_header')
-    <h1>Edit Category</h1>
+    <h1>{{ __('admin.edit_category') }}</h1>
 @endsection
 
 @section('content')
@@ -16,7 +16,7 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Category data</h3>
+                    <h3 class="card-title">{{ __('admin.category_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.categories.update', $category) }}">
@@ -41,21 +41,21 @@
                                     @foreach (config('langs') as $code => $flag)
                                         <div class="tab-pane fade show {{ $code == 'en' ? 'active' : null }}" id="content_{{ $code }}" role="tabpanel">
                                             <div class="form-group">
-                                                <label for="name_{{ $code }}">Name</label>
+                                                <label for="name_{{ $code }}">{{ __('admin.name') }}</label>
                                                 <input type="text" name="name[{{ $code }}]" id="name_{{ $code }}" class="form-control @error('name.' . $code) is-invalid @enderror" value="{{ old('name.' . $code, $categoryData[$code]['name'] ?? '') }}">
                                                 @error('name.' . $code)
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label for="meta_title_{{ $code }}">Meta title</label>
+                                                <label for="meta_title_{{ $code }}">Мета заголовок</label>
                                                 <input type="text" name="meta_title[{{ $code }}]" id="meta_title_{{ $code }}" class="form-control @error('meta_title.' . $code) is-invalid @enderror" value="{{ old('meta_title.' . $code, $categoryData[$code]['meta_title'] ?? '') }}">
                                                 @error('meta_title.' . $code)
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label for="meta_description_{{ $code }}">Meta description</label>
+                                                <label for="meta_description_{{ $code }}">Мета описание</label>
                                                 <input type="text" name="meta_description[{{ $code }}]" id="meta_description_{{ $code }}" class="form-control @error('meta_description.' . $code) is-invalid @enderror" value="{{ old('meta_description.' . $code, $categoryData[$code]['meta_description'] ?? '') }}">
                                                 @error('meta_description.' . $code)
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -74,9 +74,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

@@ -1,24 +1,24 @@
 @extends('adminlte::page')
 
-@section('title', 'Add service')
+@section('title', __('admin.add_service'))
 
 @section('content_header')
-    <h1>Add service</h1>
+    <h1>{{ __('admin.add_service') }}</h1>
 @stop
 
 @section('content')
     <div class="row">
-        <div class="col-xl-6">
+        <div class="col-12 col-lg-8 col-xl-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service data</h3>
+                    <h3 class="card-title">{{ __('admin.service_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.services.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="form-group">
-                            <label for="code">Code</label>
+                            <label for="code">{{ __('admin.code') }}</label>
                             <input type="text" name="code" id="code" class="form-control @error('code') is-invalid @enderror" value="{{ old('code') }}">
                             @error('code')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -26,10 +26,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -37,7 +37,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="amount">Amount</label>
+                            <label for="amount">{{ __('admin.amount') }}</label>
                             <input type="number" step="0.1" name="amount" id="amount" class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount') }}">
                             @error('amount')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -45,7 +45,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="trial_amount">Trial amount</label>
+                            <label for="trial_amount">Пробная сумма</label>
                             <input type="number" step="0.1" name="trial_amount" id="trial_amount" class="form-control @error('trial_amount') is-invalid @enderror" value="{{ old('trial_amount') }}">
                             @error('trial_amount')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -175,8 +175,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.services.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.services.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

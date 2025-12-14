@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit service #' . $service->id)
+@section('title', __('admin.edit_service') . ' #' . $service->id)
 
 @section('content_header')
-    <h1>Edit service #{{ $service->id }}</h1>
+    <h1>{{ __('admin.edit_service') }} #{{ $service->id }}</h1>
 @stop
 
 @section('content')
@@ -14,10 +14,10 @@
             </div>
         @endif
 
-        <div class="col-xl-6">
+        <div class="col-12 col-lg-8 col-xl-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Service data</h3>
+                    <h3 class="card-title">{{ __('admin.service_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.services.update', $service) }}" enctype="multipart/form-data">
@@ -25,16 +25,16 @@
                         @method('PUT')
 
                         <div class="form-group">
-                            <label for="code">Code</label>
+                            <label for="code">{{ __('admin.code') }}</label>
                             <input type="text" readonly id="code" class="form-control"
                                    value="{{ $service->code }}">
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', $service->is_active) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', $service->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', $service->is_active) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', $service->is_active) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -42,7 +42,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="amount">Amount</label>
+                            <label for="amount">{{ __('admin.amount') }}</label>
                             <input type="number" step="0.1" name="amount" id="amount" class="form-control @error('amount') is-invalid @enderror" value="{{ old('amount', $service->amount) }}">
                             @error('amount')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -50,7 +50,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="trial_amount">Trial amount</label>
+                            <label for="trial_amount">Пробная сумма</label>
                             <input type="number" step="0.1" name="trial_amount" id="trial_amount" class="form-control @error('trial_amount') is-invalid @enderror" value="{{ old('trial_amount', $service->trial_amount) }}">
                             @error('trial_amount')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -197,9 +197,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.services.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.services.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

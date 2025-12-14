@@ -238,6 +238,7 @@ class MonoController extends Controller
                 'currency' => $currency,
                 'payment_method' => 'credit_card',
                 'subscription_id' => $subId,
+                'status' => \App\Models\Transaction::STATUS_COMPLETED,
             ]);
 
             $totalAmount += $amount;

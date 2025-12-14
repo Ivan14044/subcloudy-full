@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Promocode usages')
+@section('title', __('admin.usages'))
 
 @section('content_header')
-    <h1>Promocode usages</h1>
+    <h1>{{ __('admin.usages') }}</h1>
 @stop
 
 @section('content')
@@ -11,34 +11,34 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Usages list</h3>
-                    <a href="{{ route('admin.promocodes.index') }}" class="btn btn-secondary float-right">Back</a>
+                    <h3 class="card-title">{{ __('admin.usages_list') }}</h3>
+                    <a href="{{ route('admin.promocodes.index') }}" class="btn btn-secondary float-right">{{ __('admin.back') }}</a>
                 </div>
                 <div class="card-body">
                     <div class="mb-3 d-flex flex-wrap align-items-center">
                         <div class="form-inline mr-3 mb-2">
-                            <label for="promoFilter" class="mr-2">Promocode:</label>
+                            <label for="promoFilter" class="mr-2">{{ __('admin.promocodes') }}:</label>
                             <select id="promoFilter" class="select2 filter-select form-control form-control-sm">
-                                <option value="">All</option>
+                                <option value="">{{ __('admin.all') }}</option>
                             </select>
                         </div>
                         <div class="form-inline mr-3 mb-2">
-                            <label for="userFilter" class="mr-2">User:</label>
+                            <label for="userFilter" class="mr-2">{{ __('admin.user') }}:</label>
                             <select id="userFilter" class="select2 filter-select form-control form-control-sm">
-                                <option value="">All</option>
+                                <option value="">{{ __('admin.all') }}</option>
                             </select>
                         </div>
-                        <button id="resetUsageFilters" type="button" class="btn btn-sm btn-outline-secondary mb-2">Reset</button>
+                        <button id="resetUsageFilters" type="button" class="btn btn-sm btn-outline-secondary mb-2">{{ __('admin.reset_filters') }}</button>
                     </div>
                     <table id="promocode-usages-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 60px">ID</th>
-                            <th>Promocode</th>
-                            <th>User</th>
-                            <th>Order</th>
-                            <th>Used at</th>
-                            <th>Created at</th>
+                            <th style="width: 60px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.promocodes') }}</th>
+                            <th>{{ __('admin.user') }}</th>
+                            <th>Заказ</th>
+                            <th>Использовано</th>
+                            <th>{{ __('admin.created_at') }}</th>
                         </tr>
                         </thead>
                         <tbody>

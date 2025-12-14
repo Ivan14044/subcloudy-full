@@ -74,23 +74,22 @@ onMounted(async () => {
     }
     try {
         await articlesStore.fetchArticleById(id);
-		// Обновляем SEO для статьи после загрузки
-		const a = article.value;
-		if (a) {
-			updateArticleSEO({
-				title: a.title,
-				description: a.content,
-				image: a.img,
-				canonical: `/articles/${id}`,
-				locale: locale.value,
-				datePublished: (a as any)?.date,
-				breadcrumbs: [
-					{ name: 'Главная', href: '/' },
-					{ name: 'Статьи', href: '/articles' },
-					{ name: a.title, href: `/articles/${id}` }
-				]
-			});
-		}
+        const a = article.value;
+        if (a) {
+            updateArticleSEO({
+                title: a.title,
+                description: a.content,
+                image: a.img,
+                canonical: `/articles/${id}`,
+                locale: locale.value,
+                datePublished: (a as any)?.date,
+                breadcrumbs: [
+                    { name: 'Главная', href: '/' },
+                    { name: 'Статьи', href: '/articles' },
+                    { name: a.title, href: `/articles/${id}` }
+                ]
+            });
+        }
     } catch (err: any) {
         if (err?.message === '404') {
             return router.replace('/404');

@@ -52,7 +52,7 @@ class ServiceController extends Controller
 
         $service->saveTranslation($validated);
 
-        return redirect()->route('admin.services.index')->with('success', 'Service successfully created.');
+        return redirect()->route('admin.services.index')->with('success', __('admin.service.created'));
     }
 
     public function edit(Service $service)
@@ -108,14 +108,14 @@ class ServiceController extends Controller
             ? route('admin.services.edit', $service->id)
             : route('admin.services.index');
 
-        return redirect($route)->with('success', 'Service successfully updated.');
+        return redirect($route)->with('success', __('admin.service.updated'));
     }
 
     public function destroy(Service $service)
     {
         $service->delete();
 
-        return redirect()->route('admin.services.index')->with('success', 'Service successfully deleted.');
+        return redirect()->route('admin.services.index')->with('success', __('admin.service.deleted'));
     }
 
     private function getRules($id = false)

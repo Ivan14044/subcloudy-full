@@ -14,7 +14,10 @@ class ServiceAccountController extends Controller
 {
     public function index()
     {
-        $serviceAccounts = ServiceAccount::with('service')->orderBy('id', 'desc')->get();
+        $serviceAccounts = ServiceAccount::with('service')
+            ->withCount('users')
+            ->orderBy('id', 'desc')
+            ->get();
 
         return view('admin.service-accounts.index', compact('serviceAccounts'));
     }
@@ -32,6 +35,11 @@ class ServiceAccountController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate($this->getRules());
+        
+        // Преобразуем пустую строку в null для max_users
+        if (isset($validated['max_users']) && $validated['max_users'] === '') {
+            $validated['max_users'] = null;
+        }
 
         ServiceAccount::create($validated);
 
@@ -65,7 +73,7 @@ class ServiceAccountController extends Controller
             Cache::forget('browser_sessions.active_count');
         }
 
-        return redirect()->route('admin.service-accounts.index')->with('success', 'Service account successfully created.');
+        return redirect()->route('admin.service-accounts.index')->with('success', __('admin.service_account.created'));
     }
 
     public function edit(ServiceAccount $serviceAccount)
@@ -81,6 +89,11 @@ class ServiceAccountController extends Controller
     public function update(Request $request, ServiceAccount $serviceAccount)
     {
         $validated = $request->validate($this->getRules($serviceAccount->id));
+        
+        // Преобразуем пустую строку в null для max_users
+        if (isset($validated['max_users']) && $validated['max_users'] === '') {
+            $validated['max_users'] = null;
+        }
 
         $serviceAccount->update($validated);
 
@@ -116,14 +129,14 @@ class ServiceAccountController extends Controller
             ? route('admin.service-accounts.edit', $serviceAccount->id)
             : route('admin.service-accounts.index');
 
-        return redirect($route)->with('success', 'Service account successfully updated.');
+        return redirect($route)->with('success', __('admin.service_account.updated'));
     }
 
     public function destroy(ServiceAccount $serviceAccount)
     {
         $serviceAccount->delete();
 
-        return redirect()->route('admin.service-accounts.index')->with('success', 'Service account successfully deleted.');
+        return redirect()->route('admin.service-accounts.index')->with('success', __('admin.service_account.deleted'));
     }
 
     private function getRules($id = null): array
@@ -139,6 +152,7 @@ class ServiceAccountController extends Controller
             'credentials' => ['nullable', 'array'],
             'expiring_at' => ['nullable', 'date'],
             'is_active' => ['required', 'boolean'],
+            'max_users' => ['nullable', 'integer', 'min:1', 'max:1000'],
         ];
     }
 }

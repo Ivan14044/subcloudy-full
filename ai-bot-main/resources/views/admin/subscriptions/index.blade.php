@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Subscriptions' . (!empty($user) ? ' for ' . $user->email : ''))
+@section('title', __('admin.subscriptions') . (!empty($user) ? ' ' . __('admin.subscriptions_for') . ' ' . $user->email : ''))
 
 @section('content_header')
-    <h1>Subscriptions {{ !empty($user) ? ' for ' . $user->email : '' }}</h1>
+    <h1>{{ __('admin.subscriptions') }} {{ !empty($user) ? __('admin.subscriptions_for') . ' ' . $user->email : '' }}</h1>
 @stop
 
 @section('content')
@@ -15,24 +15,25 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Subscriptions list</h3>
-                    <a href="{{ route('admin.subscriptions.create') }}" class="btn btn-primary float-right">+ Add</a>
-                    <a href="{{ route('admin.subscriptions.extend') }}" class="btn btn-success float-right mr-2">Mass Extend</a>
+                    <h3 class="card-title">{{ __('admin.subscriptions_list') }}</h3>
+                    <a href="{{ route('admin.subscriptions.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
+                    <a href="{{ route('admin.subscriptions.extend') }}" class="btn btn-success float-right mr-2">{{ __('admin.mass_extend') }}</a>
                 </div>
                 <div class="card-body">
-                    <table id="subscriptions-table" class="table table-bordered table-striped">
+                    <div class="table-responsive">
+                        <table id="subscriptions-table" class="table table-bordered table-striped table-sm">
                         <thead>
                         <tr>
-                            <th style="width: 30px">ID</th>
+                            <th style="width: 30px">{{ __('admin.id') }}</th>
                             @if(empty($user))
-                                <th>User</th>
+                                <th>{{ __('admin.user') }}</th>
                             @endif
-                            <th>Service</th>
-                            <th>Status</th>
-                            <th>Amount</th>
-                            <th>Payment Info</th>
-                            <th>Created at</th>
-                            <th>Action</th>
+                            <th>{{ __('admin.service') }}</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th>{{ __('admin.amount') }}</th>
+                            <th>{{ __('admin.payment_info') }}</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th>{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -55,17 +56,17 @@
                                     @endphp
 
                                     @if ($status === \App\Models\Subscription::STATUS_ACTIVE)
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-success">{{ __('admin.active') }}</span>
                                     @elseif ($status === \App\Models\Subscription::STATUS_CANCELED)
-                                        <span class="badge badge-danger">Canceled</span>
+                                        <span class="badge badge-danger">{{ __('admin.canceled') }}</span>
                                     @elseif ($status === \App\Models\Subscription::STATUS_ENDED)
-                                        <span class="badge badge-secondary">Ended</span>
+                                        <span class="badge badge-secondary">{{ __('admin.ended') }}</span>
                                     @else
                                         <span class="badge badge-light">{{ ucfirst($status) }}</span>
                                     @endif
                                     @if($subscription->is_trial)
                                         <br>
-                                        <span class="badge badge-primary">Trial</span>
+                                        <span class="badge badge-primary">{{ __('admin.trial') }}</span>
                                     @endif
                                 </td>
                                 @php
@@ -77,8 +78,8 @@
                                     <small>{{ $subscription->payment_method_label }}</small>
                                 </td>
                                 <td data-order="{{ strtotime($subscription->next_payment_at) }}">
-                                    <i class="fas fa-calendar-plus text-secondary mr-1" title="Next payment at"></i> {{ \Carbon\Carbon::parse($subscription->next_payment_at)->format('Y-m-d H:i') }} <br>
-                                    <i class="fas fa-receipt text-secondary mr-1" title="Last payment at"></i> {{ $last?->created_at?->format('Y-m-d H:i') ?? '-' }}
+                                    <i class="fas fa-calendar-plus text-secondary mr-1" title="{{ __('admin.next_payment_at') }}"></i> {{ \Carbon\Carbon::parse($subscription->next_payment_at)->format('Y-m-d H:i') }} <br>
+                                    <i class="fas fa-receipt text-secondary mr-1" title="{{ __('admin.last_payment_at') }}"></i> {{ $last?->created_at?->format('Y-m-d H:i') ?? '-' }}
                                 </td>
                                 <td data-order="{{ strtotime($subscription->created_at) }}">
                                     {{ \Carbon\Carbon::parse($subscription->created_at)->format('Y-m-d H:i') }}
@@ -98,11 +99,11 @@
                                     </button>
 
                                     @if ($subscription->status == \App\Models\Subscription::STATUS_ACTIVE)
-                                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#toggleStatusModal{{ $subscription->id }}" title="Cancel Subscription">
+                                        <button class="btn btn-sm btn-danger" data-toggle="modal" data-target="#toggleStatusModal{{ $subscription->id }}" title="{{ __('admin.cancel_subscription') }}">
                                             <i class="fas fa-ban"></i>
                                         </button>
                                     @elseif ($subscription->status == \App\Models\Subscription::STATUS_CANCELED)
-                                        <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#toggleStatusModal{{ $subscription->id }}" title="Activate Subscription">
+                                        <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#toggleStatusModal{{ $subscription->id }}" title="{{ __('admin.activate_subscription') }}">
                                             <i class="fas fa-play"></i>
                                         </button>
                                     @endif
@@ -119,7 +120,7 @@
 
                                                 <div class="modal-header">
                                                     <h5 class="modal-title" id="toggleStatusModalLabel">
-                                                        {{ $subscription->status === 'active' ? 'Cancel Subscription' : 'Activate Subscription' }}
+                                                        {{ $subscription->status === 'active' ? __('admin.cancel_subscription') : __('admin.activate_subscription') }}
                                                     </h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
@@ -127,16 +128,14 @@
                                                 </div>
 
                                                 <div class="modal-body">
-                                                    Are you sure you want to
-                                                    {{ $subscription->status === 'active' ? 'cancel' : 'activate' }}
-                                                    this subscription?
+                                                    {{ $subscription->status === 'active' ? __('admin.are_you_sure_cancel_subscription') : __('admin.are_you_sure_activate_subscription') }}
                                                 </div>
 
                                                 <div class="modal-footer">
                                                     <button type="submit" class="btn btn-{{ $subscription->status === 'active' ? 'danger' : 'success' }}">
-                                                        Yes, {{ $subscription->status === 'active' ? 'Cancel' : 'Activate' }}
+                                                        {{ $subscription->status === 'active' ? __('admin.cancel_subscription') : __('admin.activate_subscription') }}
                                                     </button>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -149,7 +148,7 @@
                                                 @method('PUT')
 
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="nextPaymentModalLabel">Set Next Payment Date</h5>
+                                                    <h5 class="modal-title" id="nextPaymentModalLabel">{{ __('admin.set_next_payment_date') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
@@ -157,7 +156,7 @@
 
                                                 <div class="modal-body">
                                                     <div class="form-group">
-                                                        <label for="next_payment_at_{{ $subscription->id }}">Next Payment At</label>
+                                                        <label for="next_payment_at_{{ $subscription->id }}">{{ __('admin.next_payment_at') }}</label>
                                                         <input type="datetime-local" name="next_payment_at" id="next_payment_at_{{ $subscription->id }}"
                                                                class="form-control"
                                                                value="{{ \Carbon\Carbon::parse($subscription->next_payment_at)->format('Y-m-d\TH:i') }}">
@@ -165,8 +164,8 @@
                                                 </div>
 
                                                 <div class="modal-footer">
-                                                    <button type="submit" class="btn btn-primary">Save</button>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">{{ __('admin.save') }}</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -176,25 +175,25 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this subscription?
+                                                    {{ __('admin.are_you_sure_delete_subscription') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form action="{{ route('admin.subscriptions.destroy', $subscription) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
 
                                                         @if(!empty($user))
                                                             <input type="hidden" name="return_url" value="{{ url()->current() }}">
                                                         @endif
                                                     </form>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -204,6 +203,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>

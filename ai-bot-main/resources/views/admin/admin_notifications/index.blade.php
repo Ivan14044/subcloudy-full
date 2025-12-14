@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Notifications')
+@section('title', __('admin.notifications'))
 
 @section('content_header')
-    <h1>Notifications</h1>
+    <h1>{{ __('admin.notifications') }}</h1>
 @stop
 
 @section('content')
@@ -15,11 +15,11 @@
 
             <div class="card">
                 <div class="card-header d-flex align-items-center">
-                    <h3 class="card-title mb-0">Notifications list</h3>
+                    <h3 class="card-title mb-0">{{ __('admin.notifications_list') }}</h3>
                     <form action="{{ route('admin.admin_notifications.read-all') }}" method="POST" class="ml-auto">
                         @csrf
                         <button type="submit" class="btn btn-sm btn-primary">
-                            <i class="fas fa-check-double mr-1"></i> Mark all as read
+                            <i class="fas fa-check-double mr-1"></i> Отметить все как прочитанные
                         </button>
                     </form>
                 </div>
@@ -27,12 +27,12 @@
                     <table id="notifications-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Type</th>
-                            <th>Text</th>
-                            <th>Is read</th>
-                            <th>Created at</th>
-                            <th style="width: 100px">Actions</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.type') }}</th>
+                            <th>Текст</th>
+                            <th>Прочитано</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th style="width: 100px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -45,7 +45,7 @@
                                     <div class="text-muted">{{ $notification->message }}</div>
                                 </td>
                                 <td>
-                                    {{ $notification->read ? 'Yes' : 'No' }}
+                                    {{ $notification->read ? 'Да' : 'Нет' }}
                                 </td>
                                 <td data-order="{{ strtotime($notification->created_at) }}">
                                     {{ \Carbon\Carbon::parse($notification->created_at)->format('Y-m-d H:i') }}
@@ -69,14 +69,14 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this notification?
+                                                    {{ __('admin.are_you_sure_delete_notification') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form
@@ -84,10 +84,10 @@
                                                         method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
                                                     </form>
                                                     <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal">Cancel</button>
+                                                            data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </div>
                                         </div>

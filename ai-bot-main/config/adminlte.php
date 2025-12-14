@@ -323,20 +323,20 @@ return [
 
         // SIDEBAR
         [
-            'text' => 'Dashboard',
+            'text' => 'Панель управления',
             'url' => '/',
             'icon' => 'fas fa-fw mr-1 fa-tachometer-alt',
         ],
 
         [
-            'text' => 'Users',
+            'text' => 'Пользователи',
             'url' => 'users',
             'icon' => 'fas fa-fw mr-1 fa-users',
             'active' => ['users*'],
         ],
 
         [
-            'text' => 'Subscriptions',
+            'text' => 'Подписки',
             'url' => 'subscriptions',
             'icon' => 'far fa-fw mr-1 fa-credit-card',
             'active' => ['subscriptions*'],
@@ -345,7 +345,7 @@ return [
 
 
         [
-            'text' => 'Browser Sessions',
+            'text' => 'Сессии браузера',
             'url' => 'browser-sessions',
             'icon' => 'fas fa-fw mr-1 fa-window-maximize',
             'active' => ['browser-sessions*'],
@@ -353,46 +353,46 @@ return [
 
         // MANAGEMENT DROPDOWN
         [
-            'text' => 'Management',
+            'text' => 'Управление',
             'icon' => 'fas fa-fw mr-1 fa-briefcase',
             'submenu' => [
                 [
-                    'text' => 'Administrators',
+                    'text' => 'Администраторы',
                     'url' => 'admins',
                     'icon' => 'fas fa-fw mr-1 fa-user-shield',
                     'active' => ['admins*'],
                     'can' => 'main-admin',
                 ],
                 [
-                    'text' => 'Contents',
+                    'text' => 'Контент',
                     'url' => 'contents',
                     'icon' => 'far fa-fw mr-1 fa-folder-open',
                     'active' => ['contents*'],
                 ],
                 [
-                    'text' => 'Articles',
+                    'text' => 'Статьи',
                     'url' => 'articles',
                     'icon' => 'far fa-fw mr-1 fa-file-alt',
                     'active' => ['articles*', 'categories*'],
                 ],
                 [
-                    'text' => 'Pages',
+                    'text' => 'Страницы',
                     'url' => 'pages',
                     'icon' => 'far fa-fw mr-1 fa-file',
                     'active' => ['pages*'],
                 ],
                 [
-                    'text' => 'Services',
+                    'text' => 'Сервисы',
                     'icon' => 'fas fa-fw mr-1 fa-sitemap',
                     'submenu' => [
                         [
-                            'text' => 'All Services',
+                            'text' => 'Все сервисы',
                             'url' => 'services',
                             'icon' => 'fas fa-fw mr-1 fa-clipboard-list',
                             'active' => ['services*'],
                         ],
                         [
-                            'text' => 'Service Accounts',
+                            'text' => 'Аккаунты сервисов',
                             'url' => 'service-accounts',
                             'icon' => 'far fa-fw mr-1 fa-user',
                             'active' => ['service-accounts*'],
@@ -400,19 +400,19 @@ return [
                     ],
                 ],
                 [
-                    'text' => 'Proxy',
+                    'text' => 'Прокси',
                     'url' => 'proxies',
                     'icon' => 'fas fa-fw mr-1 fa-network-wired',
                     'active' => ['proxies*'],
                 ],
                 [
-                    'text' => 'Promocodes',
+                    'text' => 'Промокоды',
                     'url' => 'promocodes',
                     'icon' => 'fas fa-fw mr-1 fa-ticket-alt',
                     'active' => ['promocode*'],
                 ],
                 [
-                    'text' => 'Settings',
+                    'text' => 'Настройки',
                     'url' => 'settings',
                     'icon' => 'fas fa-fw mr-1 fa-cog',
                     'active' => ['settings*'],
@@ -422,23 +422,23 @@ return [
 
         // NOTIFICATIONS DROPDOWN
         [
-            'text' => 'Notifications',
+            'text' => 'Уведомления',
             'icon' => 'fas fa-fw mr-1 fa-bell',
             'submenu' => [
                 [
-                    'text' => 'Notifications',
+                    'text' => 'Уведомления',
                     'url' => 'notifications',
                     'icon' => 'fas fa-fw mr-1 fa-exclamation',
                     'active' => ['notifications*'],
                 ],
                 [
-                    'text' => 'Notification Templates',
+                    'text' => 'Шаблоны уведомлений',
                     'url' => 'notification-templates',
                     'icon' => 'fas fa-fw mr-1 fa-envelope-square',
                     'active' => ['notification-templates*'],
                 ],
                 [
-                    'text' => 'Email Templates',
+                    'text' => 'Шаблоны email',
                     'url' => 'email-templates',
                     'icon' => 'fas fa-fw mr-1 fa-envelope',
                     'active' => ['email-templates*'],
@@ -448,16 +448,16 @@ return [
 
         // ACCOUNT DROPDOWN
         [
-            'text' => 'Account',
+            'text' => 'Аккаунт',
             'icon' => 'fas fa-fw mr-1 fa-user-circle',
             'submenu' => [
                 [
-                    'text' => 'Profile',
+                    'text' => 'Профиль',
                     'url' => 'profile',
                     'icon' => 'fas fa-fw mr-1 fa-user',
                 ],
                 [
-                    'text' => 'Logout',
+                    'text' => 'Выход',
                     'url' => 'logout',
                     'icon' => 'fas fa-fw mr-1 fa-sign-out-alt',
                 ],
@@ -592,7 +592,7 @@ return [
             ],
         ],
         'Chartjs' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',

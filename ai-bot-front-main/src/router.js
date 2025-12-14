@@ -14,21 +14,45 @@ import ContentPage from './pages/ContentPage.vue';
 import NotFound from './pages/NotFound.vue';
 import ArticlesAll from './pages/articles/ArticlesAll.vue';
 import ArticleDetails from './pages/articles/ArticleDetails.vue';
+import DownloadAppPage from './pages/DownloadAppPage.vue';
 import { useAuthStore } from './stores/auth';
+import { usePageStore } from './stores/pages';
 import { updateWebPageSEO } from './utils/seo';
 import i18n from './i18n';
-import { usePageStore } from './stores/pages';
+import { getSeoStrings } from './utils/seoStrings';
+
+const SUPPORTED_LOCALES = ['ru', 'uk', 'en', 'es', 'zh'];
+
+function replaceLocaleInPath(fullPath, nextLocale) {
+	try {
+		const url = new URL(fullPath, window.location.origin);
+		const segments = url.pathname.split('/').filter(Boolean);
+		if (segments.length && SUPPORTED_LOCALES.includes(segments[0])) {
+			segments[0] = nextLocale;
+		} else {
+			segments.unshift(nextLocale);
+		}
+		url.pathname = '/' + segments.join('/');
+		return url.pathname + url.search + url.hash;
+	} catch {
+		const parts = fullPath.split('#')[0].split('?')[0].split('/').filter(Boolean);
+		if (parts.length && SUPPORTED_LOCALES.includes(parts[0])) {
+			parts[0] = nextLocale;
+		} else {
+			parts.unshift(nextLocale);
+		}
+		return '/' + parts.join('/');
+	}
+}
 
 const routes = [
-	{
-		path: '/',
-		component: MainPage,
-		meta: {
-			title: 'SubCloudy — Экономия на подписках и сервисах',
-			description: 'Аналитика расходов, рекомендации, автоматизация и удобная оплата подписок.',
-			keywords: ['подписки', 'экономия', 'аналитика', 'автоматизация', 'SubCloudy']
-		}
-	},
+    {
+        path: '/',
+        component: MainPage,
+        meta: {
+            seoKey: 'home'
+        }
+    },
     { path: '/login', component: LoginPage, meta: { requiresGuest: true } },
     {
         path: '/register',
@@ -56,51 +80,47 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-		path: '/service/:id',
-		component: ServicePage,
-		alias: ['/service/:id/:slug?']
+        path: '/service/:id',
+        component: ServicePage,
+        alias: ['/service/:id/:slug?']
     },
     {
         path: '/articles',
-		component: ArticlesAll,
-		meta: {
-			isArticlesList: true,
-			title: 'Статьи — SubCloudy',
-			description: 'Полезные статьи о подписках, экономии и цифровых сервисах.'
-		}
+        component: ArticlesAll,
+        meta: {
+            isArticlesList: true,
+            seoKey: 'articles'
+        }
     },
     {
         path: '/articles/page/:page',
         component: ArticlesAll,
-		meta: {
-			isArticlesList: true,
-			title: 'Статьи — SubCloudy',
-			description: 'Полезные статьи о подписках, экономии и цифровых сервисах.'
-		}
+        meta: {
+            isArticlesList: true,
+            seoKey: 'articles'
+        }
     },
     {
         path: '/categories/:id',
         component: ArticlesAll,
-		alias: ['/categories/:id/:slug?'],
-		meta: {
-			isArticlesList: true,
-			title: 'Категория — SubCloudy',
-			description: 'Статьи по выбранной категории о подписках и сервисах.'
-		}
+        alias: ['/categories/:id/:slug?'],
+        meta: {
+            isArticlesList: true,
+            seoKey: 'category'
+        }
     },
     {
         path: '/categories/:id/page/:page',
         component: ArticlesAll,
-		meta: {
-			isArticlesList: true,
-			title: 'Категория — SubCloudy',
-			description: 'Статьи по выбранной категории о подписках и сервисах.'
-		}
+        meta: {
+            isArticlesList: true,
+            seoKey: 'category'
+        }
     },
     {
-		path: '/articles/:id',
-		component: ArticleDetails,
-		alias: ['/articles/:id/:slug?']
+        path: '/articles/:id',
+        component: ArticleDetails,
+        alias: ['/articles/:id/:slug?']
     },
     {
         path: '/checkout',
@@ -113,6 +133,11 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
+        path: '/download-app',
+        component: DownloadAppPage,
+        meta: { requiresAuth: true }
+    },
+    {
         path: '/session-start/:id?',
         component: SessionStart,
         meta: { requiresAuth: true }
@@ -121,7 +146,7 @@ const routes = [
         path: '/:slug(.*)*',
         name: 'dynamic',
         component: ContentPage,
-		meta: { isDynamic: true }
+        meta: { isDynamic: true }
     },
     {
         path: '/404',
@@ -163,6 +188,17 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+    // Синхронизация локали с URL (/ru/...)
+    try {
+        const segs = to.path.split('/').filter(Boolean);
+        const langCandidate = segs[0];
+        if (SUPPORTED_LOCALES.includes(langCandidate)) {
+            if ((i18n.global?.locale?.value) !== langCandidate) {
+                i18n.global.locale.value = langCandidate;
+                try { localStorage.setItem('user-language', langCandidate); } catch {}
+            }
+        }
+    } catch {}
     const authStore = useAuthStore();
     if (!authStore.user && authStore.token) {
         await authStore.fetchUser();
@@ -207,29 +243,31 @@ router.beforeEach(async (to, from, next) => {
     next();
 });
 
-// Базовое обновление SEO после перехода между маршрутами.
-// Для динамических страниц (статьи/контент) компоненты сами обновляют SEO после загрузки данных.
+// После перехода обновляем базовые мета-теги
 router.afterEach((to) => {
-	try {
-		const baseTitle = to.meta?.title || 'SubCloudy';
-		const baseDesc =
-			to.meta?.description ||
-			'SubCloudy помогает экономить на подписках и сервисах: аналитика расходов и рекомендации.';
-		// hreflang черновая поддержка: проект не использует префиксы локалей в путях,
-		// поэтому проставляем одинаковые URL для всех языков, чтобы не создавать конфликтов.
-		const locales = Object.keys((i18n.global)?.messages || {});
-		const hreflangs = Array.isArray(locales) ? locales.map(code => ({ href: to.fullPath, lang: code })) : undefined;
-		updateWebPageSEO({
-			title: baseTitle,
-			description: baseDesc,
-			keywords: to.meta?.keywords,
-			canonical: to.fullPath,
-			// @ts-ignore поддерживается утилитой
-			hreflangs
-		});
-	} catch (_) {
-		// без падений приложения
-	}
+    try {
+        const segs = to.fullPath.split('/').filter(Boolean);
+        const maybeLang = segs[0];
+        const currentLocale = SUPPORTED_LOCALES.includes(maybeLang) ? maybeLang : ((i18n.global?.locale?.value) || 'ru');
+        const key = to.meta?.seoKey;
+        const dict = key ? getSeoStrings(currentLocale, key) : undefined;
+        const baseTitle = dict?.title || to.meta?.title || 'SubCloudy';
+        const baseDesc = dict?.description || to.meta?.description || 'SubCloudy помогает экономить на подписках и сервисах: аналитика расходов и рекомендации.';
+        const locales = Object.keys((i18n.global)?.messages || {}).filter(l => SUPPORTED_LOCALES.includes(l));
+        const hreflangs = Array.isArray(locales)
+            ? locales.map(code => ({ href: replaceLocaleInPath(to.fullPath, code), lang: code }))
+            : undefined;
+        // переключим <html lang="...">
+        try { document.documentElement.setAttribute('lang', currentLocale); } catch {}
+        const canonical = replaceLocaleInPath(to.fullPath, currentLocale);
+        updateWebPageSEO({
+            title: baseTitle,
+            description: baseDesc,
+            keywords: to.meta?.keywords,
+            canonical,
+            hreflangs
+        });
+    } catch (_) {}
 });
 
 export default router;

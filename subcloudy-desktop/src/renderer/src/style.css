@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Базовые стили */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+*:focus {
+  outline: none;
+}
+
+body {
+  font-family: 'SFT Schrifted Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Gradient текст */
+.gradient-text {
+  background: linear-gradient(90deg, #ff6a00, #ff00cc, #00aaff, #007bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  display: inline;
+}
+
+.bg-gradient-1 {
+  background: linear-gradient(90deg, #a032f5, #e440bf, #007bff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gradient-2 {
+  background: linear-gradient(90deg, #ff6a00, #ff00cc, #00aaff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-custom-blue {
+  color: #007bff !important;
+}
+
+/* Анимация вращения логотипа */
+@keyframes spin-slow-reverse {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+.spin-slow-reverse {
+  animation: spin-slow-reverse 2.5s linear infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 3px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.8);
+  border-radius: 3px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.8) transparent;
+}
+
+/* Glass эффекты */
+.glass-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-button {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Reveal анимации */
+.reveal-hidden,
+.reveal-visible {
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  will-change: opacity, transform;
+}
+
+.reveal-hidden {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* CTA кнопка */
+.cta-button {
+  display: inline-block;
+  padding: 0.9rem 3rem;
+  border: 1px solid #0047ff;
+  text-decoration: none;
+  font-size: 18px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cta-button:hover {
+  background-color: #0047ff;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+/* Input fields стили */
+.input-field {
+  @apply w-full px-4 py-3 border border-solid border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all;
+}
+
+/* Auth кнопки */
+.auth-button {
+  @apply w-full text-gray-900 hover:text-white bg-white hover:!bg-blue-600 border font-medium py-[10px] rounded-lg transition-all flex items-center justify-center gap-2;
+}
+
+.auth-button:disabled {
+  @apply opacity-50 cursor-not-allowed text-[#0065FF]/80 border-[#0065FF]/80;
+}
+
+.auth-button.primary {
+  @apply bg-blue-500 dark:bg-blue-900 text-white hover:bg-blue-600 text-white;
+}
+
+.auth-button.primary:disabled {
+  @apply opacity-50 cursor-not-allowed bg-[#0065FF]/80;
+}
+
+/* Dark mode поддержка */
+.dark {
+  color-scheme: dark;
+}

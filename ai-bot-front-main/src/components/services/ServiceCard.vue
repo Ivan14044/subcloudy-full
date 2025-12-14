@@ -93,7 +93,7 @@
                     v-html="
                         $t('plans.price_monthly', {
                             price: service.amount.toFixed(2),
-                            currency: optionStore.options.currency.toUpperCase()
+                            currency: (optionStore.options.currency || 'USD').toUpperCase()
                         })
                     "
                 ></p>
@@ -223,7 +223,7 @@
                         </div>
                         <div class="text-sm font-medium ml-auto text-dark dark:text-white">
                             {{ service.amount.toFixed(2) }}
-                            {{ optionStore.options.currency.toUpperCase() }}
+                            {{ (optionStore.options.currency || 'USD').toUpperCase() }}
                         </div>
                     </div>
 
@@ -329,7 +329,7 @@ const canShowTrialButton = computed(() => {
 
 const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: optionStore.options.currency,
+    currency: optionStore.options.currency || 'USD', // Значение по умолчанию USD
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
 });
@@ -350,9 +350,11 @@ const goToCheckout = () => {
 };
 
 const openService = async (id: number) => {
-    const url = '/session-start/' + id;
-
-    window.open(url, '_blank');
+    // Перенаправляем на страницу с информацией о необходимости скачать приложение
+    router.push({
+        path: '/download-app',
+        query: { serviceId: id }
+    });
 };
 
 const cardRef = ref<HTMLElement | null>(null);

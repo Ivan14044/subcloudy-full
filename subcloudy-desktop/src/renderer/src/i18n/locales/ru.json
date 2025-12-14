@@ -1,0 +1,82 @@
+{
+  "auth": {
+    "loginTitle": "Вход в систему",
+    "loginSubtitle": "Введите ваши данные для доступа к сервисам",
+    "email": "Электронная почта",
+    "password": "Пароль",
+    "rememberMe": "Запомнить меня",
+    "forgotPassword": "Забыли пароль?",
+    "loginButton": "Войти",
+    "signingIn": "Выполняется вход...",
+    "noAccount": "Нет аккаунта?",
+    "register": "Зарегистрироваться",
+    "loginWith": "Или войдите с помощью",
+    "subscriptions": "Мои подписки",
+    "profile": "Профиль"
+  },
+  "services": {
+    "title": "Ваши сервисы",
+    "logout": "Выйти",
+    "loading": "Загрузка ваших сервисов...",
+    "noServices": "Нет активных сервисов",
+    "noServicesDesc": "У вас пока нет активных подписок.",
+    "browseServices": "Посмотреть сервисы на сайте",
+    "activeServices": "Ваши активные сервисы",
+    "clickToLaunch": "Нажмите на зелёную кнопку чтобы запустить сервис",
+    "launchError": "Не удалось запустить сервис",
+    "openService": "Открыть сервис",
+    "backToServices": "Назад к сервисам",
+    "card": {
+      "show_more": "Показать больше",
+      "back_to_front_side": "Нажмите на карточку, чтобы вернуться"
+    }
+  },
+  "subscriptions": {
+    "title": "Мои подписки",
+    "active_tab": "Активные",
+    "inactive_tab": "Неактивные",
+    "month": "мес",
+    "days_left": "дней осталось",
+    "expires_on": "Истекает",
+    "expires_soon": "⚠️ Скоро истекает!",
+    "expires_very_soon": "⚠️ Истекает совсем скоро!",
+    "expires_tomorrow": "⚠️ Истекает завтра!",
+    "next_payment": "Следующий платёж",
+    "payment_method_label": "Способ оплаты",
+    "created_label": "Создана",
+    "next_payment_label": "Следующий платёж",
+    "cancel": "Отменить подписку",
+    "renew": "Возобновить",
+    "status_active": "✓ Активна",
+    "status_canceled": "✗ Отменена",
+    "status_ended": "Завершена",
+    "cancel_confirm": "Вы уверены, что хотите отменить автопродление? Подписка будет активна до конца оплаченного периода.",
+    "renew_confirm": "Возобновить автоматическое продление подписки?",
+    "toggle_success": "Подписка успешно обновлена!",
+    "toggle_error": "Ошибка изменения подписки",
+    "empty_active": "У вас нет активных подписок",
+    "empty_inactive": "У вас нет завершённых подписок",
+    "loading": "Загрузка подписок..."
+  },
+  "profile": {
+    "title": "Настройки профиля",
+    "name": "Имя",
+    "email": "Email",
+    "password": "Новый пароль",
+    "confirmPassword": "Подтвердите пароль",
+    "namePlaceholder": "Ваше имя",
+    "emailPlaceholder": "your@@email.com",
+    "passwordPlaceholder": "Оставьте пустым, чтобы не менять",
+    "confirmPasswordPlaceholder": "Повторите новый пароль",
+    "saveButton": "Сохранить изменения",
+    "saving": "Сохранение...",
+    "success": "✅ Профиль успешно обновлён!",
+    "error": "❌ Ошибка обновления профиля",
+    "passwordMismatch": "Пароли не совпадают"
+  },
+  "checkout": {
+    "credit_card": "Банковская карта",
+    "crypto": "Криптовалюта"
+  }
+}
+

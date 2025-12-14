@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Promocodes')
+@section('title', __('admin.promocodes'))
 
 @section('content_header')
-    <h1>Promocodes</h1>
+    <h1>{{ __('admin.promocodes') }}</h1>
 @stop
 
 @section('content')
@@ -15,59 +15,59 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Promocodes list</h3>
-                    <a href="{{ route('admin.promocodes.create') }}" class="btn btn-primary float-right">+ Add</a>
+                    <h3 class="card-title">{{ __('admin.promocodes_list') }}</h3>
+                    <a href="{{ route('admin.promocodes.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                     <a href="{{ route('admin.promocode-usages.index') }}"
-                       class="btn btn-outline-secondary float-right mr-2">Usages</a>
+                       class="btn btn-outline-secondary float-right mr-2">{{ __('admin.usages') }}</a>
                 </div>
                 <div class="card-body">
                     <div class="mb-3 d-flex flex-wrap align-items-center">
                         <div class="form-inline mr-3 mb-2">
-                            <label for="batch" class="mr-2">Batch:</label>
+                            <label for="batch" class="mr-2">{{ __('admin.batch') }}:</label>
                             <select id="batch" class="select2 filter-select form-control form-control-sm">
-                                <option value="">All</option>
+                                <option value="">{{ __('admin.all') }}</option>
                             </select>
                         </div>
                         <div class="form-inline mr-3 mb-2">
-                            <label for="statusFilter" class="mr-2">Status:</label>
+                            <label for="statusFilter" class="mr-2">{{ __('admin.status_filter') }}:</label>
                             <select id="statusFilter" class="select2 filter-select form-control form-control-sm">
-                                <option value="">All</option>
-                                <option value="Active">Active</option>
-                                <option value="Paused">Paused</option>
-                                <option value="Scheduled">Scheduled</option>
-                                <option value="Expired">Expired</option>
-                                <option value="Exhausted">Exhausted</option>
+                                <option value="">{{ __('admin.all') }}</option>
+                                <option value="Active">{{ __('admin.active') }}</option>
+                                <option value="Paused">{{ __('admin.paused') }}</option>
+                                <option value="Scheduled">{{ __('admin.scheduled') }}</option>
+                                <option value="Expired">{{ __('admin.expired') }}</option>
+                                <option value="Exhausted">{{ __('admin.exhausted') }}</option>
                             </select>
                         </div>
                         <div class="form-inline mr-3 mb-2">
-                            <label for="typeFilter" class="mr-2">Type:</label>
+                            <label for="typeFilter" class="mr-2">{{ __('admin.type_filter') }}:</label>
                             <select id="typeFilter" class="select2 filter-select form-control form-control-sm">
-                                <option value="">All</option>
-                                <option value="Discount">Discount</option>
-                                <option value="Free access">Free access</option>
+                                <option value="">{{ __('admin.all') }}</option>
+                                <option value="Discount">{{ __('admin.discount') }}</option>
+                                <option value="Free access">{{ __('admin.free_access') }}</option>
                             </select>
                         </div>
-                        <button id="resetFilters" type="button" class="btn btn-sm btn-outline-secondary mb-2">Reset
+                        <button id="resetFilters" type="button" class="btn btn-sm btn-outline-secondary mb-2">{{ __('admin.reset_filters') }}
                         </button>
                     </div>
                     <div class="mb-3">
-                        <button id="bulkDelete" class="btn btn-sm btn-danger" disabled>Delete selected</button>
+                        <button id="bulkDelete" class="btn btn-sm btn-danger" disabled>{{ __('admin.delete_selected') }}</button>
                     </div>
                     <table id="promocodes-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
                             <th style="width: 36px"><input type="checkbox" id="selectAll"></th>
-                            <th style="width: 60px">ID</th>
-                            <th>Code</th>
-                            <th>Prefix</th>
-                            <th>Batch</th>
-                            <th>Type</th>
-                            <th>Discount</th>
-                            <th>Usage</th>
-                            <th>Valid from</th>
-                            <th>Valid to</th>
-                            <th>Status</th>
-                            <th style="width: 60px">Action</th>
+                            <th style="width: 60px">{{ __('admin.id') }}</th>
+                            <th>Код</th>
+                            <th>Префикс</th>
+                            <th>{{ __('admin.batch') }}</th>
+                            <th>{{ __('admin.type_filter') }}</th>
+                            <th>{{ __('admin.discount') }}</th>
+                            <th>Использование</th>
+                            <th>Действителен с</th>
+                            <th>Действителен до</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th style="width: 60px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -80,9 +80,9 @@
                                 <td>{{ $promocode->batch_id ?: '—' }}</td>
                                 <td>
                                     @if($promocode->type === 'free_access')
-                                        <span class="badge badge-info">Free access</span>
+                                        <span class="badge badge-info">{{ __('admin.free_access') }}</span>
                                     @else
-                                        <span class="badge badge-primary">Discount</span>
+                                        <span class="badge badge-primary">{{ __('admin.discount') }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $promocode->percent_discount }}%</td>
@@ -116,29 +116,29 @@
                                         $exhausted = ($promocode->usage_limit ?? 0) > 0 && ($promocode->usage_count ?? 0) >= $promocode->usage_limit;
                                     @endphp
                                     @if($paused)
-                                        <span class="badge badge-secondary">Paused</span>
+                                        <span class="badge badge-secondary">{{ __('admin.paused') }}</span>
                                     @elseif($expired)
-                                        <span class="badge badge-dark">Expired</span>
+                                        <span class="badge badge-dark">{{ __('admin.expired') }}</span>
                                     @elseif($exhausted)
-                                        <span class="badge badge-warning">Exhausted</span>
+                                        <span class="badge badge-warning">{{ __('admin.exhausted') }}</span>
                                     @elseif($scheduled)
-                                        <span class="badge badge-info">Scheduled</span>
+                                        <span class="badge badge-info">{{ __('admin.scheduled') }}</span>
                                     @else
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-success">{{ __('admin.active') }}</span>
                                     @endif
                                 </td>
                                 <td class="text-nowrap">
                                     <a href="{{ route('admin.promocodes.edit', $promocode) }}"
-                                       class="btn btn-sm btn-warning" title="Edit">
+                                       class="btn btn-sm btn-warning" title="{{ __('admin.edit') }}">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ route('admin.promocode-usages.index', ['promocode' => $promocode->code]) }}"
                                        class="btn btn-sm {{ ($promocode->usage_count ?? 0) > 0 ? 'btn-info' : 'btn-secondary disabled' }}"
-                                       title="Usages">
+                                       title="{{ __('admin.usages') }}">
                                         <i class="fas fa-clipboard-list"></i>
                                     </a>
                                     <button class="btn btn-sm btn-danger" data-toggle="modal"
-                                            data-target="#deleteModal-{{ $promocode->id }}" title="Delete">
+                                            data-target="#deleteModal-{{ $promocode->id }}" title="{{ __('admin.delete') }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
 
@@ -147,25 +147,25 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal"
                                                             aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this promocode?
+                                                    {{ __('admin.are_you_sure_delete_promocode') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form action="{{ route('admin.promocodes.destroy', $promocode) }}"
                                                           method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, delete
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}
                                                         </button>
                                                     </form>
                                                     <button type="button" class="btn btn-secondary"
-                                                            data-dismiss="modal">Cancel
+                                                            data-dismiss="modal">{{ __('admin.cancel') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -337,7 +337,7 @@
             $('#bulkDelete').on('click', function() {
                 var ids = selectedIds();
                 if (!ids.length) return;
-                if (!confirm('Delete selected promocodes?')) return;
+                if (!confirm('Удалить выбранные промокоды?')) return;
                 $.ajax({
                     url: '{{ route('admin.promocodes.bulk-destroy') }}',
                     method: 'DELETE',

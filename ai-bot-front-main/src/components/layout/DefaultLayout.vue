@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import { useRoute } from 'vue-router';
+import { useTheme } from '@/composables/useTheme';
 
 import Header from '@/components/layout/MainHeader.vue';
 import Footer from '@/components/layout/MainFooter.vue';
@@ -26,4 +27,5 @@ defineProps<{
 }>();
 
 const route = useRoute();
+const { isDark } = useTheme();
 </script>

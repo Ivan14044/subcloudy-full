@@ -37,7 +37,7 @@ class AdminController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('admin.admins.index')->with('success', 'Administrator successfully created.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.admin.created'));
     }
 
     public function edit(User $admin)
@@ -62,14 +62,14 @@ class AdminController extends Controller
             ? route('admin.admins.edit', $admin->id)
             : route('admin.admins.index');
 
-        return redirect($route)->with('success', 'Administrator successfully updated.');
+        return redirect($route)->with('success', __('admin.admin.updated'));
     }
 
     public function destroy(User $admin)
     {
         $admin->delete();
 
-        return redirect()->route('admin.admins.index')->with('success', 'Administrator successfully deleted.');
+        return redirect()->route('admin.admins.index')->with('success', __('admin.admin.deleted'));
     }
 
     public function block(User $admin)

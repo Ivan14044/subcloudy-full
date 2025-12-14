@@ -107,6 +107,7 @@ class CartController extends Controller
                         'currency' => Option::get('currency'),
                         'payment_method' => 'free',
                         'subscription_id' => $subId,
+                        'status' => \App\Models\Transaction::STATUS_COMPLETED,
                     ]);
                 }
 
@@ -170,6 +171,7 @@ class CartController extends Controller
                 'currency' => Option::get('currency'),
                 'payment_method' => $request->payment_method,
                 'subscription_id' => $subId,
+                'status' => \App\Models\Transaction::STATUS_COMPLETED,
             ]);
         }
 

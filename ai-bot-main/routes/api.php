@@ -68,3 +68,11 @@ Route::middleware('ext.auth')->group(function () {
 });
 
 Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']);
+
+// Desktop Application Routes
+Route::middleware('auth:sanctum')->prefix('desktop')->group(function () {
+    Route::post('/auth', [\App\Http\Controllers\Api\DesktopController::class, 'auth']);
+    Route::post('/service-url', [\App\Http\Controllers\Api\DesktopController::class, 'getSecureServiceUrl']);
+    Route::get('/my-services', [\App\Http\Controllers\Api\DesktopController::class, 'myServices']);
+    Route::post('/log', [\App\Http\Controllers\Api\DesktopController::class, 'logActivity']);
+});

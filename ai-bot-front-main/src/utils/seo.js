@@ -52,11 +52,9 @@ function stripHtml(html) {
 
 function buildAbsoluteUrl(pathOrUrl) {
 	try {
-		// Если передали абсолютный URL — вернём как есть
 		const test = new URL(pathOrUrl);
 		return test.toString();
 	} catch {
-		// Иначе соберём абсолютный
 		const base = window.location.origin.replace(/\/$/, '');
 		const path = String(pathOrUrl || '').startsWith('/') ? pathOrUrl : `/${pathOrUrl || ''}`;
 		return `${base}${path}`;
@@ -69,22 +67,19 @@ export function updateSeo({
 	keywords,
 	image,
 	canonical,
-	type = 'website', // website | article
+	type = 'website',
 	locale,
 	siteName = 'SubCloudy',
 	jsonLd = null,
-	hreflangs = null // [{ href: '/ru/path', lang: 'ru' }, ...]
+	hreflangs = null
 } = {}) {
-	// Title / Description / Keywords
 	if (title) setTitle(title);
 	if (description) setMetaName('description', description);
 	if (keywords) setMetaName('keywords', Array.isArray(keywords) ? keywords.join(', ') : String(keywords));
 
-	// Canonical
 	const canonicalUrl = buildAbsoluteUrl(canonical || window.location.pathname + window.location.search);
 	setLinkRel('canonical', canonicalUrl);
 
-	// Open Graph
 	setMetaProperty('og:type', type);
 	setMetaProperty('og:title', title || document.title);
 	if (description) setMetaProperty('og:description', description);
@@ -93,13 +88,11 @@ export function updateSeo({
 	if (image) setMetaProperty('og:image', buildAbsoluteUrl(image));
 	if (locale) setMetaProperty('og:locale', locale);
 
-	// Twitter
 	setMetaName('twitter:card', image ? 'summary_large_image' : 'summary');
 	if (title) setMetaName('twitter:title', title);
 	if (description) setMetaName('twitter:description', description);
 	if (image) setMetaName('twitter:image', buildAbsoluteUrl(image));
 
-	// JSON-LD
 	const existing = document.getElementById('seo-jsonld');
 	if (existing) existing.remove();
 	if (jsonLd) {
@@ -110,9 +103,7 @@ export function updateSeo({
 		(document.head || document.documentElement).appendChild(script);
 	}
 
-	// hreflang alternates
-	// удалим старые
-	[...document.querySelectorAll('link[rel="alternate"][hreflang]')].forEach(n => n.remove());
+	[...document.querySelectorAll('link[rel=\"alternate\"][hreflang]')].forEach(n => n.remove());
 	if (Array.isArray(hreflangs) && hreflangs.length) {
 		for (const alt of hreflangs) {
 			if (!alt?.href || !alt?.lang) continue;
@@ -125,8 +116,7 @@ export function updateSeo({
 	}
 }
 
-// Упрощённые хелперы
-export function updateWebPageSEO({ title, description, keywords, canonical, image, locale } = {}) {
+export function updateWebPageSEO({ title, description, keywords, canonical, image, locale, hreflangs } = {}) {
 	updateSeo({
 		title,
 		description,
@@ -141,14 +131,15 @@ export function updateWebPageSEO({ title, description, keywords, canonical, imag
 			'@type': 'WebPage',
 			name: title || 'SubCloudy',
 			description: description || '',
-			url: buildAbsoluteUrl(canonical || window.location.pathname),
-		}
+			url: buildAbsoluteUrl(canonical || window.location.pathname)
+		},
+		hreflangs
 	});
 }
 
 export function updateArticleSEO({ title, description, image, canonical, locale, datePublished, dateModified, authorName = 'SubCloudy', breadcrumbs = null } = {}) {
 	const cleanDescription = description ? stripHtml(description) : '';
-	const jsonLd = {
+	const articleJson = {
 		'@context': 'https://schema.org',
 		'@type': 'Article',
 		headline: title || '',
@@ -162,11 +153,11 @@ export function updateArticleSEO({ title, description, image, canonical, locale,
 		},
 		description: cleanDescription
 	};
-	// Добавим хлебные крошки, если переданы
-	let jsonLdGraph = jsonLd;
+
+	let jsonLd = articleJson;
 	if (Array.isArray(breadcrumbs) && breadcrumbs.length) {
-		const graph = [
-			jsonLd,
+		jsonLd = [
+			articleJson,
 			{
 				'@context': 'https://schema.org',
 				'@type': 'BreadcrumbList',
@@ -178,8 +169,8 @@ export function updateArticleSEO({ title, description, image, canonical, locale,
 				}))
 			}
 		];
-		jsonLdGraph = graph;
 	}
+
 	updateSeo({
 		title,
 		description: cleanDescription,
@@ -188,7 +179,7 @@ export function updateArticleSEO({ title, description, image, canonical, locale,
 		locale,
 		type: 'article',
 		siteName: 'SubCloudy',
-		jsonLd: jsonLdGraph
+		jsonLd
 	});
 }
 

@@ -12,7 +12,8 @@ const getBrowserLocale = () => {
 
     const supportedLanguages = ['en', 'uk', 'ru', 'zh', 'es'];
 
-    return supportedLanguages.includes(languageCode) ? languageCode : 'uk';
+    // Язык по умолчанию - русский (вместо украинского)
+    return supportedLanguages.includes(languageCode) ? languageCode : 'ru';
 };
 
 const savedLanguage = localStorage.getItem('user-language');
@@ -20,7 +21,7 @@ const savedLanguage = localStorage.getItem('user-language');
 const i18n = createI18n({
     legacy: false,
     globalInjection: true,
-    locale: savedLanguage ?? getBrowserLocale(),
+    locale: savedLanguage ?? 'ru', // Русский язык по умолчанию
     fallbackLocale: 'en',
     warnHtmlMessage: false,
     messages: {

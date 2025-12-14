@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Notification templates')
+@section('title', __('admin.notification_templates'))
 
 @section('content_header')
-    <h1>Notification templates</h1>
+    <h1>{{ __('admin.notification_templates') }}</h1>
 @stop
 
 @section('content')
@@ -19,13 +19,13 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request('type') !== 'custom' ? 'active' : '' }}"
                                href="{{ route('admin.notification-templates.index') }}">
-                                System
+                                Системные
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request('type') === 'custom' ? 'active' : '' }}"
                                href="{{ route('admin.notification-templates.index', ['type' => 'custom']) }}">
-                                Custom
+                                Пользовательские
                             </a>
                         </li>
                     </ul>
@@ -34,9 +34,9 @@
                     <table id="notification-templates-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Name</th>
-                            <th style="width: 110px">Action</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.name') }}</th>
+                            <th style="width: 110px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -58,22 +58,21 @@
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                        <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
                                                         </button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        This will permanently delete the notification template and all related notifications.
-                                                        Are you sure you want to continue?
+                                                        Это навсегда удалит шаблон уведомления и все связанные уведомления. Вы уверены, что хотите продолжить?
                                                     </div>
                                                     <div class="modal-footer">
                                                         <form action="{{ route('admin.notification-templates.destroy', $notificationTemplate) }}" method="POST" class="d-inline">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                            <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
                                                         </form>
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                     </div>
                                                 </div>
                                             </div>

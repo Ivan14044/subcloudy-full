@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Proxies')
+@section('title', __('admin.proxies'))
 
 @section('content_header')
-    <h1>Proxies</h1>
+    <h1>{{ __('admin.proxies') }}</h1>
 @stop
 
 @section('content')
@@ -15,20 +15,20 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Proxies list</h3>
-                    <a href="{{ route('admin.proxies.create') }}" class="btn btn-primary float-right">+ Add</a>
+                    <h3 class="card-title">{{ __('admin.proxies_list') }}</h3>
+                    <a href="{{ route('admin.proxies.create') }}" class="btn btn-primary float-right">+ {{ __('admin.add') }}</a>
                 </div>
                 <div class="card-body">
                     <table id="proxies-table" class="table table-bordered table-striped">
                         <thead>
                         <tr>
-                            <th style="width: 40px">ID</th>
-                            <th>Full proxy</th>
-                            <th>Status</th>
-                            <th>Country</th>
-                            <th>Created at</th>
-                            <th>Expiring at</th>
-                            <th style="width: 70px">Action</th>
+                            <th style="width: 40px">{{ __('admin.id') }}</th>
+                            <th>{{ __('admin.full_proxy') }}</th>
+                            <th>{{ __('admin.status') }}</th>
+                            <th>{{ __('admin.country') }}</th>
+                            <th>{{ __('admin.created_at') }}</th>
+                            <th>{{ __('admin.expiring_at') }}</th>
+                            <th style="width: 70px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -38,9 +38,9 @@
                                 <td>{{ $proxy->getFullProxy() }}</td>
                                 <td>
                                     @if(!$proxy->is_active)
-                                        <span class="badge badge-danger">Inactive</span>
+                                        <span class="badge badge-danger">{{ __('admin.inactive') }}</span>
                                     @else
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge badge-success">{{ __('admin.active') }}</span>
                                     @endif
                                 </td>
                                 <td>{{ strtoupper($proxy->country) }}</td>
@@ -63,21 +63,21 @@
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                                                    <h5 class="modal-title" id="deleteModalLabel">{{ __('admin.confirm_deletion') }}</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
-                                                    Are you sure you want to delete this proxy?
+                                                    {{ __('admin.are_you_sure_delete_proxy') }}
                                                 </div>
                                                 <div class="modal-footer">
                                                     <form action="{{ route('admin.proxies.destroy', $proxy) }}" method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                                                        <button type="submit" class="btn btn-danger">{{ __('admin.yes_delete') }}</button>
                                                     </form>
-                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('admin.cancel') }}</button>
                                                 </div>
                                             </div>
                                         </div>

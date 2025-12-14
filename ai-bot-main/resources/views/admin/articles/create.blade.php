@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Add Article')
+@section('title', __('admin.add_article'))
 
 @section('content_header')
-    <h1>Articles create</h1>
+    <h1>{{ __('admin.add_article') }}</h1>
 @endsection
 
 @section('content')
@@ -14,18 +14,18 @@
             @endif
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Article data</h3>
+                    <h3 class="card-title">{{ __('admin.article_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.articles.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="form-group">
-                            <label for="categories">Categories</label>
+                            <label for="categories">{{ __('admin.categories') }}</label>
                             <select name="categories[]" id="categories" class="select2 form-control @error('categories') is-invalid @enderror" multiple>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" {{ collect(old('categories', []))->contains($category->id) ? 'selected' : '' }}>
-                                        {{ $category->admin_name ?? 'Category #' . $category->id }}
+                                        {{ $category->admin_name ?? 'Категория #' . $category->id }}
                                     </option>
                                 @endforeach
                             </select>
@@ -35,10 +35,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Published</option>
-                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Draft</option>
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>{{ __('admin.published') }}</option>
+                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>{{ __('admin.draft') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="img">Article Image</label>
+                            <label for="img">{{ __('admin.image') }}</label>
                             <input type="file" accept="image/*" class="form-control-file @error('img') is-invalid @enderror" id="img" name="img">
                             @error('img')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -112,8 +112,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.articles.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

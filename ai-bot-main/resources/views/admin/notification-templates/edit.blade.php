@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Edit notification template #' . $notificationTemplate->id)
+@section('title', 'Редактировать шаблон уведомления #' . $notificationTemplate->id)
 
 @section('content_header')
-    <h1>Edit notification template #{{ $notificationTemplate->id }}</h1>
+    <h1>Редактировать шаблон уведомления #{{ $notificationTemplate->id }}</h1>
 @stop
 
 @section('content')
@@ -15,14 +15,14 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Template data</h3>
+                    <h3 class="card-title">Данные шаблона</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.notification-templates.update', $notificationTemplate) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
-                            <label for="name">Name</label>
+                            <label for="name">{{ __('admin.name') }}</label>
                             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $notificationTemplate->name) }}">
                             @error('name')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -30,7 +30,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="slug">Code</label>
+                            <label for="slug">{{ __('admin.code') }}</label>
                             <input type="text" id="code" readonly class="form-control" value="{{ $notificationTemplate->code }}">
                         </div>
 
@@ -53,7 +53,7 @@
                                     @foreach(config('langs') as $code => $flag)
                                         <div class="tab-pane fade show {{ $code == 'en' ? 'active' : null }}" id="tab_message_{{ $code }}" role="tabpanel">
                                             <div class="form-group">
-                                                <label for="title_{{ $code }}">Title</label>
+                                                <label for="title_{{ $code }}">{{ __('admin.title') }}</label>
                                                 <input type="text" name="title[{{ $code }}]" id="title_{{ $code }}"
                                                        class="form-control @error('title.' . $code) is-invalid @enderror"
                                                        value="{{ old('title.' . $code, $notificationTemplateData[$code]['title'] ?? null) }}">
@@ -62,7 +62,7 @@
                                                 @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label for="message_{{ $code }}">Message</label>
+                                                <label for="message_{{ $code }}">Сообщение</label>
                                                 @if ($notificationTemplate->code === 'purchase')
                                                     <div class="alert alert-dark">
                                                         You can use the following tags: <code>:service</code>, <code>:date</code>
@@ -82,9 +82,9 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Save</button>
-                        <button type="submit" name="save" class="btn btn-primary">Save & Continue</button>
-                        <a href="{{ route('admin.notification-templates.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary mr-2">{{ __('admin.save') }}</button>
+                        <button type="submit" name="save" class="btn btn-primary mr-2">{{ __('admin.save') }} & {{ __('admin.continue') }}</button>
+                        <a href="{{ route('admin.notification-templates.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

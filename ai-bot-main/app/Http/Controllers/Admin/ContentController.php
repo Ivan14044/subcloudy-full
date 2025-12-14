@@ -30,7 +30,7 @@ class ContentController extends Controller
 
         $content = Content::create($validated);
 
-        return redirect()->route('admin.contents.index')->with('success', 'Content successfully created.');
+        return redirect()->route('admin.contents.index')->with('success', __('admin.content.created'));
     }
 
     public function edit(Content $content)
@@ -83,7 +83,7 @@ class ContentController extends Controller
             ? route('admin.contents.edit', $content->id)
             : route('admin.contents.index');
 
-        return redirect($route)->with('success', 'Content successfully updated.');
+        return redirect($route)->with('success', __('admin.content.updated'));
     }
 
     public function destroy(Content $content)

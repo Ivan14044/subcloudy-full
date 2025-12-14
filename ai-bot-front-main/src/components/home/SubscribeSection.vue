@@ -14,7 +14,7 @@
                     id="email"
                     v-model="email"
                     type="email"
-                    class="w-full h-16 bg-white dark:!bg-gray-800 border-solid border-black dark:border-gray-500 border-[1px] rounded-[14px] px-4 font-medium text-[20px] text-gray-900 dark:!text-white"
+                    class="w-full h-16 bg-white/80 dark:!bg-gray-800/80 backdrop-blur-sm border-solid border-black/20 dark:border-gray-500/50 border-[1px] rounded-[14px] px-4 font-medium text-[20px] text-gray-900 dark:!text-white"
                     :class="{
                         'border-red-500': (emailError || requiredError) && emailTouched
                     }"

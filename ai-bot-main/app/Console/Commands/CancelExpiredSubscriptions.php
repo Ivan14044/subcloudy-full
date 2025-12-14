@@ -21,6 +21,8 @@ class CancelExpiredSubscriptions extends Command
             ->get();
 
         foreach ($subscriptions as $subscription) {
+            // Изменение статуса автоматически удалит пользователя из аккаунтов сервиса
+            // через событие updating в модели Subscription
             $subscription->status = Subscription::STATUS_CANCELED;
             $subscription->save();
 

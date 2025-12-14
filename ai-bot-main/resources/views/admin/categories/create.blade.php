@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Add Category')
+@section('title', __('admin.add_category'))
 
 @section('content_header')
-    <h1>Add Category</h1>
+    <h1>{{ __('admin.add_category') }}</h1>
 @endsection
 
 @section('content')
@@ -11,7 +11,7 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Category data</h3>
+                    <h3 class="card-title">{{ __('admin.category_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.categories.store') }}">
@@ -35,14 +35,14 @@
                                     @foreach (config('langs') as $code => $flag)
                                         <div class="tab-pane fade show {{ $code == 'en' ? 'active' : null }}" id="content_{{ $code }}" role="tabpanel">
                                             <div class="form-group">
-                                                <label for="name_{{ $code }}">Name</label>
+                                                <label for="name_{{ $code }}">{{ __('admin.name') }}</label>
                                                 <input type="text" name="name[{{ $code }}]" id="name_{{ $code }}" class="form-control @error('name.' . $code) is-invalid @enderror" value="{{ old('name.' . $code) }}">
                                                 @error('name.' . $code)
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                                 @enderror
                                             </div>
                                             <div class="form-group">
-                                                <label for="meta_title_{{ $code }}">Meta title</label>
+                                                <label for="meta_title_{{ $code }}">Мета заголовок</label>
                                                 <input type="text" name="meta_title[{{ $code }}]" id="meta_title_{{ $code }}" class="form-control @error('meta_title.' . $code) is-invalid @enderror" value="{{ old('meta_title.' . $code) }}">
                                                 @error('meta_title.' . $code)
                                                     <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -68,8 +68,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

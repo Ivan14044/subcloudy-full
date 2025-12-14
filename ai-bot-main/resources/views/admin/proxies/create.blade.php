@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Add proxy')
+@section('title', __('admin.add_proxy'))
 
 @section('content_header')
-    <h1>Add proxy</h1>
+    <h1>{{ __('admin.add_proxy') }}</h1>
 @stop
 
 @section('content')
@@ -11,13 +11,13 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Proxy data</h3>
+                    <h3 class="card-title">{{ __('admin.proxy_data') }}</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ route('admin.proxies.store') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="type">Type</label>
+                            <label for="type">{{ __('admin.type_filter') }}</label>
                             <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
                                 <option value="HTTPS" {{ old('type') == 'HTTPS' ? 'selected' : '' }}>HTTPS</option>
                                 <option value="HTTP" {{ old('type') == 'HTTP' ? 'selected' : '' }}>HTTP</option>
@@ -30,7 +30,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Address</label>
+                            <label for="address">Адрес</label>
                             <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" value="{{ old('address') }}">
                             @error('address')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -38,7 +38,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="credentials">Credentials</label>
+                            <label for="credentials">Учетные данные</label>
                             <input type="text" name="credentials" id="credentials" class="form-control @error('credentials') is-invalid @enderror" value="{{ old('credentials') }}">
                             @error('credentials')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -46,10 +46,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="is_active">Status</label>
+                            <label for="is_active">{{ __('admin.status') }}</label>
                             <select name="is_active" id="is_active" class="form-control @error('is_active') is-invalid @enderror">
-                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Active</option>
-                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactive</option>
+                                <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>{{ __('admin.active') }}</option>
+                                <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>{{ __('admin.inactive') }}</option>
                             </select>
                             @error('is_active')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -57,7 +57,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="country">Country</label>
+                            <label for="country">{{ __('admin.country') }}</label>
                             <select name="country" id="country" class="form-control @error('country') is-invalid @enderror">
                                 <option value="">Select country</option>
                                 <option value="AF">Afghanistan</option>
@@ -301,8 +301,8 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Create</button>
-                        <a href="{{ route('admin.proxies.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">{{ __('admin.create') }}</button>
+                        <a href="{{ route('admin.proxies.index') }}" class="btn btn-secondary">{{ __('admin.cancel') }}</a>
                     </form>
                 </div>
             </div>

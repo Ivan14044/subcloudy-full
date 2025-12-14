@@ -37,6 +37,8 @@ class CheckSubscriptions extends Command
 
     /**
      * Завершает подписку: меняет статус на ended и сохраняет.
+     * Изменение статуса автоматически удалит пользователя из аккаунтов сервиса
+     * через событие updating в модели Subscription.
      *
      * @param Subscription $subscription
      */

@@ -1,29 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+	<!-- Home -->
 	<url>
 		<loc>/</loc>
+		<xhtml:link rel="alternate" hreflang="x-default" href="/" />
+		<xhtml:link rel="alternate" hreflang="ru" href="/ru/" />
+		<xhtml:link rel="alternate" hreflang="uk" href="/uk/" />
+		<xhtml:link rel="alternate" hreflang="en" href="/en/" />
+		<xhtml:link rel="alternate" hreflang="es" href="/es/" />
+		<xhtml:link rel="alternate" hreflang="zh" href="/zh/" />
 		<changefreq>daily</changefreq>
 		<priority>1.0</priority>
 	</url>
+	<!-- Articles -->
 	<url>
 		<loc>/articles</loc>
+		<xhtml:link rel="alternate" hreflang="x-default" href="/articles" />
+		<xhtml:link rel="alternate" hreflang="ru" href="/ru/articles" />
+		<xhtml:link rel="alternate" hreflang="uk" href="/uk/articles" />
+		<xhtml:link rel="alternate" hreflang="en" href="/en/articles" />
+		<xhtml:link rel="alternate" hreflang="es" href="/es/articles" />
+		<xhtml:link rel="alternate" hreflang="zh" href="/zh/articles" />
 		<changefreq>daily</changefreq>
 		<priority>0.8</priority>
 	</url>
+	<!-- Auth (необязательно для индексации, но оставим базово) -->
 	<url>
 		<loc>/login</loc>
+		<xhtml:link rel="alternate" hreflang="x-default" href="/login" />
+		<xhtml:link rel="alternate" hreflang="ru" href="/ru/login" />
+		<xhtml:link rel="alternate" hreflang="uk" href="/uk/login" />
+		<xhtml:link rel="alternate" hreflang="en" href="/en/login" />
+		<xhtml:link rel="alternate" hreflang="es" href="/es/login" />
+		<xhtml:link rel="alternate" hreflang="zh" href="/zh/login" />
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
 	<url>
 		<loc>/register</loc>
+		<xhtml:link rel="alternate" hreflang="x-default" href="/register" />
+		<xhtml:link rel="alternate" hreflang="ru" href="/ru/register" />
+		<xhtml:link rel="alternate" hreflang="uk" href="/uk/register" />
+		<xhtml:link rel="alternate" hreflang="en" href="/en/register" />
+		<xhtml:link rel="alternate" hreflang="es" href="/es/register" />
+		<xhtml:link rel="alternate" hreflang="zh" href="/zh/register" />
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
-	<!--
-		Динамические страницы статей и категорий лучше генерировать на бэкенде.
-		Этот статический sitemap покрывает основные разделы SPA.
-	-->
 </urlset>
 
 

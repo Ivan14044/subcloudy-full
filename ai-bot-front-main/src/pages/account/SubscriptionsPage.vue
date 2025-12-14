@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div v-if="authStore.user?.subscriptions?.length" class="space-y-6">
+        <div v-if="filteredSubscriptions.length" class="space-y-6">
             <div
                 v-for="subscription in filteredSubscriptions"
                 :key="subscription.id"
@@ -63,7 +63,7 @@
                                     v-html="
                                         $t('plans.price_monthly', {
                                             price: getServiceAmount(subscription.service_id),
-                                            currency: serviceOption.options.currency.toUpperCase()
+                                            currency: (serviceOption.options?.currency || 'USD').toUpperCase()
                                         })
                                     "
                                 ></p>
@@ -176,7 +176,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'vue-toastification';
 import { useI18n } from 'vue-i18n';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useServiceStore } from '@/stores/services';
 import { useOptionStore } from '@/stores/options';
 import { useAlert } from '@/utils/alert';
@@ -190,33 +190,213 @@ const activeTab = ref<'active' | 'inactive'>('active');
 const serviceStore = useServiceStore();
 const serviceOption = useOptionStore();
 
+// #region agent log
+onMounted(() => {
+    const logData = {
+        location: 'SubscriptionsPage.vue:onMounted',
+        message: 'SubscriptionsPage mounted',
+        data: {
+            hasUser: !!authStore.user,
+            hasSubscriptions: !!authStore.user?.subscriptions,
+            subscriptionsLength: authStore.user?.subscriptions?.length || 0,
+            subscriptions: authStore.user?.subscriptions || [],
+            userKeys: authStore.user ? Object.keys(authStore.user) : [],
+            hasServices: !!serviceStore.services,
+            servicesLength: serviceStore.services?.length || 0,
+            filteredSubscriptionsLength: filteredSubscriptions.value.length,
+            filteredSubscriptions: filteredSubscriptions.value
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'A'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+    
+    // Если подписок нет, попробуем обновить пользователя
+    if (!authStore.user?.subscriptions?.length) {
+        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:onMounted',message:'No subscriptions found, fetching user',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        authStore.fetchUser().then(() => {
+            const afterFetchData = {
+                location: 'SubscriptionsPage.vue:afterFetchUser',
+                message: 'User fetched after mount',
+                data: {
+                    hasSubscriptions: !!authStore.user?.subscriptions,
+                    subscriptionsLength: authStore.user?.subscriptions?.length || 0,
+                    subscriptions: authStore.user?.subscriptions || [],
+                    filteredSubscriptionsLength: filteredSubscriptions.value.length
+                },
+                timestamp: Date.now(),
+                sessionId: 'debug-session',
+                runId: 'run1',
+                hypothesisId: 'B'
+            };
+            fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(afterFetchData)}).catch(()=>{});
+        });
+    }
+    
+    // Если сервисы не загружены, загружаем их
+    if (!serviceStore.services?.length) {
+        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:onMounted',message:'No services found, fetching services',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+        serviceStore.fetchData().then(() => {
+            const afterFetchServicesData = {
+                location: 'SubscriptionsPage.vue:afterFetchServices',
+                message: 'Services fetched after mount',
+                data: {
+                    servicesLength: serviceStore.services?.length || 0,
+                    services: serviceStore.services || []
+                },
+                timestamp: Date.now(),
+                sessionId: 'debug-session',
+                runId: 'run1',
+                hypothesisId: 'F'
+            };
+            fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(afterFetchServicesData)}).catch(()=>{});
+        });
+    }
+});
+
+watch(() => authStore.user?.subscriptions, (newSubs, oldSubs) => {
+    const logData = {
+        location: 'SubscriptionsPage.vue:watch',
+        message: 'Subscriptions changed',
+        data: {
+            oldLength: oldSubs?.length || 0,
+            newLength: newSubs?.length || 0,
+            newSubscriptions: newSubs || []
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'C'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+}, { deep: true });
+
+// #endregion
+
 function getServiceName(serviceId) {
+    // #region agent log
     const service = serviceStore.services.find(s => s.id === serviceId);
-    return service?.translations?.[locale.value]?.name ?? `#${serviceId}`;
+    const result = service?.translations?.[locale.value]?.name ?? `#${serviceId}`;
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:getServiceName',message:'Getting service name',data:{serviceId,hasService:!!service,servicesLength:serviceStore.services?.length||0,result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
+    return result;
 }
 
 function getServiceSubtitle(serviceId) {
+    // #region agent log
     const service = serviceStore.services.find(s => s.id === serviceId);
-    return service?.translations?.[locale.value]?.subtitle ?? null;
+    const result = service?.translations?.[locale.value]?.subtitle ?? null;
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:getServiceSubtitle',message:'Getting service subtitle',data:{serviceId,hasService:!!service,result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
+    return result;
 }
 
 function getServiceLogo(id) {
+    // #region agent log
     const service = serviceStore.services.find(s => s.id === id);
-    return service?.logo ?? '';
+    const result = service?.logo ?? '';
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:getServiceLogo',message:'Getting service logo',data:{serviceId:id,hasService:!!service,result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
+    return result;
 }
 
 function getServiceAmount(id) {
+    // #region agent log
     const service = serviceStore.services.find(s => s.id === id);
-    return service?.amount.toFixed(2) ?? '';
+    const result = service?.amount.toFixed(2) ?? '';
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SubscriptionsPage.vue:getServiceAmount',message:'Getting service amount',data:{serviceId:id,hasService:!!service,result},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
+    return result;
 }
 
 const filteredSubscriptions = computed(() => {
+    // #region agent log
+    const beforeFilterData = {
+        location: 'SubscriptionsPage.vue:filteredSubscriptions',
+        message: 'Computing filtered subscriptions',
+        data: {
+            hasUser: !!authStore.user,
+            hasSubscriptions: !!authStore.user?.subscriptions,
+            subscriptionsLength: authStore.user?.subscriptions?.length || 0,
+            activeTab: activeTab.value,
+            allSubscriptions: authStore.user?.subscriptions || []
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'D'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(beforeFilterData)}).catch(()=>{});
+    // #endregion
+    
     if (!authStore.user?.subscriptions?.length) return [];
 
-    return authStore.user.subscriptions.filter(sub => {
+    const filtered = authStore.user.subscriptions.filter(sub => {
         return activeTab.value === 'active' ? sub.status === 'active' : sub.status !== 'active';
     });
+    
+    // #region agent log
+    const afterFilterData = {
+        location: 'SubscriptionsPage.vue:filteredSubscriptions',
+        message: 'Filtered subscriptions result',
+        data: {
+            filteredLength: filtered.length,
+            filtered: filtered
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'D'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(afterFilterData)}).catch(()=>{});
+    // #endregion
+    
+    return filtered;
 });
+
+// #region agent log
+watch(() => locale.value, (newLocale, oldLocale) => {
+    const logData = {
+        location: 'SubscriptionsPage.vue:watch:locale',
+        message: 'Locale changed',
+        data: {
+            oldLocale,
+            newLocale,
+            hasUser: !!authStore.user,
+            hasSubscriptions: !!authStore.user?.subscriptions,
+            subscriptionsLength: authStore.user?.subscriptions?.length || 0,
+            filteredSubscriptionsLength: filteredSubscriptions.value.length,
+            hasServices: !!serviceStore.services,
+            servicesLength: serviceStore.services?.length || 0
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'H'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+});
+
+watch(() => filteredSubscriptions.value, (newFiltered, oldFiltered) => {
+    const logData = {
+        location: 'SubscriptionsPage.vue:watch:filteredSubscriptions',
+        message: 'Filtered subscriptions changed',
+        data: {
+            oldLength: oldFiltered?.length || 0,
+            newLength: newFiltered?.length || 0,
+            newFiltered: newFiltered || [],
+            currentLocale: locale.value
+        },
+        timestamp: Date.now(),
+        sessionId: 'debug-session',
+        runId: 'run1',
+        hypothesisId: 'I'
+    };
+    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData)}).catch(()=>{});
+}, { deep: true });
+// #endregion
 
 const formatDate = function (dateString) {
     const date = new Date(dateString);

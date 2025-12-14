@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('/')
     ->name('admin.')
+    ->middleware('admin.locale')
     ->group(function () {
         Route::middleware('guest')->group(function () {
             Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -42,6 +43,8 @@ Route::prefix('/')
                 ->name('users.bulk-download');
             Route::post('users/{user}/block', [UserController::class, 'block'])->name('users.block');
             Route::get('users/{user}/subscriptions', [UserController::class, 'subscriptions'])->name('users.subscriptions');
+            Route::post('users/bulk-update-status', [UserController::class, 'bulkUpdateStatus'])->name('users.bulk-update-status');
+            Route::post('users/bulk-add-free-days', [UserController::class, 'bulkAddFreeDays'])->name('users.bulk-add-free-days');
 
             Route::resource('subscriptions', SubscriptionController::class)->except(['show']);
             Route::get('subscriptions/{subscription}/transactions', [SubscriptionController::class, 'transactions'])
@@ -52,6 +55,8 @@ Route::prefix('/')
                 ->name('subscriptions.toggle-status');
             Route::get('/subscriptions/extend', [SubscriptionController::class, 'extendForm'])->name('subscriptions.extend');
             Route::post('/subscriptions/extend', [SubscriptionController::class, 'extendMany']);
+            Route::put('transactions/{transaction}/update-status', [SubscriptionController::class, 'updateTransactionStatus'])
+                ->name('transactions.update-status');
 
             Route::resource('proxies', ProxyController::class)->except(['show']);
             Route::resource('promocodes', PromocodeController::class)->except(['show']);

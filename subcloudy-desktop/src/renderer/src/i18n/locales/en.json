@@ -1,0 +1,82 @@
+{
+  "auth": {
+    "loginTitle": "Sign In",
+    "loginSubtitle": "Enter your credentials to access your services",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "loginButton": "Sign In",
+    "signingIn": "Signing in...",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "loginWith": "Or continue with",
+    "subscriptions": "My Subscriptions",
+    "profile": "Profile"
+  },
+  "services": {
+    "title": "Your Services",
+    "logout": "Logout",
+    "loading": "Loading your services...",
+    "noServices": "No Active Services",
+    "noServicesDesc": "You don't have any active subscriptions yet.",
+    "browseServices": "Browse Services on Website",
+    "activeServices": "Your Active Services",
+    "clickToLaunch": "Click the green button to launch the service",
+    "launchError": "Failed to launch service",
+    "openService": "Open Service",
+    "backToServices": "Back to Services",
+    "card": {
+      "show_more": "Show more",
+      "back_to_front_side": "Tap anywhere on this card to go back"
+    }
+  },
+  "subscriptions": {
+    "title": "My Subscriptions",
+    "active_tab": "Active",
+    "inactive_tab": "Inactive",
+    "month": "mo",
+    "days_left": "days left",
+    "expires_on": "Expires",
+    "expires_soon": "⚠️ Expiring Soon!",
+    "expires_very_soon": "⚠️ Expires Very Soon!",
+    "expires_tomorrow": "⚠️ Expires Tomorrow!",
+    "next_payment": "Next Payment",
+    "payment_method_label": "Payment Method",
+    "created_label": "Created",
+    "next_payment_label": "Next Payment",
+    "cancel": "Cancel Subscription",
+    "renew": "Resume Auto-Renew",
+    "status_active": "✓ Active",
+    "status_canceled": "✗ Canceled",
+    "status_ended": "Ended",
+    "cancel_confirm": "Are you sure you want to cancel auto-renewal? The subscription will remain active until the end of the paid period.",
+    "renew_confirm": "Resume automatic subscription renewal?",
+    "toggle_success": "Subscription updated successfully!",
+    "toggle_error": "Error updating subscription",
+    "empty_active": "You have no active subscriptions",
+    "empty_inactive": "You have no ended subscriptions",
+    "loading": "Loading subscriptions..."
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "name": "Name",
+    "email": "Email",
+    "password": "New Password",
+    "confirmPassword": "Confirm Password",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "your@@email.com",
+    "passwordPlaceholder": "Leave blank to keep current",
+    "confirmPasswordPlaceholder": "Repeat new password",
+    "saveButton": "Save Changes",
+    "saving": "Saving...",
+    "success": "✅ Profile updated successfully!",
+    "error": "❌ Error updating profile",
+    "passwordMismatch": "Passwords do not match"
+  },
+  "checkout": {
+    "credit_card": "Credit Card",
+    "crypto": "Cryptocurrency"
+  }
+}
+

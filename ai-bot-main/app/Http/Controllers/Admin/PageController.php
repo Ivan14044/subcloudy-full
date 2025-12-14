@@ -38,7 +38,7 @@ class PageController extends Controller
         $page = Page::create($validated);
         $page->saveTranslation($validated);
 
-        return redirect()->route('admin.pages.index')->with('success', 'Page successfully created.');
+        return redirect()->route('admin.pages.index')->with('success', __('admin.page.created'));
     }
 
     public function edit(Page $page)
@@ -62,14 +62,14 @@ class PageController extends Controller
             ? route('admin.pages.edit', $page->id)
             : route('admin.pages.index');
 
-        return redirect($route)->with('success', 'Page successfully updated.');
+        return redirect($route)->with('success', __('admin.page.updated'));
     }
 
     public function destroy(Page $page)
     {
         $page->delete();
 
-        return redirect()->route('admin.pages.index')->with('success', 'Page successfully deleted.');
+        return redirect()->route('admin.pages.index')->with('success', __('admin.page.deleted'));
     }
 
     private function getRules($id = false)
