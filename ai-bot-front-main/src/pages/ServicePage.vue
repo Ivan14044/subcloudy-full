@@ -403,8 +403,8 @@ watch(
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(140deg, rgba(124, 58, 237, 0.85), rgba(96, 165, 250, 0.85));
-    box-shadow: 0 18px 32px rgba(96, 165, 250, 0.25);
+    background: transparent;
+    box-shadow: none;
 }
 
 .service-card__logo-img {
@@ -562,7 +562,7 @@ watch(
 }
 
 .service-card--coming-soon .service-card__logo {
-    background: linear-gradient(140deg, rgba(148, 163, 184, 0.4), rgba(148, 163, 184, 0.25));
+    background: transparent;
     box-shadow: none;
 }
 
