@@ -123,8 +123,10 @@ const loadTelegramScript = () => {
 
 // Показать всплывающее окно Telegram авторизации
 const showTelegramPopup = () => {
-    // Для этого вам нужно создать Telegram бота и получить его имя
-    const botId = (import.meta as any).env.VITE_APP_TELEGRAM_BOT_ID || '';
+    // Для этого вам нужно создать Telegram бота и получить его ID
+    // Здесь мы временно жёстко указываем ID бота, чтобы исправить ошибку Bot id required
+    // TODO: позже можно вернуть использование переменной окружения VITE_APP_TELEGRAM_BOT_ID
+    const botId = '8267596067';
 
     if (window.Telegram && window.Telegram.Login) {
         window.Telegram.Login.auth({ bot_id: botId }, data => {
