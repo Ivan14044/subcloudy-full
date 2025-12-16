@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Auth\AuthenticationException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -44,6 +45,12 @@ class Handler extends ExceptionHandler
                 return response()->json([
                     'message' => 'Not Found',
                 ], 404);
+            }
+
+            if ($exception instanceof AuthenticationException) {
+                return response()->json([
+                    'message' => 'Unauthenticated',
+                ], 401);
             }
 
             return response()->json([
