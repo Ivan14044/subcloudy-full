@@ -81,7 +81,7 @@
                                             {{ service.amount.toFixed(2) }}
                                         </span>
                                         <span class="service-card__currency">
-                                            {{ serviceOption.options.currency.toUpperCase() }}
+                                            {{ (serviceOption.options?.currency || 'USD').toUpperCase() }}
                                         </span>
                                     </div>
 
@@ -301,6 +301,11 @@ const goToCheckout = () => {
 
 onMounted(async () => {
     const serviceId = Number(route.params.id);
+
+    // Загружаем опции, если они еще не загружены
+    if (!serviceOption.isLoaded) {
+        await serviceOption.fetchData();
+    }
 
     if (!serviceStore.isLoaded) {
         await serviceStore.fetchData();
