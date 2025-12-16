@@ -26,13 +26,15 @@ export const useServiceStore = defineStore('services', {
 
             try {
                 const response = await axios.get<Services[]>('/services');
-                const domain = import.meta.env.VITE_APP_DOMAIN;
+                const domain = import.meta.env.VITE_APP_DOMAIN || window.location.origin;
 
                 this.services = response.data.map(service => ({
                     ...service,
                     logo: service.logo.startsWith('http')
                         ? service.logo
-                        : `${domain}${service.logo}`
+                        : service.logo.startsWith('/')
+                        ? `${domain}${service.logo}`
+                        : `${domain}/${service.logo}`
                 }));
 
                 this.isLoaded = true;
