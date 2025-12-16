@@ -155,15 +155,29 @@ class SocialAuthController extends Controller
 
             Log::info('Telegram callback', [
                 'from_desktop' => $request->has('from_desktop'),
-                'has_id' => isset($telegramData['id'])
+                'has_id' => isset($telegramData['id']),
+                'data_keys' => array_keys($telegramData),
+                'has_hash' => isset($telegramData['hash']),
+                'has_auth_date' => isset($telegramData['auth_date'])
             ]);
 
-            if (!$this->validateTelegramData($telegramData)) {
+            $validationResult = $this->validateTelegramData($telegramData);
+            Log::info('Telegram validation result', ['valid' => $validationResult]);
+
+            if (!$validationResult) {
+                Log::warning('Telegram data validation failed', [
+                    'data_keys' => array_keys($telegramData),
+                    'has_id' => isset($telegramData['id']),
+                    'has_hash' => isset($telegramData['hash']),
+                    'has_auth_date' => isset($telegramData['auth_date'])
+                ]);
                 return response()->json([
                     'success' => false,
                     'error' => 'Invalid Telegram data'
                 ], 401);
             }
+
+            Log::info('Telegram validation passed, processing user');
 
             $user = User::where('telegram_id', $telegramData['id'])->first();
 
@@ -208,6 +222,11 @@ class SocialAuthController extends Controller
             $userData = $user->only(['id', 'name', 'email', 'avatar', 'telegram_username']);
             $userData['active_services'] = $user->active_services;
 
+            Log::info('Telegram auth successful', [
+                'user_id' => $user->id,
+                'has_token' => !empty($token)
+            ]);
+
             return response()->json([
                 'success' => true,
                 'token' => $token,
@@ -229,16 +248,31 @@ class SocialAuthController extends Controller
     {
         // Если отсутствуют обязательные поля, данные недействительны
         if (!isset($data['id']) || !isset($data['auth_date']) || !isset($data['hash'])) {
+            Log::warning('Telegram validation: missing required fields', [
+                'has_id' => isset($data['id']),
+                'has_auth_date' => isset($data['auth_date']),
+                'has_hash' => isset($data['hash'])
+            ]);
             return false;
         }
 
         // Проверяем, что авторизация не устарела (не более 24 часов)
-        if (time() - $data['auth_date'] > 86400) {
+        $authAge = time() - $data['auth_date'];
+        if ($authAge > 86400) {
+            Log::warning('Telegram validation: auth expired', [
+                'auth_date' => $data['auth_date'],
+                'current_time' => time(),
+                'age_seconds' => $authAge
+            ]);
             return false;
         }
 
         // Получаем секретный ключ для проверки
         $botToken = config('services.telegram.bot_token');
+        if (empty($botToken)) {
+            Log::error('Telegram validation: bot_token is empty in config');
+            return false;
+        }
         $secretKey = hash('sha256', $botToken, true);
 
         // Готовим данные для проверки хэша (копируем и удаляем хэш)
@@ -256,7 +290,16 @@ class SocialAuthController extends Controller
 
         // Вычисляем хэш и сравниваем с полученным от Telegram
         $hash = hash_hmac('sha256', $dataCheckString, $secretKey);
+        $isValid = hash_equals($hash, $checkHash);
 
-        return hash_equals($hash, $checkHash);
+        if (!$isValid) {
+            Log::warning('Telegram validation: hash mismatch', [
+                'calculated_hash' => substr($hash, 0, 16) . '...',
+                'received_hash' => substr($checkHash, 0, 16) . '...',
+                'data_check_string_length' => strlen($dataCheckString)
+            ]);
+        }
+
+        return $isValid;
     }
 }
