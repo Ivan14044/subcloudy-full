@@ -306,9 +306,11 @@ onMounted(async () => {
         await serviceStore.fetchData();
     }
 
-    service.value = serviceStore.getById(serviceId);
+    // Пробуем найти сервис по ID (как число и как строку)
+    service.value = serviceStore.getById(serviceId) || serviceStore.getById(Number(serviceId));
 
     if (!service.value) {
+        console.error('Service not found:', serviceId, 'Available services:', serviceStore.services.map(s => s.id));
         await router.replace('/404');
         return;
     }

@@ -44,7 +44,8 @@ export const useServiceStore = defineStore('services', {
         },
 
         getById(id: number): Services | undefined {
-            return this.services.find(service => service.id === id);
+            // Ищем по строгому сравнению и по приведению типов
+            return this.services.find(service => service.id === id || Number(service.id) === Number(id));
         }
     }
 });
