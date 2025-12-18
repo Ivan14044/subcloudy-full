@@ -24,10 +24,19 @@ const router = useRouter();
 const { locale } = useI18n();
 
 function handleClick(item: { link: string; is_target: boolean }) {
+    if (!item || !item.link) {
+        console.warn('FooterMenu: Invalid item or link', item);
+        return;
+    }
+    
     if (item.is_target) {
         window.open(item.link, '_blank');
     } else {
-        router.push(item.link);
+        // ????????????????????, ?????? ???????????? ???????????????????? ?? /
+        const link = item.link.startsWith('/') ? item.link : `/${item.link}`;
+        router.push(link).catch(err => {
+            console.error('FooterMenu: Navigation error', err);
+        });
     }
 }
 
