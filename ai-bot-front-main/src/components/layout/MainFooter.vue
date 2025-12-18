@@ -1,7 +1,7 @@
 <template>
     <footer
         class="bg-[#161719] text-white rounded-t-[40px] xl:rounded-t-[100px] px-6 py-16 position-relative mt-auto"
-        style="min-height: 400px;"
+        style="min-height: 400px; position: relative; z-index: 1;"
     >
         <div
             class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 grid md:grid-cols-[1fr_2fr] gap-10"
