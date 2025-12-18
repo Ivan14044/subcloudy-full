@@ -1,11 +1,13 @@
 <template>
-    <div>
-        <ul class="justify-end mt-3 mb-3 md:mb-7 flex flex-col gap-5 md:flex-row">
+    <div style="position: relative; z-index: 10;">
+        <ul class="justify-end mt-3 mb-3 md:mb-7 flex flex-col gap-5 md:flex-row" style="position: relative; z-index: 10;">
             <li
                 v-for="(item, index) in footerMenu"
                 :key="index"
                 class="cursor-pointer font-medium text-gray-300 hover:text-white transition-colors duration-300"
-                @click="handleClick(item)"
+                @click.stop.prevent="handleClick(item)"
+                @mousedown.stop="console.log('[FooterMenu] Mouse down on item:', item)"
+                style="pointer-events: auto !important; user-select: none; position: relative; z-index: 11;"
             >
                 {{ item.title }}
             </li>
