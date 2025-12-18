@@ -1,11 +1,17 @@
 <template>
-    <div v-if="isAuthenticated" class="relative">
+    <div v-if="isAuthenticated" ref="containerRef" class="relative">
         <div
+            ref="buttonRef"
             class="px-2 px-lg-3 d-flex h-[32px] rounded-lg transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-gray-700 cursor-pointer"
             @click.stop="toggleDropdown"
         >
             <!-- Bell icon -->
-            <button class="relative" :class="{ 'bounce-once': animate }">
+            <button 
+                class="relative" 
+                :class="{ 'bounce-once': animate }"
+                :aria-label="$t('notifications.bell')"
+                :aria-expanded="dropdownOpen"
+            >
                 <Bell class="bell" />
 
                 <span
@@ -18,37 +24,43 @@
         </div>
 
         <!-- Dropdown -->
-        <Transition
-            enter-active-class="transition duration-200 ease-out"
-            enter-from-class="opacity-0 -translate-y-2"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="transition duration-150 ease-in"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 -translate-y-2"
-        >
-            <div
-                v-if="dropdownOpen"
-                ref="dropdownRef"
-                class="absolute right-0 top-[45px] w-80 !bg-indigo-soft-200 !border-indigo-soft-400 dark:!border-gray-700 text-gray-900 dark:text-white dark:!bg-gray-800 border rounded shadow-lg z-50 notification-dropdown"
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition duration-200 ease-out"
+                enter-from-class="opacity-0 -translate-y-2"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition duration-150 ease-in"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-2"
             >
-                <BoxLoader v-if="loading" />
-                <div class="px-2 px-lg-3 py-2 border-b font-semibold text-gray-900 dark:text-white">
-                    {{ $t('notifications.dropdown_title') }}
-                    <button
-                        class="text-gray-900 dark:text-white text-2xl leading-none float-right close-dropdown"
-                        @click="toggleDropdown"
-                    >
-                        ×
-                    </button>
-                </div>
+                <div
+                    v-if="dropdownOpen"
+                    ref="dropdownRef"
+                    :style="dropdownStyle"
+                    class="notification-menu-dropdown fixed w-80 z-[9999]"
+                >
+                    <div class="liquid-glass-effect"></div>
+                    <div class="liquid-glass-tint"></div>
+                    <div class="liquid-glass-shine"></div>
+                    <div class="liquid-glass-text">
+                        <BoxLoader v-if="loading" />
+                        <div class="px-2 px-lg-3 py-2 border-b font-semibold text-gray-900 dark:text-white relative z-10">
+                            {{ $t('notifications.dropdown_title') }}
+                            <button
+                                class="text-gray-900 dark:text-white text-2xl leading-none float-right close-dropdown"
+                                @click="toggleDropdown"
+                            >
+                                ×
+                            </button>
+                        </div>
 
-                <div v-if="items.length > 0" class="max-h-96 overflow-y-auto">
-                    <div
-                        v-for="(item, index) in items"
-                        :ref="el => setItemRef(el, item.id)"
-                        :key="index"
-                        class="p-3 border-b transition relative"
-                    >
+                        <div v-if="items.length > 0" class="max-h-96 overflow-y-auto relative z-10">
+                            <div
+                                v-for="(item, index) in items"
+                                :ref="el => setItemRef(el, item.id)"
+                                :key="index"
+                                class="p-3 border-b transition relative"
+                            >
                         <div class="text-sm font-medium flex justify-between items-start">
                             <span>{{ getTranslation(item, 'title') }}</span>
                             <span
@@ -61,29 +73,31 @@
                             class="text-xs text-gray-600 dark:text-gray-300 mt-1"
                             v-html="getTranslation(item, 'message')"
                         ></div>
-                        <div class="text-xs text-gray-500 mt-2">
-                            {{ formatDate(item.created_at) }}
+                                <div class="text-xs text-gray-500 mt-2">
+                                    {{ formatDate(item.created_at) }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="p-4 text-sm text-gray-300 dark:text-gray-500 text-center relative z-10">
+                            {{ $t('notifications.empty') }}
+                        </div>
+
+                        <div
+                            v-if="store.total > 3 && store.total > items.length"
+                            class="text-gray-600 dark:text-blue-600 dark:text-white text-sm relative z-10"
+                            @click="loadMore"
+                        >
+                            <div
+                                class="p-2 text-center cursor-pointer leading-none hover:bg-indigo-200 dark:hover:bg-gray-700 transition"
+                            >
+                                {{ $t('notifications.dropdown_button') }} ({{ store.total - items.length }})
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div v-else class="p-4 text-sm text-gray-300 dark:text-gray-500 text-center">
-                    {{ $t('notifications.empty') }}
-                </div>
-
-                <div
-                    v-if="store.total > 3 && store.total > items.length"
-                    class="text-gray-600 dark:text-blue-600 dark:text-white text-sm"
-                    @click="loadMore"
-                >
-                    <div
-                        class="p-2 text-center cursor-pointer leading-none hover:bg-indigo-200 dark:hover:bg-gray-700 transition"
-                    >
-                        {{ $t('notifications.dropdown_button') }} ({{ store.total - items.length }})
-                    </div>
-                </div>
-            </div>
-        </Transition>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 
@@ -95,6 +109,7 @@ import BoxLoader from '@/components/BoxLoader.vue';
 import { useI18n } from 'vue-i18n';
 import { useServiceStore } from '@/stores/services';
 import { Bell } from 'lucide-vue-next';
+import { Teleport } from 'vue';
 
 const { locale } = useI18n();
 const dropdownOpen = ref(false);
@@ -105,6 +120,9 @@ const sound = new Audio('/sounds/notification.mp3');
 sound.volume = 0.5;
 const isFirstLoad = ref(true);
 const dropdownRef = ref(null);
+const buttonRef = ref(null);
+const containerRef = ref(null);
+const dropdownStyle = ref({ top: '0px', right: '0px' });
 
 const notificationStore = useNotificationStore();
 const serviceStore = useServiceStore();
@@ -163,8 +181,26 @@ function setItemRef(el, id) {
     else delete itemRefs.value[id];
 }
 
+const updateDropdownPosition = () => {
+    if (!buttonRef.value || !dropdownOpen.value) return;
+    
+    nextTick(() => {
+        const rect = buttonRef.value.getBoundingClientRect();
+        dropdownStyle.value = {
+            top: `${rect.bottom + 5}px`,
+            right: `${window.innerWidth - rect.right}px`
+        };
+    });
+};
+
 function handleClickOutside(event) {
-    if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+    const target = event.target;
+    if (
+        containerRef.value && 
+        !containerRef.value.contains(target) &&
+        dropdownRef.value &&
+        !dropdownRef.value.contains(target)
+    ) {
         dropdownOpen.value = false;
         recentlyRead.value.clear();
     }
@@ -174,6 +210,7 @@ function toggleDropdown() {
     dropdownOpen.value = !dropdownOpen.value;
 
     if (dropdownOpen.value) {
+        updateDropdownPosition();
         const unreadItems = store.items.filter(n => !n.read_at);
         const unreadIds = unreadItems.map(n => n.id);
 
@@ -185,6 +222,17 @@ function toggleDropdown() {
         recentlyRead.value.clear();
     }
 }
+
+watch(dropdownOpen, (newVal) => {
+    if (newVal) {
+        updateDropdownPosition();
+        window.addEventListener('scroll', updateDropdownPosition);
+        window.addEventListener('resize', updateDropdownPosition);
+    } else {
+        window.removeEventListener('scroll', updateDropdownPosition);
+        window.removeEventListener('resize', updateDropdownPosition);
+    }
+});
 
 function getTranslation(item, key) {
     const translations = item.template?.translations || {};
@@ -217,6 +265,8 @@ function formatDate(dateStr) {
 onUnmounted(() => {
     clearInterval(intervalId.value);
     document.removeEventListener('click', handleClickOutside);
+    window.removeEventListener('scroll', updateDropdownPosition);
+    window.removeEventListener('resize', updateDropdownPosition);
 });
 
 watch(unread, newVal => {
@@ -323,10 +373,77 @@ watch(
     margin-top: -1px;
 }
 
+/* Liquid Glass Effect для dropdown уведомлений */
+.notification-menu-dropdown {
+    position: fixed;
+    box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.notification-menu-dropdown .liquid-glass-effect {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    filter: url(#header-glass-distortion);
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 0.5rem;
+}
+
+.notification-menu-dropdown .liquid-glass-tint {
+    z-index: 1;
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 0.5rem;
+}
+
+.dark .notification-menu-dropdown .liquid-glass-tint {
+    background: rgba(31, 41, 55, 0.4);
+}
+
+.notification-menu-dropdown .liquid-glass-shine {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+    pointer-events: none;
+}
+
+.dark .notification-menu-dropdown .liquid-glass-shine {
+    box-shadow: 
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.1),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.notification-menu-dropdown .liquid-glass-text {
+    z-index: 3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.notification-menu-dropdown .liquid-glass-text > div {
+    color: #1f2937;
+}
+
+.dark .notification-menu-dropdown .liquid-glass-text > div {
+    color: #f9fafb;
+}
+
 @media (max-width: 992px) {
-    .notification-dropdown {
+    .notification-menu-dropdown {
         left: 10px !important;
-        position: fixed !important;
+        right: auto !important;
         width: calc(100% - 20px) !important;
         top: 59px !important;
     }

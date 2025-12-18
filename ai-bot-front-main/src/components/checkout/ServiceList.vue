@@ -19,7 +19,10 @@
                 <img
                     :src="item.logo"
                     :alt="`${getTranslation(item, 'name')} Logo`"
+                    width="80"
+                    height="80"
                     class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 object-contain"
+                    style="aspect-ratio: 1 / 1;"
                 />
 
                 <div class="flex-1 space-y-2">

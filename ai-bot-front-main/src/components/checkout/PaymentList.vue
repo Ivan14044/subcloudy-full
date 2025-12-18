@@ -48,28 +48,40 @@
                             <img
                                 :src="applePayLogo"
                                 alt="Apple Pay"
+                                width="40"
+                                height="16"
                                 class="h-3 object-contain object-center"
+                                style="aspect-ratio: 5 / 2;"
                             />
                         </div>
                         <div class="icon-pill" title="Google Pay">
                             <img
                                 :src="googlePayLogo"
                                 alt="google pay"
+                                width="40"
+                                height="16"
                                 class="h-3 object-contain object-center"
+                                style="aspect-ratio: 5 / 2;"
                             />
                         </div>
                         <div class="icon-pill" title="Visa">
                             <img
                                 :src="visaLogo"
                                 alt="Visa"
+                                width="40"
+                                height="16"
                                 class="h-4 object-contain object-center"
+                                style="aspect-ratio: 5 / 2;"
                             />
                         </div>
                         <div class="icon-pill" title="Mastercard">
                             <img
                                 :src="mastercardLogo"
                                 alt="mastercard"
+                                width="40"
+                                height="24"
                                 class="h-4 object-contain object-center"
+                                style="aspect-ratio: 5 / 3;"
                             />
                         </div>
                     </div>
@@ -103,21 +115,30 @@
                             <img
                                 :src="bitcoinLogo"
                                 alt="bitcoin"
+                                width="24"
+                                height="24"
                                 class="h-4 object-contain object-center"
+                                style="aspect-ratio: 1 / 1;"
                             />
                         </div>
                         <div class="icon-pill" title="Ethereum">
                             <img
                                 :src="ethereumLogo"
                                 alt="ethereum"
+                                width="24"
+                                height="24"
                                 class="h-4 object-contain object-center"
+                                style="aspect-ratio: 1 / 1;"
                             />
                         </div>
                         <div class="icon-pill" title="Tether">
                             <img
                                 :src="tetherLogo"
                                 alt="tether"
+                                width="24"
+                                height="24"
                                 class="h-4 object-contain object-center"
+                                style="aspect-ratio: 1 / 1;"
                             />
                         </div>
                     </div>

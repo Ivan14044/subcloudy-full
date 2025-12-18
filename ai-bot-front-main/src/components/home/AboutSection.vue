@@ -4,8 +4,11 @@
             <img
                 src="/img/who.webp"
                 alt="About Us"
+                width="400"
+                height="300"
                 class="w-full max-w-md rounded-2xl mx-auto"
                 loading="lazy"
+                style="aspect-ratio: 4 / 3;"
             />
         </div>
     </div>

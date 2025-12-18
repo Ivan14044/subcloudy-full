@@ -1,7 +1,10 @@
 import axios from 'axios';
 import i18n from './i18n';
 
-const apiBase = import.meta.env.VITE_API_BASE || 'https://api.subcloudy.com';
+// Всегда используем относительный путь /api
+// В dev режиме Vite proxy перенаправляет на Laravel сервер
+// В production фронтенд и бэкенд на одном домене, поэтому относительный путь работает
+const apiBase = import.meta.env.VITE_API_BASE || '/api';
 
 axios.defaults.baseURL = apiBase;
 axios.defaults.withCredentials = true;

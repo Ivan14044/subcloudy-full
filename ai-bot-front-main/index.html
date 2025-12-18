@@ -10,28 +10,41 @@
 	<meta property="og:type" content="website">
 	<meta property="og:title" content="SubCloudy — Экономия на подписках и сервисах с умным помощником">
 	<meta property="og:description" content="SubCloudy помогает экономить на подписках и сервисах: аналитика расходов, рекомендации, автоматизация и удобная оплата.">
-	<meta property="og:image" content="/src/assets/logo.webp">
+	<meta property="og:image" content="/assets/logo-BkC0PaDI.webp">
 	<meta property="og:site_name" content="SubCloudy">
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="SubCloudy — Экономия на подписках и сервисах с умным помощником">
 	<meta name="twitter:description" content="SubCloudy помогает экономить на подписках и сервисах.">
-	<meta name="twitter:image" content="/src/assets/logo.webp">
+	<meta name="twitter:image" content="/assets/logo-BkC0PaDI.webp">
 	<script type="application/ld+json">
 	{
 		"@context": "https://schema.org",
 		"@type": "Organization",
 		"name": "SubCloudy",
 		"url": "/",
-		"logo": "/src/assets/logo.webp"
+		"logo": "/assets/logo-BkC0PaDI.webp"
 	}
 	</script>
-    <link rel="icon" type="image/webp" href="/src/assets/logo.webp"/>
+    <link rel="icon" type="image/webp" href="/assets/logo-BkC0PaDI.webp"/>
     <!-- Иконки MDI для Vuetify (если нужны) -->
     <link rel="stylesheet" href="/node_modules/@mdi/font/css/materialdesignicons.min.css">
 
 	<!-- Лёгкие прелоады ключевых изображений -->
-	<link rel="preload" as="image" href="/src/assets/logo.webp" imagesrcset="/src/assets/logo.webp" imagesizes="100vw">
+	<link rel="preload" as="image" href="/assets/logo-BkC0PaDI.webp" imagesrcset="/assets/logo-BkC0PaDI.webp" imagesizes="100vw">
+	
+	<!-- Preload критических шрифтов -->
+	<link rel="preload" as="font" href="/fonts/SFTSchriftedSansTRIAL-Regular.ttf" type="font/ttf" crossorigin="anonymous">
+	<link rel="preload" as="font" href="/fonts/SFTSchriftedSansTRIAL-Medium.ttf" type="font/ttf" crossorigin="anonymous">
+	<link rel="preload" as="font" href="/fonts/SFTSchriftedSansTRIAL-Bold.ttf" type="font/ttf" crossorigin="anonymous">
+	
+	<!-- DNS Prefetch для внешних ресурсов (если используются) -->
+	<link rel="dns-prefetch" href="//fonts.googleapis.com">
+	<link rel="dns-prefetch" href="//fonts.gstatic.com">
 
+    <!-- Критический CSS встроен для быстрого рендеринга -->
+    <style>
+        header{position:fixed;top:0;left:0;height:60px;width:100%;z-index:2}html,body{overflow-x:hidden}html{scroll-behavior:smooth}img[alt="Logo"]{width:32px;height:32px;aspect-ratio:1/1;object-fit:contain}footer{min-height:400px}main{position:relative;z-index:1;opacity:1!important;filter:none!important}main>*{opacity:1!important;filter:none!important}img{max-width:100%;height:auto}picture img{width:100%;height:auto}.service-card__logo-img,.service-card__logo img{aspect-ratio:1/1;object-fit:contain}
+    </style>
     <script>
       (function () {
         const savedTheme = localStorage.getItem('theme');

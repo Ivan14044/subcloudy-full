@@ -9,7 +9,10 @@
                 <img
                     :src="logo"
                     alt="Loading..."
+                    width="80"
+                    height="80"
                     class="w-20 h-20 object-contain spin-slow-reverse"
+                    style="aspect-ratio: 1 / 1;"
                 />
                 <div
                     v-if="isStartSessionPage"

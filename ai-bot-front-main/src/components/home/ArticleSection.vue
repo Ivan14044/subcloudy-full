@@ -23,7 +23,7 @@
         </div>
         <div class="text-center mt-12">
             <a
-                class="cta-button dark:border-gray-300 dark:text-white dark:hover:border-blue-900 pointer-events-auto cursor-pointer"
+                class="cta-button pointer-events-auto cursor-pointer"
                 @click="router.push('/articles')"
             >
                 {{ t('articles.allArticles') }}

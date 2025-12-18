@@ -1,0 +1,67 @@
+/* Критический CSS для выше-the-fold контента */
+/* Этот CSS будет встроен в <head> для быстрого рендеринга */
+
+/* Базовые стили для header */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 60px;
+    width: 100%;
+    z-index: 2;
+    transition: box-shadow 0.5s ease;
+}
+
+/* Базовые стили для body */
+html, body {
+    overflow-x: hidden;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Критические стили для логотипа */
+img[alt="Logo"] {
+    width: 32px;
+    height: 32px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+
+/* Критические стили для footer (предотвращение CLS) */
+footer {
+    min-height: 400px;
+}
+
+/* Базовые стили для контента */
+main {
+    position: relative;
+    z-index: 1;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+main > * {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Критические стили для изображений (предотвращение CLS) */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+picture img {
+    width: 100%;
+    height: auto;
+}
+
+/* Базовые стили для предотвращения layout shift */
+.service-card__logo-img,
+.service-card__logo img {
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+}
+

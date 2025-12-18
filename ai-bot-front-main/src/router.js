@@ -1,25 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginPage from './components/auth/LoginPage.vue';
-import RegisterPage from './components/auth/RegisterPage.vue';
-import AuthCallback from './components/auth/AuthCallback.vue';
+// Главная страница загружается сразу (критический контент)
 import MainPage from './pages/MainPage.vue';
-import ProfilePage from './pages/account/ProfilePage.vue';
-import ServicePage from './pages/ServicePage.vue';
-import SubscriptionsPage from './pages/account/SubscriptionsPage.vue';
-import SessionStart from './pages/SessionStart.vue';
-import ForgotPasswordPage from './components/auth/ForgotPasswordPage.vue';
-import ResetPasswordPage from './components/auth/ResetPasswordPage.vue';
-import CheckoutPage from './pages/CheckoutPage.vue';
-import ContentPage from './pages/ContentPage.vue';
-import NotFound from './pages/NotFound.vue';
-import ArticlesAll from './pages/articles/ArticlesAll.vue';
-import ArticleDetails from './pages/articles/ArticleDetails.vue';
-import DownloadAppPage from './pages/DownloadAppPage.vue';
+// Остальные страницы загружаются динамически (lazy loading)
+const LoginPage = () => import('./components/auth/LoginPage.vue');
+const RegisterPage = () => import('./components/auth/RegisterPage.vue');
+const AuthCallback = () => import('./components/auth/AuthCallback.vue');
+const ProfilePage = () => import('./pages/account/ProfilePage.vue');
+const ServicePage = () => import('./pages/ServicePage.vue');
+const SubscriptionsPage = () => import('./pages/account/SubscriptionsPage.vue');
+const SessionStart = () => import('./pages/SessionStart.vue');
+const ForgotPasswordPage = () => import('./components/auth/ForgotPasswordPage.vue');
+const ResetPasswordPage = () => import('./components/auth/ResetPasswordPage.vue');
+const CheckoutPage = () => import('./pages/CheckoutPage.vue');
+const ContentPage = () => import('./pages/ContentPage.vue');
+const NotFound = () => import('./pages/NotFound.vue');
+const ArticlesAll = () => import('./pages/articles/ArticlesAll.vue');
+const ArticleDetails = () => import('./pages/articles/ArticleDetails.vue');
+const DownloadAppPage = () => import('./pages/DownloadAppPage.vue');
 import { useAuthStore } from './stores/auth';
 import { usePageStore } from './stores/pages';
 import { updateWebPageSEO } from './utils/seo';
 import i18n from './i18n';
+import { useI18n } from 'vue-i18n';
 import { getSeoStrings } from './utils/seoStrings';
+import { prefetchRoute } from './utils/prefetchUtils';
 
 const SUPPORTED_LOCALES = ['ru', 'uk', 'en', 'es', 'zh'];
 
@@ -228,8 +232,11 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.isDynamic) {
         const slug = to.path.replace(/^\/|\/$/g, '');
         const pageStore = usePageStore();
-        if (!pageStore.pages.length) {
-            await pageStore.fetchData();
+        const { locale } = useI18n();
+        
+        // Загружаем данные с учетом текущей локали
+        if (!pageStore.pages || Object.keys(pageStore.pages).length === 0 || pageStore.currentLocale !== locale.value) {
+            await pageStore.fetchData(locale.value);
         }
 
         if (typeof pageStore.pages[slug] !== 'undefined') {
@@ -243,8 +250,20 @@ router.beforeEach(async (to, from, next) => {
     next();
 });
 
-// После перехода обновляем базовые мета-теги
+// После перехода обновляем базовые мета-теги и prefetch популярных маршрутов
 router.afterEach((to) => {
+    // Prefetch популярных маршрутов с задержкой (не блокирует навигацию)
+    if (to.path === '/' || to.path.startsWith('/articles')) {
+        setTimeout(() => {
+            const prefetchRoutes = ['/articles', '/login', '/register'];
+            prefetchRoutes.forEach(route => {
+                if (route !== to.path) {
+                    prefetchRoute(route);
+                }
+            });
+        }, 2000);
+    }
+
     try {
         const segs = to.fullPath.split('/').filter(Boolean);
         const maybeLang = segs[0];

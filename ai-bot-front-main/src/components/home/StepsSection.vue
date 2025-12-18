@@ -17,7 +17,10 @@
                 <img
                     :src="eyesIcon"
                     alt="eyes emoji"
+                    width="48"
+                    height="48"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
+                    style="aspect-ratio: 1 / 1;"
                 />
                 <p class="text-lg font-semibold leading-none text-gray-900 dark:text-white">
                     {{ $t('steps.step1.title') }}
@@ -53,8 +56,11 @@
                 </div>
                 <img
                     :src="pencilIcon"
-                    alt="eyes emoji"
+                    alt="pencil emoji"
+                    width="48"
+                    height="48"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
+                    style="aspect-ratio: 1 / 1;"
                 />
                 <p class="text-lg font-semibold leading-none text-gray-900 dark:text-white">
                     {{ $t('steps.step2.title') }}
@@ -87,8 +93,11 @@
                 </div>
                 <img
                     :src="fireIcon"
-                    alt="eyes emoji"
+                    alt="fire emoji"
+                    width="48"
+                    height="48"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
+                    style="aspect-ratio: 1 / 1;"
                 />
                 <p class="text-lg font-semibold leading-none text-gray-900 dark:text-white">
                     {{ $t('steps.step3.title') }}

@@ -69,13 +69,19 @@
                     <div
                         class="w-24 h-24 rounded-2xl flex items-center justify-center text-2xl shadow-lg transition-all duration-300 group-hover:scale-105 glass-icon"
                     >
-                        <img
-                            :src="service.logo"
-                            :alt="`${getTranslation(service, 'name')} Logo`"
-                            class="w-20 h-20 object-contain"
-                            loading="lazy"
-                            @load="updateContainerHeight"
-                        />
+                        <picture>
+                            <source :srcset="optimizedLogo" type="image/webp" v-if="webPSupported" />
+                            <img
+                                :src="service.logo"
+                                :alt="`${getTranslation(service, 'name')} Logo`"
+                                width="80"
+                                height="80"
+                                class="w-20 h-20 object-contain"
+                                loading="lazy"
+                                style="aspect-ratio: 1 / 1;"
+                                @load="updateContainerHeight"
+                            />
+                        </picture>
                     </div>
                 </div>
 
@@ -211,7 +217,10 @@
                         <div
                             class="w-12 h-12 rounded-lg flex items-center justify-center glass-icon"
                         >
-                            <img :src="service.logo" class="w-8 h-8 object-contain" alt="" />
+                            <picture>
+                                <source :srcset="optimizedLogo" type="image/webp" v-if="webPSupported" />
+                                <img :src="service.logo" class="w-8 h-8 object-contain" alt="" width="32" height="32" style="aspect-ratio: 1 / 1;" />
+                            </picture>
                         </div>
                         <div>
                             <h3 class="text-lg font-semibold text-dark dark:text-white">
@@ -259,6 +268,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useOptionStore } from '@/stores/options';
 import { useCartStore } from '@/stores/cart';
 import { useRouter } from 'vue-router';
+import { useWebP } from '@/composables/useWebP';
 
 interface Props {
     service: {
@@ -281,6 +291,11 @@ const router = useRouter();
 const optionStore = useOptionStore();
 const authStore = useAuthStore();
 const cartStore = useCartStore();
+const { webPSupported, getOptimizedUrl } = useWebP();
+
+const optimizedLogo = computed(() => {
+    return getOptimizedUrl(props.service.logo);
+});
 
 const isAuthenticated = computed(() => !!authStore.user);
 const addedState = ref<'check' | 'checkout'>('check');

@@ -59,12 +59,18 @@
                                     </span>
 
                                     <div class="service-card__logo">
-                                        <img
-                                            :src="service.logo"
-                                            :alt="`${getTranslation(service, 'name')} Logo`"
-                                            loading="lazy"
-                                            class="service-card__logo-img"
-                                        />
+                                        <picture>
+                                            <source :srcset="optimizedLogo" type="image/webp" v-if="webPSupported" />
+                                            <img
+                                                :src="service.logo"
+                                                :alt="`${getTranslation(service, 'name')} Logo`"
+                                                width="140"
+                                                height="140"
+                                                loading="lazy"
+                                                class="service-card__logo-img"
+                                                style="aspect-ratio: 1 / 1;"
+                                            />
+                                        </picture>
                                     </div>
 
                                     <div class="service-card__title">
@@ -81,7 +87,7 @@
                                             {{ service.amount.toFixed(2) }}
                                         </span>
                                         <span class="service-card__currency">
-                                            {{ serviceOption.options.currency.toUpperCase() }}
+                                            {{ (serviceOption.options?.currency || 'USD').toUpperCase() }}
                                         </span>
                                     </div>
 
@@ -196,6 +202,7 @@ import { useServiceStore } from '@/stores/services';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useOptionStore } from '@/stores/options';
+import { useWebP } from '@/composables/useWebP';
 
 interface Service {
     id: number;
@@ -214,6 +221,11 @@ const authStore = useAuthStore();
 const serviceOption = useOptionStore();
 const service = ref<Service | null>(null);
 const trialActivatedIds = ref<number[]>([]);
+const { webPSupported, getOptimizedUrl } = useWebP();
+
+const optimizedLogo = computed(() => {
+    return service.value ? getOptimizedUrl(service.value.logo) : '';
+});
 const isAuthenticated = computed(() => !!authStore.user);
 const addedState = ref<'check' | 'checkout'>('check');
 const isAdded = ref(false);
@@ -302,13 +314,20 @@ const goToCheckout = () => {
 onMounted(async () => {
     const serviceId = Number(route.params.id);
 
+    // Загружаем опции, если они еще не загружены
+    if (!serviceOption.isLoaded) {
+        await serviceOption.fetchData();
+    }
+
     if (!serviceStore.isLoaded) {
         await serviceStore.fetchData();
     }
 
-    service.value = serviceStore.getById(serviceId);
+    // Пробуем найти сервис по ID (как число и как строку)
+    service.value = serviceStore.getById(serviceId) || serviceStore.getById(Number(serviceId));
 
     if (!service.value) {
+        console.error('Service not found:', serviceId, 'Available services:', serviceStore.services.map(s => s.id));
         await router.replace('/404');
         return;
     }
@@ -396,8 +415,10 @@ watch(
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(140deg, rgba(124, 58, 237, 0.85), rgba(96, 165, 250, 0.85));
-    box-shadow: 0 18px 32px rgba(96, 165, 250, 0.25);
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
 }
 
 .service-card__logo-img {
@@ -555,7 +576,7 @@ watch(
 }
 
 .service-card--coming-soon .service-card__logo {
-    background: linear-gradient(140deg, rgba(148, 163, 184, 0.4), rgba(148, 163, 184, 0.25));
+    background: transparent;
     box-shadow: none;
 }
 

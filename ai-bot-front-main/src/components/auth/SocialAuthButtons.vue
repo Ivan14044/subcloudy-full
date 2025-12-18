@@ -15,7 +15,7 @@
                 class="flex items-center dark:text-white dark:hover:bg-gray-300 dark:hover:text-gray-800 justify-center border border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="openGoogleAuth"
             >
-                <img class="w-5 h-5 mr-2" src="/img/google.png" alt="google" />
+                <img class="w-5 h-5 mr-2" src="/img/google.png" alt="google" width="20" height="20" style="aspect-ratio: 1 / 1;" />
                 <span>{{ $t('auth.google') }}</span>
             </a>
 
@@ -24,7 +24,7 @@
                 class="flex items-center justify-center border-[#1a94d2] rounded-lg px-4 py-3 bg-[#1a94d2] hover:bg-[#1a94d2]/80 transition-colors"
                 @click="initTelegramAuth"
             >
-                <img class="w-5 h-5 mr-2" src="/img/telegram.png" alt="telegram" />
+                <img class="w-5 h-5 mr-2" src="/img/telegram.png" alt="telegram" width="20" height="20" style="aspect-ratio: 1 / 1;" />
                 <span class="text-white">{{ $t('auth.telegram') }}</span>
             </button>
         </div>
@@ -129,17 +129,25 @@ const showTelegramPopup = () => {
     const botId = '8267596067';
 
     if (window.Telegram && window.Telegram.Login) {
+        console.log('Telegram auth: calling Login.auth with bot_id', botId);
         window.Telegram.Login.auth({ bot_id: botId }, data => {
+            console.log('Telegram auth: callback received', { hasData: !!data, dataKeys: data ? Object.keys(data) : [] });
             if (data) {
                 handleTelegramAuth(data);
+            } else {
+                console.warn('Telegram auth: no data received from Telegram');
             }
         });
+    } else {
+        console.error('Telegram auth: Telegram.Login not available');
     }
 };
 
 // Обработка данных авторизации Telegram
 const handleTelegramAuth = async (data: any) => {
     try {
+        console.log('Telegram auth: sending data to callback', { hasId: !!data?.id, hasHash: !!data?.hash });
+        
         const response = await fetch('/auth/telegram/callback', {
             method: 'POST',
             headers: {
@@ -149,7 +157,20 @@ const handleTelegramAuth = async (data: any) => {
             body: JSON.stringify(data)
         });
 
+        console.log('Telegram auth: response status', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Telegram auth: server error', {
+                status: response.status,
+                statusText: response.statusText,
+                body: errorText
+            });
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
         const result = await response.json();
+        console.log('Telegram auth: response data', { hasToken: !!result.token, hasUser: !!result.user, success: result.success });
 
         if (result.token) {
             authStore.setToken(result.token);
@@ -157,6 +178,8 @@ const handleTelegramAuth = async (data: any) => {
 
             const redirectTo = route.query.redirect as string;
             router.push(redirectTo || '/');
+        } else {
+            console.error('Telegram auth: no token in response', result);
         }
     } catch (error) {
         console.error('Telegram auth error:', error);

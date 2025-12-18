@@ -205,12 +205,25 @@
       "description5": "💡 设计师与创作者 — 轻松使用 Midjourney 和 Canva 创作视觉内容。"
     }
   },
+  "menu": {
+    "services": "服务",
+    "howItWorks": "工作原理",
+    "reviews": "评论",
+    "faq": "常见问题",
+    "blog": "博客"
+  },
   "footer": {
     "address": "FOP Knysh Alla Oleksandrivna 08297 Kyiv region, Bucha district, Bucha city, Shose Nove, building 42",
-    "copyright": "SubCloudy 2025 © All rights reserved"
+    "copyright": "SubCloudy 2025 © All rights reserved",
+    "termsOfService": "服务条款",
+    "privacyPolicy": "隐私政策",
+    "refundPolicy": "退款政策"
   },
   "reviews": {
-    "title": "您的满意是我们成长的动力！"
+    "title": "您的<span class='gradient-text'>满意</span>是我们<span class='gradient-text'>成长</span>的动力！"
+  },
+  "faq": {
+    "title": "<span class='gradient-text'>常见</span>问题"
   },
   "subscribe": {
     "title": "订阅",

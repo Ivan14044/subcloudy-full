@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { apiCache, createCacheKey } from '@/utils/cacheUtils';
 
 export interface Services {
     id: number;
@@ -24,25 +25,51 @@ export const useServiceStore = defineStore('services', {
         async fetchData() {
             if (this.isLoaded) return;
 
+            const cacheKey = createCacheKey('/services');
+            const cached = apiCache.get<Services[]>(cacheKey);
+            if (cached) {
+                this.services = cached;
+                this.isLoaded = true;
+                return;
+            }
+
             try {
                 const response = await axios.get<Services[]>('/services');
-                const domain = import.meta.env.VITE_APP_DOMAIN;
+                
+                // Определяем базовый URL для статических файлов (логотипы, изображения)
+                // Используем origin текущей страницы, так как статические файлы обслуживаются тем же доменом
+                const baseUrl = window.location.origin;
 
-                this.services = response.data.map(service => ({
-                    ...service,
-                    logo: service.logo.startsWith('http')
-                        ? service.logo
-                        : `${domain}${service.logo}`
-                }));
+                this.services = response.data.map(service => {
+                    let logoUrl = service.logo;
+                    
+                    // Если уже полный URL (http/https), оставляем как есть
+                    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+                        return { ...service, logo: logoUrl };
+                    }
+                    
+                    // Если путь начинается с /, добавляем только origin
+                    if (logoUrl.startsWith('/')) {
+                        logoUrl = `${baseUrl}${logoUrl}`;
+                    } else {
+                        // Иначе добавляем origin и слэш перед путем
+                        logoUrl = `${baseUrl}/${logoUrl}`;
+                    }
+                    
+                    return { ...service, logo: logoUrl };
+                });
 
                 this.isLoaded = true;
+                // Кешируем на 15 минут (сервисы редко меняются)
+                apiCache.set(cacheKey, this.services, 15 * 60 * 1000);
             } catch (error) {
                 console.error('Error fetching services:', error);
             }
         },
 
         getById(id: number): Services | undefined {
-            return this.services.find(service => service.id === id);
+            // Ищем по строгому сравнению и по приведению типов
+            return this.services.find(service => service.id === id || Number(service.id) === Number(id));
         }
     }
 });

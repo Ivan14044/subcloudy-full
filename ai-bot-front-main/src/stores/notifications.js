@@ -16,6 +16,15 @@ export const useNotificationStore = defineStore('notifications', {
 
             try {
                 const token = localStorage.getItem('token');
+                
+                // Проверяем наличие токена перед запросом
+                if (!token) {
+                    this.items = [];
+                    this.total = 0;
+                    this.unread = 0;
+                    this.isLoaded = true;
+                    return;
+                }
 
                 const response = await axios.get('/notifications', {
                     params: { limit },
@@ -33,6 +42,14 @@ export const useNotificationStore = defineStore('notifications', {
                 this.unread = unread;
                 this.isLoaded = true;
             } catch (error) {
+                // Игнорируем ошибки 401 (Unauthorized) - пользователь не авторизован
+                if (error.response?.status === 401) {
+                    this.items = [];
+                    this.total = 0;
+                    this.unread = 0;
+                    this.isLoaded = true;
+                    return;
+                }
                 console.error('Error fetching notifications:', error);
             }
         },
