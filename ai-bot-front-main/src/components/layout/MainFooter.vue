@@ -42,29 +42,29 @@
                 />
             </div>
         </div>
-        <!-- Юридические ссылки -->
+        <!-- ?????????????????????? ???????????? -->
         <div class="max-w-7xl mx-auto w-full px-4 py-4 sm:px-6 lg:px-8 border-t border-gray-700">
             <div class="flex flex-wrap justify-center gap-4 text-gray-400 text-xs">
-                <a
-                    href="/terms-of-service"
+                <router-link
+                    to="/terms-of-service"
                     class="hover:text-white transition-colors duration-300 hover:underline"
                 >
                     {{ $t('footer.termsOfService') }}
-                </a>
+                </router-link>
                 <span class="text-gray-600">|</span>
-                <a
-                    href="/privacy-policy"
+                <router-link
+                    to="/privacy-policy"
                     class="hover:text-white transition-colors duration-300 hover:underline"
                 >
                     {{ $t('footer.privacyPolicy') }}
-                </a>
+                </router-link>
                 <span class="text-gray-600">|</span>
-                <a
-                    href="/refund-policy"
+                <router-link
+                    to="/refund-policy"
                     class="hover:text-white transition-colors duration-300 hover:underline"
                 >
                     {{ $t('footer.refundPolicy') }}
-                </a>
+                </router-link>
             </div>
         </div>
     </footer>
