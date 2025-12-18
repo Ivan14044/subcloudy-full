@@ -257,9 +257,9 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => '/',
+    'dashboard_url' => '/admin',
     'logout_url' => 'logout',
-    'login_url' => 'login',
+    'login_url' => 'admin/login',
     'register_url' => false,
     'password_reset_url' => false,
     'password_email_url' => false,
@@ -324,7 +324,7 @@ return [
         // SIDEBAR
         [
             'text' => 'Панель управления',
-            'url' => '/',
+            'url' => 'admin',
             'icon' => 'fas fa-fw mr-1 fa-tachometer-alt',
         ],
 
