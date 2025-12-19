@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /*.json$
 
-Sitemap: /sitemap.xml
+# Sitemap с полным URL
+Sitemap: https://subcloudy.com/sitemap.xml
 
-
+# Время между запросами (опционально)
+Crawl-delay: 1

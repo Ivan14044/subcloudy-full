@@ -311,12 +311,12 @@ return [
             'id' => 'my-notification',                // An ID attribute (required).
             'icon' => 'far fa-bell',                  // A font awesome icon (required).
             'label_color' => 'primary',                // The initial badge color (optional).
-            'url' => 'admin_notifications',            // The url to access all notifications/elements (required).
+            'url' => 'admin/admin_notifications',            // The url to access all notifications/elements (required).
             'topnav_right' => true,                   // Or "topnav => true" to place on the left (required).
             'dropdown_mode' => true,                  // Enables the dropdown mode (optional).
             'dropdown_flabel' => 'All notifications', // The label for the dropdown footer link (optional).
             'update_cfg' => [
-                'url' => 'admin_notifications/get',         // The url to periodically fetch new data (optional).
+                'url' => 'admin/admin_notifications/get',         // The url to periodically fetch new data (optional).
                 'period' => 30,                       // The update period for get new data (in seconds, optional).
             ],
         ],
@@ -330,14 +330,14 @@ return [
 
         [
             'text' => 'Пользователи',
-            'url' => 'users',
+            'url' => 'admin/users',
             'icon' => 'fas fa-fw mr-1 fa-users',
             'active' => ['users*'],
         ],
 
         [
             'text' => 'Подписки',
-            'url' => 'subscriptions',
+            'url' => 'admin/subscriptions',
             'icon' => 'far fa-fw mr-1 fa-credit-card',
             'active' => ['subscriptions*'],
         ],
@@ -346,7 +346,7 @@ return [
 
         [
             'text' => 'История активности',
-            'url' => 'browser-sessions',
+            'url' => 'admin/browser-sessions',
             'icon' => 'fas fa-fw mr-1 fa-history',
             'active' => ['browser-sessions*'],
         ],
@@ -358,28 +358,46 @@ return [
             'submenu' => [
                 [
                     'text' => 'Администраторы',
-                    'url' => 'admins',
+                    'url' => 'admin/admins',
                     'icon' => 'fas fa-fw mr-1 fa-user-shield',
                     'active' => ['admins*'],
                     'can' => 'main-admin',
                 ],
                 [
                     'text' => 'Контент',
-                    'url' => 'contents',
-                    'icon' => 'far fa-fw mr-1 fa-folder-open',
-                    'active' => ['contents*'],
-                ],
-                [
-                    'text' => 'Статьи',
-                    'url' => 'articles',
-                    'icon' => 'far fa-fw mr-1 fa-file-alt',
-                    'active' => ['articles*', 'categories*'],
-                ],
-                [
-                    'text' => 'Страницы',
-                    'url' => 'pages',
-                    'icon' => 'far fa-fw mr-1 fa-file',
-                    'active' => ['pages*'],
+                    'icon' => 'fas fa-fw mr-1 fa-file-alt',
+                    'submenu' => [
+                        [
+                            'text' => 'Статьи',
+                            'url' => 'admin/articles',
+                            'icon' => 'far fa-fw mr-1 fa-file-alt',
+                            'active' => ['articles*', 'categories*'],
+                        ],
+                        [
+                            'text' => 'Страницы',
+                            'url' => 'admin/pages',
+                            'icon' => 'far fa-fw mr-1 fa-file',
+                            'active' => ['pages*'],
+                        ],
+                        [
+                            'text' => 'FAQ',
+                            'url' => 'admin/contents',
+                            'icon' => 'fas fa-fw mr-1 fa-question-circle',
+                            'active' => ['contents*'],
+                        ],
+                        [
+                            'text' => 'Отзывы',
+                            'url' => 'admin/reviews',
+                            'icon' => 'fas fa-fw mr-1 fa-star',
+                            'active' => ['reviews*'],
+                        ],
+                        [
+                            'text' => 'Блоки экономии',
+                            'url' => 'admin/savings-blocks',
+                            'icon' => 'fas fa-fw mr-1 fa-percent',
+                            'active' => ['savings-blocks*'],
+                        ],
+                    ],
                 ],
                 [
                     'text' => 'Сервисы',
@@ -387,13 +405,13 @@ return [
                     'submenu' => [
                         [
                             'text' => 'Все сервисы',
-                            'url' => 'services',
+                            'url' => 'admin/services',
                             'icon' => 'fas fa-fw mr-1 fa-clipboard-list',
                             'active' => ['services*'],
                         ],
                         [
                             'text' => 'Аккаунты сервисов',
-                            'url' => 'service-accounts',
+                            'url' => 'admin/service-accounts',
                             'icon' => 'far fa-fw mr-1 fa-user',
                             'active' => ['service-accounts*'],
                         ],
@@ -401,19 +419,19 @@ return [
                 ],
                 [
                     'text' => 'Прокси',
-                    'url' => 'proxies',
+                    'url' => 'admin/proxies',
                     'icon' => 'fas fa-fw mr-1 fa-network-wired',
                     'active' => ['proxies*'],
                 ],
                 [
                     'text' => 'Промокоды',
-                    'url' => 'promocodes',
+                    'url' => 'admin/promocodes',
                     'icon' => 'fas fa-fw mr-1 fa-ticket-alt',
                     'active' => ['promocode*'],
                 ],
                 [
                     'text' => 'Настройки',
-                    'url' => 'settings',
+                    'url' => 'admin/settings',
                     'icon' => 'fas fa-fw mr-1 fa-cog',
                     'active' => ['settings*'],
                 ],
@@ -427,19 +445,19 @@ return [
             'submenu' => [
                 [
                     'text' => 'Уведомления',
-                    'url' => 'notifications',
+                    'url' => 'admin/notifications',
                     'icon' => 'fas fa-fw mr-1 fa-exclamation',
                     'active' => ['notifications*'],
                 ],
                 [
                     'text' => 'Шаблоны уведомлений',
-                    'url' => 'notification-templates',
+                    'url' => 'admin/notification-templates',
                     'icon' => 'fas fa-fw mr-1 fa-envelope-square',
                     'active' => ['notification-templates*'],
                 ],
                 [
                     'text' => 'Шаблоны email',
-                    'url' => 'email-templates',
+                    'url' => 'admin/email-templates',
                     'icon' => 'fas fa-fw mr-1 fa-envelope',
                     'active' => ['email-templates*'],
                 ],
@@ -453,12 +471,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Профиль',
-                    'url' => 'profile',
+                    'url' => 'admin/profile',
                     'icon' => 'fas fa-fw mr-1 fa-user',
                 ],
                 [
                     'text' => 'Выход',
-                    'url' => 'logout',
+                    'url' => 'admin/logout',
                     'icon' => 'fas fa-fw mr-1 fa-sign-out-alt',
                 ],
             ],

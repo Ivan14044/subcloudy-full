@@ -205,12 +205,25 @@
       "description5": "💡 Diseñadores y creativos — contenido visual fácil con Midjourney y Canva."
     }
   },
+  "menu": {
+    "services": "Servicios",
+    "howItWorks": "Cómo funciona",
+    "reviews": "Reseñas",
+    "faq": "FAQ",
+    "blog": "Blog"
+  },
   "footer": {
     "address": "FOP Knysh Alla Oleksandrivna 08297 Kyiv region, Bucha district, Bucha city, Shose Nove, building 42",
-    "copyright": "SubCloudy 2025 © Todos los derechos reservados"
+    "copyright": "SubCloudy 2025 © Todos los derechos reservados",
+    "termsOfService": "Términos de servicio",
+    "privacyPolicy": "Política de privacidad",
+    "refundPolicy": "Política de reembolso"
   },
   "reviews": {
-    "title": "¡Tu satisfacción nos impulsa a crecer!"
+    "title": "¡Tu <span class='gradient-text'>satisfacción</span> nos impulsa a <span class='gradient-text'>crecer</span>!"
+  },
+  "faq": {
+    "title": "Preguntas <span class='gradient-text'>Frecuentes</span>"
   },
   "subscribe": {
     "title": "Suscribirse",

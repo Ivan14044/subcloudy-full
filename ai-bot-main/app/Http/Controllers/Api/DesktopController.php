@@ -303,6 +303,61 @@ class DesktopController extends Controller
     {
         return in_array($serviceId, $this->getUserActiveServices($user));
     }
+
+    /**
+     * Скачивание файла приложения для указанной ОС
+     * GET /api/desktop/download/{os}
+     * 
+     * @param string $os - windows, macos, linux
+     */
+    public function download(Request $request, string $os)
+    {
+        $allowedOS = ['windows', 'macos', 'linux'];
+        
+        if (!in_array($os, $allowedOS)) {
+            return response()->json([
+                'error' => 'Invalid OS. Supported: ' . implode(', ', $allowedOS)
+            ], 400);
+        }
+
+        // Путь к файлам приложений в storage
+        $filePaths = [
+            'windows' => 'apps/SubCloudy-Setup.exe',
+            'macos' => 'apps/SubCloudy.dmg',
+            'linux' => 'apps/SubCloudy.AppImage'
+        ];
+
+        $filePath = storage_path('app/public/' . $filePaths[$os]);
+
+        if (!file_exists($filePath)) {
+            // Если файл не найден, можно вернуть редирект на внешнюю ссылку
+            // или вернуть ошибку
+            $externalUrls = [
+                'windows' => env('APP_DOWNLOAD_URL_WINDOWS', ''),
+                'macos' => env('APP_DOWNLOAD_URL_MACOS', ''),
+                'linux' => env('APP_DOWNLOAD_URL_LINUX', '')
+            ];
+
+            if (!empty($externalUrls[$os])) {
+                return redirect($externalUrls[$os]);
+            }
+
+            return response()->json([
+                'error' => 'Download file not found'
+            ], 404);
+        }
+
+        $fileName = basename($filePath);
+        $mimeTypes = [
+            'windows' => 'application/x-msdownload',
+            'macos' => 'application/x-apple-diskimage',
+            'linux' => 'application/x-executable'
+        ];
+
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => $mimeTypes[$os] ?? 'application/octet-stream',
+        ]);
+    }
 }
 
 

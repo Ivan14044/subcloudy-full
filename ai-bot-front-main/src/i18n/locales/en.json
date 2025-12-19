@@ -205,12 +205,25 @@
       "description5": "💡 Designers and creatives — generate visual content with Midjourney and Canva easily."
     }
   },
+  "menu": {
+    "services": "Services",
+    "howItWorks": "How it works",
+    "reviews": "Reviews",
+    "faq": "FAQ",
+    "blog": "Blog"
+  },
   "footer": {
     "address": "FOP Knysh Alla Oleksandrivna 08297 Kyiv region, Bucha district, Bucha city, Shose Nove, building 42",
-    "copyright": "SubCloudy 2025 © All rights reserved"
+    "copyright": "SubCloudy 2025 © All rights reserved",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "refundPolicy": "Refund Policy"
   },
   "reviews": {
-    "title": "Your satisfaction drives us to grow!"
+    "title": "Your <span class='gradient-text'>satisfaction</span> drives us to <span class='gradient-text'>grow</span>!"
+  },
+  "faq": {
+    "title": "Frequently <span class='gradient-text'>Asked</span> Questions"
   },
   "subscribe": {
     "title": "Subscribe",

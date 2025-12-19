@@ -32,6 +32,31 @@
                 <img class="h-8" src="/img/visa-mastercard.png" alt="visa-mastercard" />
             </div>
         </div>
+        <!-- Юридические ссылки -->
+        <div class="max-w-7xl mx-auto w-full px-4 py-4 sm:px-6 lg:px-8 border-t border-gray-700">
+            <div class="flex flex-wrap justify-center gap-4 text-gray-400 text-xs">
+                <a
+                    href="/terms-of-service"
+                    class="hover:text-white transition-colors duration-300 hover:underline"
+                >
+                    {{ $t('footer.termsOfService') }}
+                </a>
+                <span class="text-gray-600">|</span>
+                <a
+                    href="/privacy-policy"
+                    class="hover:text-white transition-colors duration-300 hover:underline"
+                >
+                    {{ $t('footer.privacyPolicy') }}
+                </a>
+                <span class="text-gray-600">|</span>
+                <a
+                    href="/refund-policy"
+                    class="hover:text-white transition-colors duration-300 hover:underline"
+                >
+                    {{ $t('footer.refundPolicy') }}
+                </a>
+            </div>
+        </div>
     </footer>
 </template>
 

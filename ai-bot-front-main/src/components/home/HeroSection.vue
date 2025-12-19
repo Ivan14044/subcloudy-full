@@ -13,7 +13,7 @@
                     v-html="$t('hero.description')"
                 ></p>
                 <a
-                    class="cta-button dark:border-gray-300 dark:text-white dark:hover:border-blue-900 pointer-events-auto cursor-pointer"
+                    class="cta-button pointer-events-auto cursor-pointer"
                     @click.prevent="scrollToElement('#services')"
                 >
                     {{ $t('hero.button') }}
@@ -34,21 +34,22 @@
             />
         </div>
         <button
-            class="dark:bg-gray-700 dark:hover:bg-gray-600 border border-gray-300 absolute bottom-0 sm:bottom-[10px] right-[50%] translate-x-[50%] pointer-events-auto cursor-pointer rounded-full shadow w-10 h-10 flex items-center justify-center transition hover:bg-gray-100"
+            class="scroll-to-services-btn glass-button text-dark dark:text-white/90 absolute bottom-0 sm:bottom-[10px] right-[50%] translate-x-[50%] pointer-events-auto cursor-pointer rounded-full w-10 h-10 flex items-center justify-center transition-none"
+            :class="{ 'glass-dark': isDark, 'glass-light': !isDark }"
             aria-label="Scroll to services"
             @click.prevent="scrollToElement('#services')"
         >
             <svg
-                class="w-4 h-4 text-blue-600 dark:text-white"
+                class="w-5 h-5"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                stroke-width="2"
             >
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="2"
                     d="M19 9l-7 7-7-7"
                 />
             </svg>
@@ -105,5 +106,29 @@ watch(isDark, dark => {
     .hero-content {
         text-align: left;
     }
+}
+
+/* Стиль кнопки "Scroll to services" - минималистичный, как на карточках сервисов */
+.scroll-to-services-btn {
+    /* Базовый стиль уже применен через glass-button */
+}
+
+.scroll-to-services-btn:hover {
+    opacity: 0.8;
+}
+
+.scroll-to-services-btn:active {
+    opacity: 0.7;
+}
+
+/* Дополнительные стили для светлой темы */
+.scroll-to-services-btn.glass-light {
+    /* Стиль уже определен в app.css через .glass-button */
+}
+
+/* Дополнительные стили для темной темы */
+.scroll-to-services-btn.glass-dark {
+    background: rgba(12, 24, 60, 0.24);
+    border-color: rgba(255, 255, 255, 0.06);
 }
 </style>

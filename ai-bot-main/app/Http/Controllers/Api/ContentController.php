@@ -4,43 +4,45 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Content;
+use Illuminate\Http\Request;
 
 class ContentController extends Controller
 {
-    public function show(string $code)
+    /**
+     * Получить FAQ по коду
+     */
+    public function getByCode(Request $request, string $code)
     {
-        $content = Content::where('code', $code)->with('translations')->firstOrFail();
-
-        $allFields = array_keys(config("contents.{$code}.fields", []));
-
-        $grouped = $content->translations
-            ->filter(fn($t) => str_starts_with($t->code, $code . '.'))
-            ->groupBy('locale')
-            ->map(function ($translations) use ($code, $allFields) {
-                $entries = [];
-
-                foreach ($translations as $t) {
-                    $parts = explode('.', $t->code);
-                    if (count($parts) !== 3) continue;
-
-                    [, $field, $index] = $parts;
-                    $entries[$index][$field] = $t->value;
+        $locale = $request->get('lang', 'ru');
+        
+        $content = Content::getByCode($code);
+        
+        if (!$content) {
+            return response()->json([
+                'success' => false,
+                'data' => []
+            ]);
+        }
+        
+        $value = $content->getTranslation($locale);
+        
+        // Парсим JSON если это FAQ
+        $faqData = [];
+        if ($value) {
+            try {
+                $decoded = json_decode($value, true);
+                if (is_array($decoded)) {
+                    $faqData = $decoded;
                 }
-
-                foreach ($entries as &$entry) {
-                    foreach ($allFields as $field) {
-                        if (!array_key_exists($field, $entry)) {
-                            $entry[$field] = null;
-                        }
-                    }
-                }
-
-                return array_values($entries);
-            });
-
+            } catch (\Exception $e) {
+                // Если не JSON, возвращаем как есть
+            }
+        }
+        
         return response()->json([
-            'code' => $code,
-            'items' => $grouped,
+            'success' => true,
+            'data' => $faqData
         ]);
     }
 }
+

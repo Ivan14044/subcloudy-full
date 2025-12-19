@@ -26,16 +26,29 @@ export const useServiceStore = defineStore('services', {
 
             try {
                 const response = await axios.get<Services[]>('/services');
-                const domain = import.meta.env.VITE_APP_DOMAIN || window.location.origin;
+                
+                // Определяем базовый URL для статических файлов (логотипы, изображения)
+                // Используем origin текущей страницы, так как статические файлы обслуживаются тем же доменом
+                const baseUrl = window.location.origin;
 
-                this.services = response.data.map(service => ({
-                    ...service,
-                    logo: service.logo.startsWith('http')
-                        ? service.logo
-                        : service.logo.startsWith('/')
-                        ? `${domain}${service.logo}`
-                        : `${domain}/${service.logo}`
-                }));
+                this.services = response.data.map(service => {
+                    let logoUrl = service.logo;
+                    
+                    // Если уже полный URL (http/https), оставляем как есть
+                    if (logoUrl.startsWith('http://') || logoUrl.startsWith('https://')) {
+                        return { ...service, logo: logoUrl };
+                    }
+                    
+                    // Если путь начинается с /, добавляем только origin
+                    if (logoUrl.startsWith('/')) {
+                        logoUrl = `${baseUrl}${logoUrl}`;
+                    } else {
+                        // Иначе добавляем origin и слэш перед путем
+                        logoUrl = `${baseUrl}/${logoUrl}`;
+                    }
+                    
+                    return { ...service, logo: logoUrl };
+                });
 
                 this.isLoaded = true;
             } catch (error) {
@@ -44,7 +57,8 @@ export const useServiceStore = defineStore('services', {
         },
 
         getById(id: number): Services | undefined {
-            return this.services.find(service => service.id === id);
+            // Ищем по строгому сравнению и по приведению типов
+            return this.services.find(service => service.id === id || Number(service.id) === Number(id));
         }
     }
 });

@@ -2,14 +2,20 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Content extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [
-        'name',
         'code',
-        'is_systems',
+        'name',
+    ];
+
+    const TRANSLATION_FIELDS = [
+        'value',
     ];
 
     public function translations()
@@ -17,31 +23,34 @@ class Content extends Model
         return $this->hasMany(ContentTranslation::class);
     }
 
-    public function saveTranslation(array $validated, string $prefix): void
+    /**
+     * Получить значение перевода для локали
+     */
+    public function getTranslation(string $locale = null): ?string
     {
-        $this->translations()
-            ->where('code', 'like', $prefix . '.%')
-            ->delete();
+        $locale = $locale ?? app()->getLocale();
+        $translation = $this->translations
+            ->where('locale', $locale)
+            ->where('code', 'value')
+            ->first();
 
-        if (!isset($validated['fields']) || !is_array($validated['fields'])) {
-            return;
+        if (!$translation) {
+            // Fallback на английский
+            $translation = $this->translations
+                ->where('locale', 'en')
+                ->where('code', 'value')
+                ->first();
         }
 
-        foreach ($validated['fields'] as $fieldKey => $translationsByLocale) {
-            foreach ($translationsByLocale as $locale => $values) {
-                foreach ($values as $index => $value) {
-                    if ($value === null || $value === '') {
-                        continue;
-                    }
+        return $translation?->value;
+    }
 
-                    $code = "{$prefix}.{$fieldKey}.{$index}";
-
-                    $this->translations()->updateOrCreate(
-                        ['locale' => $locale, 'code' => $code],
-                        ['value' => $value ?? '']
-                    );
-                }
-            }
-        }
+    /**
+     * Получить контент по коду
+     */
+    public static function getByCode(string $code, string $locale = null): ?self
+    {
+        return static::where('code', $code)->with('translations')->first();
     }
 }
+

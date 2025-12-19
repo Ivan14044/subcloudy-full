@@ -11,9 +11,11 @@ use App\Http\Controllers\CookieConsentController;
 use App\Http\Controllers\CryptomusController;
 use App\Http\Controllers\MonoController;
 use App\Http\Controllers\Api\BrowserController;
-use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SavingsBlockController;
+use App\Http\Controllers\Api\ContentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
@@ -38,6 +40,10 @@ Route::get('/articles', [ArticleController::class, 'index']);
 Route::get('/articles/{article}', [ArticleController::class, 'show']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
+Route::get('/reviews', [ReviewController::class, 'index']);
+Route::get('/savings-blocks', [SavingsBlockController::class, 'index']);
+Route::get('/content/{code}', [ContentController::class, 'getByCode']);
+
 Route::get('/pages', [PageController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);
 Route::post('/cart', [CartController::class, 'store'])->middleware('auth:sanctum');
@@ -52,7 +58,6 @@ Route::post('/cryptomus/webhook', [CryptomusController::class, 'webhook']); //->
 Route::post('/mono/create-payment', [MonoController::class, 'createPayment'])->middleware('auth:sanctum');
 Route::post('/mono/webhook', [MonoController::class, 'webhook']); //->middleware('cryptomus');
 
-Route::get('/contents/{code}', [ContentController::class, 'show']);
 
 Route::get('/browser/new', [BrowserController::class, 'new']);
 
@@ -76,3 +81,7 @@ Route::middleware('auth:sanctum')->prefix('desktop')->group(function () {
     Route::get('/my-services', [\App\Http\Controllers\Api\DesktopController::class, 'myServices']);
     Route::post('/log', [\App\Http\Controllers\Api\DesktopController::class, 'logActivity']);
 });
+
+// Download routes (без авторизации, так как файлы могут быть публичными)
+Route::get('/desktop/download/{os}', [\App\Http\Controllers\Api\DesktopController::class, 'download'])
+    ->where('os', 'windows|macos|linux');

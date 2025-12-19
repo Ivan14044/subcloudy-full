@@ -7,6 +7,7 @@ use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\ImageOptimizer;
 
 class ArticleController extends Controller
 {
@@ -37,6 +38,9 @@ class ArticleController extends Controller
         $path = false;
         if ($request->hasFile('img')) {
             $path = $request->file('img')->store('articles', 'public');
+            // Автоматически конвертируем в WebP и удаляем оригинал
+            $webpPath = ImageOptimizer::convertToWebP($path, 1200, 800, 85);
+            $path = $webpPath ?: $path; // Используем WebP путь, если конвертация успешна
         }
 
         $article = Article::create([
@@ -84,6 +88,9 @@ class ArticleController extends Controller
         $path = false;
         if ($request->hasFile('img')) {
             $path = $request->file('img')->store('articles', 'public');
+            // Автоматически конвертируем в WebP и удаляем оригинал
+            $webpPath = ImageOptimizer::convertToWebP($path, 1200, 800, 85);
+            $path = $webpPath ?: $path; // Используем WebP путь, если конвертация успешна
         }
 
         $article->update([

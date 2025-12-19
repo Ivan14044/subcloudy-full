@@ -12,4 +12,10 @@ class ContentTranslation extends Model
         'code',
         'value',
     ];
+
+    public function content()
+    {
+        return $this->belongsTo(Content::class);
+    }
 }
+

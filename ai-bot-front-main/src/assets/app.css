@@ -157,6 +157,20 @@ button.swal2-cancel {
     scrollbar-color: rgba(100, 100, 100, 0.8) transparent;
 }
 
+/* Убеждаемся, что main элемент не имеет прозрачности */
+main {
+    position: relative;
+    z-index: 1;
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Убеждаемся, что все элементы внутри main не наследуют прозрачность */
+main > * {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
 .glass-card {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.2);
@@ -167,6 +181,11 @@ button.swal2-cancel {
     backdrop-filter: blur(10px);
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-button {
+    background: rgba(10, 14, 24, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .reveal-hidden,
@@ -194,10 +213,21 @@ button.swal2-cancel {
     border-radius: 10px;
     font-weight: 500;
     transition: all 0.2s ease;
+    color: #0047ff; /* Цвет текста для светлой темы */
+    background-color: transparent;
+}
+
+.dark .cta-button {
+    color: #fff; /* Цвет текста для темной темы */
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .cta-button:hover {
     background-color: #0047ff;
     color: #fff;
     transition: all 0.2s ease;
+}
+
+.dark .cta-button:hover {
+    border-color: rgb(30, 58, 138); /* blue-900 */
 }

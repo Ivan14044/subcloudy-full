@@ -1,7 +1,7 @@
 import axios from 'axios';
 import i18n from './i18n';
 
-const apiBase = import.meta.env.VITE_API_BASE || 'https://api.subcloudy.com';
+const apiBase = import.meta.env.VITE_API_BASE || '/api';
 
 axios.defaults.baseURL = apiBase;
 axios.defaults.withCredentials = true;

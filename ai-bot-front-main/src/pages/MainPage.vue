@@ -8,12 +8,15 @@
             <HeroSection />
         </section>
     </div>
-    <div v-if="hasSavings" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mx-auto px-4 pt-24 pb-16 sm:px-6 lg:px-8">
-        <!-- Steps Section -->
-        <section id="savings">
-            <div class="text-center mb-8 relative z-2">
+    <div
+        v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }"
+        class="mx-auto px-4 pt-5 md:pt-24 pb-7 md:pb-16 sm:px-6 lg:px-8"
+    >
+        <!-- Savings Section -->
+        <section id="savings" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+            <div class="text-center mb-8">
                 <h2
-                    class="text-[32px] md:text-[48px] lg:text-[64px]m text-gray-900 dark:text-white mt-3 leading-none"
+                    class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
                     v-html="$t('savings.title')"
                 ></h2>
             </div>
@@ -23,11 +26,7 @@
             ></p>
             <SavingsOn />
         </section>
-    </div>
-    <div
-        v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }"
-        class="mx-auto px-4 pt-5 md:pt-24 pb-7 md:pb-16 sm:px-6 lg:px-8"
-    >
+
         <!-- Steps Section -->
         <section id="steps">
             <div class="text-center mb-8 relative z-2">
@@ -79,17 +78,28 @@
             <PromoteSection />
         </section>
 
+
         <!-- Reviews Section -->
         <section id="reviews" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
             <div class="text-center mb-8">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
-                >
-                    {{ $t('reviews.title') }}
-                </h2>
+                    v-html="$t('reviews.title')"
+                ></h2>
             </div>
-
+            
             <ReviewSection />
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+            <div class="text-center mb-8">
+                <h2
+                    class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
+                    v-html="$t('faq.title')"
+                ></h2>
+            </div>
+            <FAQSection />
         </section>
 
         <!-- Subscribe Section -->
@@ -109,20 +119,5 @@ import StepsSection from '../components/home/StepsSection.vue';
 import SubscribeSection from '../components/home/SubscribeSection.vue';
 import ReviewSection from '../components/home/ReviewSection.vue';
 import SavingsOn from '../components/home/SavingsOn.vue';
-import { computed, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useContentsStore } from '@/stores/contents';
-
-const { locale } = useI18n();
-const contents = useContentsStore();
-
-onMounted(() => {
-    // Ensure content is fetched so we can decide visibility
-    contents.fetchContent('saving_on_subscriptions', locale.value);
-});
-
-const hasSavings = computed(() => {
-    const byLang = contents.itemsByCode['saving_on_subscriptions']?.[locale.value];
-    return Array.isArray(byLang) && byLang.length > 0;
-});
+import FAQSection from '../components/home/FAQSection.vue';
 </script>

@@ -4,108 +4,91 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Content;
-use App\Models\Service;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $contents = Content::query()
+        // Исключаем системные контенты, которые управляются через отдельные разделы
+        $excludedCodes = ['homepage_reviews', 'saving_on_subscriptions'];
+        $contents = Content::with('translations')
+            ->whereNotIn('code', $excludedCodes)
             ->orderBy('id', 'desc')
             ->get();
-
         return view('admin.contents.index', compact('contents'));
-    }
-
-    public function create()
-    {
-        return view('admin.contents.create');
-    }
-
-    public function store(Request $request)
-    {
-        $validated = $request->validate($this->getRules());
-
-        $content = Content::create($validated);
-
-        return redirect()->route('admin.contents.index')->with('success', __('admin.content.created'));
     }
 
     public function edit(Content $content)
     {
-        $content->load('translations');
-        $services = Service::with('translations')->get();
-        $contentData = $content->translations->groupBy('locale')->map(function ($translations) use ($content) {
-            $entries = [];
+        try {
+            $content->load('translations');
+            
+            // Формируем данные переводов аналогично другим контроллерам
+            $contentData = $content->translations
+                ->groupBy('locale')
+                ->map(function ($translations) {
+                    return $translations->pluck('value', 'code')->toArray();
+                })
+                ->toArray();
 
-            foreach ($translations as $t) {
-                if (!str_starts_with($t->code, $content->code . '.')) {
-                    continue;
+            // Убеждаемся, что для всех языков есть структура данных и парсим FAQ
+            $allLangs = array_keys(config('langs', []));
+            $faqData = [];
+            
+            foreach ($allLangs as $lang) {
+                if (!isset($contentData[$lang])) {
+                    $contentData[$lang] = [];
                 }
-
-                $parts = explode('.', $t->code);
-                if (count($parts) === 3) {
-                    [, $field, $index] = $parts;
-                    $entries[$index][$field] = $t->value;
+                if (!isset($contentData[$lang]['value'])) {
+                    $contentData[$lang]['value'] = '[]';
                 }
+                
+                // Парсим JSON для каждого языка заранее
+                $value = $contentData[$lang]['value'] ?? '[]';
+                $decoded = json_decode($value, true);
+                $faqData[$lang] = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
             }
 
-            return $entries ?: [[]];
-        });
-
-        return view('admin.contents.edit', compact('content', 'contentData', 'services'));
+            return view('admin.contents.edit', compact('content', 'contentData', 'faqData'));
+        } catch (\Exception $e) {
+            \Log::error('ContentController::edit error: ' . $e->getMessage(), [
+                'content_id' => $content->id ?? null,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->route('admin.contents.index')
+                ->with('error', 'Ошибка при загрузке страницы редактирования: ' . $e->getMessage());
+        }
     }
 
     public function update(Request $request, Content $content)
     {
-        $validated = $request->validate($this->getRules($content->id));
+        $validated = $request->validate(
+            $this->getRules(),
+            [],
+            getTransAttributes(['value'])
+        );
 
-        // Handle uploaded files for dynamic fields
-        $uploadedFields = $request->file('fields_file', []);
-        foreach ($uploadedFields as $fieldKey => $locales) {
-            foreach ($locales as $locale => $filesByIndex) {
-                foreach ($filesByIndex as $index => $uploadedFile) {
-                    if ($uploadedFile) {
-                        $path = $uploadedFile->store('contents', 'public');
-                        $url = Storage::url($path);
-                        $validated['fields'][$fieldKey][$locale][$index] = $url;
-                    }
-                }
-            }
-        }
-
-        $content->update($validated);
-        $content->saveTranslation($validated, $content->code);
+        $content->saveTranslation($validated);
 
         $route = $request->has('save')
             ? route('admin.contents.edit', $content->id)
             : route('admin.contents.index');
 
-        return redirect($route)->with('success', __('admin.content.updated'));
+        return redirect($route)->with('success', 'Контент успешно обновлен');
     }
 
-    public function destroy(Content $content)
+    private function getRules(): array
     {
-        $content->delete();
+        $rules = [];
 
-        return redirect()->route('admin.contents.index', ['type' => 'custom'])
-            ->with('success', 'Content template successfully deleted.');
-    }
-
-    private function getRules($id = false)
-    {
-        $rules = [
-            'name' => 'required|string|max:255',
-            'code' => ['required', 'unique:contents' . ($id ? ',code,' . $id : null)],
-            'fields' => 'nullable|array',
-            'fields_file' => 'nullable|array',
-            'fields_file.*' => 'nullable|array',
-            'fields_file.*.*' => 'nullable|array',
-            'fields_file.*.*.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,ico|max:10240',
-        ];
+        // Добавляем правила для каждого языка
+        foreach (config('langs') as $lang => $flag) {
+            $rules["value.{$lang}"] = ['required', 'string'];
+        }
 
         return $rules;
     }
 }
+

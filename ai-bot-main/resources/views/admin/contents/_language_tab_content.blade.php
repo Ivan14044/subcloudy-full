@@ -77,5 +77,21 @@
         @endforeach
     </div>
 
-    <button type="button" class="btn btn-success add-block" data-lang="{{ $code }}">+ Add</button>
+    <div class="mt-3">
+        <button type="button" class="btn btn-success add-block" data-lang="{{ $code }}">
+            <i class="fas fa-plus"></i> Добавить блок
+        </button>
+        <small class="text-muted ml-2">
+            <i class="fas fa-question-circle"></i> 
+            Каждый блок - это отдельная карточка. Добавьте столько блоков, сколько нужно.
+        </small>
+    </div>
+    
+    @if(empty($entries) || (count($entries) === 1 && empty($entries[0])))
+        <div class="alert alert-warning mt-3">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <strong>Нет данных для языка {{ strtoupper($code) }}.</strong> 
+            Нажмите "Добавить блок" выше, чтобы начать добавлять контент.
+        </div>
+    @endif
 </div>

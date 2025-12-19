@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Helpers\ImageOptimizer;
 
 class ServiceController extends Controller
 {
@@ -32,11 +33,17 @@ class ServiceController extends Controller
         $path = false;
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
+            // Автоматически конвертируем в WebP и удаляем оригинал
+            $webpPath = ImageOptimizer::convertToWebP($path, 280, 280, 85);
+            $path = $webpPath ?: $path; // Используем WebP путь, если конвертация успешна
         }
 
         $params = $validated['params'] ?? [];
         if ($request->hasFile('params_icon')) {
             $iconPath = $request->file('params_icon')->store('icons', 'public');
+            // Автоматически конвертируем иконку в WebP
+            $webpIconPath = ImageOptimizer::convertToWebP($iconPath, 200, 200, 85);
+            $iconPath = $webpIconPath ?: $iconPath;
             $params['icon'] = Storage::url($iconPath);
         }
 
@@ -76,6 +83,9 @@ class ServiceController extends Controller
         $path = false;
         if ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('logos', 'public');
+            // Автоматически конвертируем в WebP и удаляем оригинал
+            $webpPath = ImageOptimizer::convertToWebP($path, 280, 280, 85);
+            $path = $webpPath ?: $path; // Используем WebP путь, если конвертация успешна
         }
 
         // Merge existing params with incoming to preserve other keys
@@ -83,6 +93,9 @@ class ServiceController extends Controller
         // Handle favicon upload/retain/remove
         if ($request->hasFile('params_icon')) {
             $iconPath = $request->file('params_icon')->store('icons', 'public');
+            // Автоматически конвертируем иконку в WebP
+            $webpIconPath = ImageOptimizer::convertToWebP($iconPath, 200, 200, 85);
+            $iconPath = $webpIconPath ?: $iconPath;
             $params['icon'] = Storage::url($iconPath);
         } else {
             // If hidden text exists, keep it; otherwise remove icon key
