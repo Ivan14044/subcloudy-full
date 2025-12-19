@@ -137,6 +137,8 @@ button.swal2-cancel {
 
 .spin-slow-reverse {
     animation: spin-slow-reverse 2.5s linear infinite;
+    will-change: transform;
+    transform: translateZ(0); /* GPU ускорение */
 }
 
 ::-webkit-scrollbar {
@@ -192,16 +194,34 @@ main > * {
 .reveal-visible {
     transition: opacity 0.6s ease-out, transform 0.6s ease-out;
     will-change: opacity, transform;
+    transform: translateZ(0); /* Принудительное GPU ускорение */
 }
 
 .reveal-hidden {
     opacity: 0;
-    transform: translate3d(0, 24px, 0);
+    transform: translate3d(0, 24px, 0) translateZ(0);
 }
 
 .reveal-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0) translateZ(0);
+}
+
+/* Поддержка prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .reveal-hidden,
+    .reveal-visible {
+        transition: none !important;
+    }
 }
 
 .cta-button {

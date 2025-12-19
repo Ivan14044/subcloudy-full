@@ -12,7 +12,9 @@ cd /d "%~dp0"
 REM Create .env if not exists
 if not exist ".env" (
     echo [INFO] Creating .env file...
-    echo VITE_API_BASE=http://127.0.0.1:8000/api > .env
+    REM Используем относительный путь /api для dev режима (Vite proxy перенаправит на Laravel сервер)
+    REM Для production установите VITE_API_BASE в полный URL вашего API сервера
+    echo VITE_API_BASE=/api > .env
     echo VITE_APP_TELEGRAM_BOT_ID=your_bot_id >> .env
     echo [INFO] Done
 )

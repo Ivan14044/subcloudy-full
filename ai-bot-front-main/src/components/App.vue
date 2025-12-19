@@ -19,6 +19,7 @@ import { useLoadingStore } from '@/stores/loading';
 import { useAuthStore } from '@/stores/auth';
 
 import logo from '@/assets/logo.webp';
+import { prefetchCriticalRoutes } from '@/utils/prefetchUtils';
 
 const { locale } = useI18n();
 const isLoading = ref(true);
@@ -44,16 +45,21 @@ onMounted(async () => {
     const optionStore = useOptionStore();
     const notificationStore = useNotificationStore();
 
+    // Используем Promise.allSettled для устойчивости к ошибкам
     const promises = [
-        pageStore.fetchData(),
+        pageStore.fetchData(locale.value),
         serviceStore.fetchData(),
         optionStore.fetchData(),
-        notificationStore.fetchData()
+        // Загружаем уведомления только если пользователь авторизован
+        authStore.user ? notificationStore.fetchData() : Promise.resolve()
     ];
 
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
 
     preloadImages([logo, `/img/lang/${locale.value}.png`]);
+
+    // Prefetch критических маршрутов после загрузки
+    prefetchCriticalRoutes();
 
     loadingStore.stop();
     isLoading.value = false;

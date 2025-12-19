@@ -28,6 +28,8 @@
                 <p class="text-gray-700 dark:text-gray-300 mb-6 text-base leading-relaxed">
                     {{ $t('downloadApp.info') }}
                 </p>
+                
+
                 <div class="flex flex-col gap-4 justify-center items-center">
                     <!-- Кнопки для скачивания -->
                     <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md">
@@ -40,6 +42,7 @@
                                     ? 'bg-blue-500 dark:bg-blue-900 hover:bg-blue-600 dark:hover:bg-blue-800 text-white text-lg shadow-lg transform scale-105'
                                     : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
                             ]"
+                            @click="handleDownload('windows')"
                         >
                             <div class="flex flex-col items-center gap-2">
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -58,6 +61,7 @@
                                     ? 'bg-blue-500 dark:bg-blue-900 hover:bg-blue-600 dark:hover:bg-blue-800 text-white text-lg shadow-lg transform scale-105'
                                     : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'
                             ]"
+                            @click="handleDownload('macos')"
                         >
                             <div class="flex flex-col items-center gap-2">
                                 <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
@@ -66,6 +70,7 @@
                                 <span>{{ $t('downloadApp.macos') }}</span>
                             </div>
                         </a>
+
                     </div>
 
                     <!-- Кнопка "Назад" -->
@@ -92,8 +97,12 @@ import { useOSDetection } from '@/composables/useOSDetection';
 const router = useRouter();
 const { os } = useOSDetection();
 
-// URL для скачивания (замените на реальные ссылки)
-const windowsDownloadUrl = computed(() => '/download/windows');
-const macOSDownloadUrl = computed(() => '/download/macos');
-</script>
+// URL для скачивания через API
+const windowsDownloadUrl = computed(() => `/api/desktop/download/windows`);
+const macOSDownloadUrl = computed(() => `/api/desktop/download/macos`);
 
+// Обработчик скачивания
+const handleDownload = (osType: string) => {
+    // Скачивание произойдет автоматически через ссылку
+};
+</script>

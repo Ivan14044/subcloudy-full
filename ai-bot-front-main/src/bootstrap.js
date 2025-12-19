@@ -1,6 +1,12 @@
 import axios from 'axios';
 import i18n from './i18n';
 
+<<<<<<< HEAD
+=======
+// Всегда используем относительный путь /api
+// В dev режиме Vite proxy перенаправляет на Laravel сервер
+// В production фронтенд и бэкенд на одном домене, поэтому относительный путь работает
+>>>>>>> dc5751d53a6f5de3299308b7b9cfe3d007191e25
 const apiBase = import.meta.env.VITE_API_BASE || '/api';
 
 axios.defaults.baseURL = apiBase;

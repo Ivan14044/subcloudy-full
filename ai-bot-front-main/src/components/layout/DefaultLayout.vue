@@ -29,3 +29,13 @@ defineProps<{
 const route = useRoute();
 const { isDark } = useTheme();
 </script>
+
+<style scoped>
+/* Убеждаемся, что main контент находится поверх AnimatedBackdrop */
+main {
+    position: relative;
+    z-index: 1;
+    opacity: 1 !important;
+    filter: none !important;
+}
+</style>

@@ -59,12 +59,18 @@
                                     </span>
 
                                     <div class="service-card__logo">
-                                        <img
-                                            :src="service.logo"
-                                            :alt="`${getTranslation(service, 'name')} Logo`"
-                                            loading="lazy"
-                                            class="service-card__logo-img"
-                                        />
+                                        <picture>
+                                            <source :srcset="optimizedLogo" type="image/webp" v-if="webPSupported" />
+                                            <img
+                                                :src="service.logo"
+                                                :alt="`${getTranslation(service, 'name')} Logo`"
+                                                width="140"
+                                                height="140"
+                                                loading="lazy"
+                                                class="service-card__logo-img"
+                                                style="aspect-ratio: 1 / 1;"
+                                            />
+                                        </picture>
                                     </div>
 
                                     <div class="service-card__title">
@@ -196,6 +202,7 @@ import { useServiceStore } from '@/stores/services';
 import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useOptionStore } from '@/stores/options';
+import { useWebP } from '@/composables/useWebP';
 
 interface Service {
     id: number;
@@ -214,6 +221,11 @@ const authStore = useAuthStore();
 const serviceOption = useOptionStore();
 const service = ref<Service | null>(null);
 const trialActivatedIds = ref<number[]>([]);
+const { webPSupported, getOptimizedUrl } = useWebP();
+
+const optimizedLogo = computed(() => {
+    return service.value ? getOptimizedUrl(service.value.logo) : '';
+});
 const isAuthenticated = computed(() => !!authStore.user);
 const addedState = ref<'check' | 'checkout'>('check');
 const isAdded = ref(false);

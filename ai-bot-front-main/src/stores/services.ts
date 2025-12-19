@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { apiCache, createCacheKey } from '@/utils/cacheUtils';
 
 export interface Services {
     id: number;
@@ -23,6 +24,14 @@ export const useServiceStore = defineStore('services', {
     actions: {
         async fetchData() {
             if (this.isLoaded) return;
+
+            const cacheKey = createCacheKey('/services');
+            const cached = apiCache.get<Services[]>(cacheKey);
+            if (cached) {
+                this.services = cached;
+                this.isLoaded = true;
+                return;
+            }
 
             try {
                 const response = await axios.get<Services[]>('/services');
@@ -51,6 +60,8 @@ export const useServiceStore = defineStore('services', {
                 });
 
                 this.isLoaded = true;
+                // Кешируем на 15 минут (сервисы редко меняются)
+                apiCache.set(cacheKey, this.services, 15 * 60 * 1000);
             } catch (error) {
                 console.error('Error fetching services:', error);
             }
