@@ -112,7 +112,16 @@
     "promocode_discount": "Скидка по промокоду",
     "promocode_discount_empty_cart": "Промокод применён: скидка будет учтена при оформлении. Добавьте сервисы в корзину, чтобы увидеть экономию.",
     "free_via_promocode": "Бесплатно по промокоду на {days} дней",
-    "promocode_empty_hint": "Или введите промокод ниже"
+    "promocode_empty_hint": "Или введите промокод ниже",
+    "payment_method_required_title": "Выберите способ оплаты",
+    "payment_method_required_text": "Пожалуйста, выберите способ оплаты перед оформлением заказа.",
+    "trial_crypto_title": "Криптовалюта недоступна для пробной версии",
+    "trial_crypto_text": "Для пробной версии доступна оплата только картой. Пожалуйста, выберите другой способ оплаты или измените тип подписки.",
+    "trial_unavailable": "Недоступно для триала",
+    "trial_crypto_hint": "Для пробной версии доступна оплата только картой",
+    "trial_crypto_tooltip": "Криптовалюта недоступна для пробной версии. Выберите карту или измените тип подписки.",
+    "ok": "Понятно",
+    "secure_payment_text": "Безопасные платежи. Ваши данные защищены шифрованием."
   },
   "subscriptions": {
     "title": "Мои подписки",
@@ -221,7 +230,10 @@
     "copyright": "SubCloudy 2025 © Все права защищены",
     "termsOfService": "Публичная оферта",
     "privacyPolicy": "Политика конфиденциальности",
-    "refundPolicy": "Политика возврата"
+    "refundPolicy": "Политика возврата",
+    "description": "Совместные подписки на премиум сервисы с экономией до 80%",
+    "navigation": "Навигация",
+    "legal": "Правовая информация"
   },
   "reviews": {
     "title": "Ваше <span class='gradient-text'>удовлетворение</span> — наш <span class='gradient-text'>стимул</span> для роста!"
@@ -304,5 +316,66 @@
     "macos": "Скачать для macOS",
     "back": "Назад",
     "note": "Приложение доступно для Windows и macOS"
+  },
+  "support": {
+    "button": "Поддержка",
+    "title": "Служба поддержки",
+    "selectChannel": "Выберите способ связи",
+    "channelWeb": "Чат на сайте",
+    "channelWebDesc": "Продолжить диалог на сайте",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Перейти для общения в Telegram",
+    "enterEmail": "Введите ваш email для продолжения",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Начать чат",
+    "loading": "Загрузка...",
+    "messagePlaceholder": "Введите ваше сообщение...",
+    "switchToTelegram": "Перейти в Telegram",
+    "send": "Отправить"
+  }
+}
+
+  },
+  "loader": {
+    "starting": "Запуск системы",
+    "checking_plugin": "Проверка расширения браузера",
+    "preparing": "Подготовка окружения",
+    "syncing": "Синхронизация данных",
+    "browser": "Запуск браузера"
+  },
+  "articles": {
+    "title": "<span class='gradient-text'>Полезные</span> статьи",
+    "allArticles": "Все статьи",
+    "readMore": "Читать далее",
+    "description": "Полезные материалы, инструкции и новости. Используйте категории и фильтры, чтобы быстро найти нужное."
+  },
+  "savings": {
+    "title": "Ваши <span class='gradient-text'>сбережения</span> на подписках",
+    "description": "Платите меньше — получайте те же сервисы без переплат."
+  },
+  "downloadApp": {
+    "title": "Используйте десктопное приложение",
+    "description": "Для использования сервиса необходимо скачать и установить десктопное приложение SubCloudy",
+    "info": "После установки приложения вы сможете открывать и использовать все ваши подписки прямо из приложения.",
+    "windows": "Скачать для Windows",
+    "macos": "Скачать для macOS",
+    "back": "Назад",
+    "note": "Приложение доступно для Windows и macOS"
+  },
+  "support": {
+    "button": "Поддержка",
+    "title": "Служба поддержки",
+    "selectChannel": "Выберите способ связи",
+    "channelWeb": "Чат на сайте",
+    "channelWebDesc": "Продолжить диалог на сайте",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Перейти для общения в Telegram",
+    "enterEmail": "Введите ваш email для продолжения",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Начать чат",
+    "loading": "Загрузка...",
+    "messagePlaceholder": "Введите ваше сообщение...",
+    "switchToTelegram": "Перейти в Telegram",
+    "send": "Отправить"
   }
 }

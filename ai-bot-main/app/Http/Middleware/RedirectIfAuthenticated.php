@@ -21,6 +21,12 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+                // Если это админ-роут и пользователь не админ, не редиректим
+                // Это позволяет обычным пользователям видеть форму админ-логина
+                if ($request->is('admin/*') && (!$user || !$user->is_admin)) {
+                    return $next($request);
+                }
                 return redirect(RouteServiceProvider::HOME);
             }
         }

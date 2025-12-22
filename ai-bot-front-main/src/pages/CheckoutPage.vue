@@ -161,9 +161,9 @@
                                         </div>
                                     </div>
                                     <span
-                                        class="px-2 py-0.5 bg-green-500 text-white rounded-xl text-sm font-semibold"
+                                        class="discount-badge px-3 py-1.5 rounded-lg text-sm font-semibold relative overflow-hidden"
                                     >
-                                        -{{ upsellPercent }}%
+                                        <span class="relative z-10 text-white">-{{ upsellPercent }}%</span>
                                     </span>
                                 </div>
                             </div>
@@ -413,6 +413,28 @@ onMounted(() => {
 });
 
 const handleSubmit = async () => {
+    // Валидация: проверяем, выбран ли способ оплаты
+    if (!isZeroTotalWithServices.value && !selectedPayment.value) {
+        await showAlert({
+            title: t('checkout.payment_method_required_title'),
+            text: t('checkout.payment_method_required_text'),
+            icon: 'warning',
+            confirmButtonText: t('checkout.ok')
+        });
+        return;
+    }
+
+    // Валидация: проверяем, не выбран ли криптовалюта для триала
+    if (hasTrial.value && selectedPayment.value === 'crypto') {
+        await showAlert({
+            title: t('checkout.trial_crypto_title'),
+            text: t('checkout.trial_crypto_text'),
+            icon: 'warning',
+            confirmButtonText: t('checkout.ok')
+        });
+        return;
+    }
+
     if (isZeroTotalWithServices.value) {
         await buyFree();
         return;
@@ -597,5 +619,83 @@ function onPrimaryPromoClick() {
     transition:
         opacity 260ms ease,
         transform 260ms ease;
+}
+
+/* Стиль для бейджа скидки в стиле liquid glass */
+.discount-badge {
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.95));
+    box-shadow: 
+        0 4px 12px rgba(5, 150, 105, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+.discount-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: 
+        inset 1px 1px 1px 0 rgba(255, 255, 255, 0.3),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.discount-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 6px 16px rgba(5, 150, 105, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.dark .discount-badge {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(5, 150, 105, 0.85));
+    box-shadow: 
+        0 4px 12px rgba(5, 150, 105, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .discount-badge::before {
+    box-shadow: 
+        inset 1px 1px 1px 0 rgba(255, 255, 255, 0.15),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.dark .discount-badge:hover {
+    box-shadow: 
+        0 6px 16px rgba(5, 150, 105, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Улучшенные стили для glass-card элементов */
+:deep(.glass-card) {
+    position: relative;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+}
+
+:deep(.glass-card::before) {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: 
+        inset 1px 1px 1px 0 rgba(255, 255, 255, 0.3),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.2);
+}
+
+.dark :deep(.glass-card::before) {
+    box-shadow: 
+        inset 1px 1px 1px 0 rgba(255, 255, 255, 0.1),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.08);
 }
 </style>

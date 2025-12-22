@@ -15,3 +15,5 @@ ai-bot-front-main/dist/
 ai-bot-front-main/node_modules/
 *.backup
 *.bak
+updates/*.exe
+*.exe

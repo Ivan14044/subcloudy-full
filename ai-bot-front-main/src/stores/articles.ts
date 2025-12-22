@@ -97,10 +97,47 @@ export const useArticlesStore = defineStore('articles', {
         },
 
         normalizeImagePath(input: unknown): string | null {
-            if (!input || typeof input !== 'string') return null;
+            if (!input || typeof input !== 'string' || input.trim() === '') return null;
+            
+            // Если путь уже полный URL, возвращаем как есть
+            if (input.startsWith('http://') || input.startsWith('https://')) {
+                return input;
+            }
+            
+            // Проверяем, не содержит ли путь уже домен (например, subcloudy.com/storage)
+            // Если содержит, убираем домен и оставляем только путь
+            const domainPattern = /^https?:\/\/[^\/]+/;
+            if (domainPattern.test(input)) {
+                // Извлекаем только путь после домена
+                const match = input.match(/^https?:\/\/[^\/]+(\/.*)$/);
+                if (match && match[1]) {
+                    return match[1];
+                }
+            }
+            
+            // В production всегда используем относительные пути
+            const isProduction = import.meta.env.PROD;
+            if (isProduction) {
+                // Если путь начинается с /, возвращаем как есть
+                if (input.startsWith('/')) {
+                    return input;
+                }
+                // Если путь не начинается с /, добавляем /
+                return `/${input}`;
+            }
+            
+            // В dev режиме используем домен из переменных окружения, если он есть
             const domain = import.meta.env.VITE_APP_DOMAIN;
-            if (!domain) return input;
-            return input.startsWith('http') ? input : `${domain}${input}`;
+            if (domain) {
+                // Убеждаемся, что путь начинается с /
+                const path = input.startsWith('/') ? input : `/${input}`;
+                // Убираем домен из domain, если он там есть
+                const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                return `http://${cleanDomain}${path}`;
+            }
+            
+            // Если домена нет, возвращаем путь как есть
+            return input.startsWith('/') ? input : `/${input}`;
         },
 
         transformTranslations(rawTranslations: unknown): Translation[] {
@@ -139,7 +176,7 @@ export const useArticlesStore = defineStore('articles', {
             );
             const translations = this.transformTranslations(rawArticle.translations ?? []);
             const dateSource = rawArticle.date ?? rawArticle.created_at ?? new Date().toISOString();
-            const img = this.normalizeImagePath(rawArticle.img);
+            const img = this.normalizeImagePath(rawArticle.img) || '/img/no-logo.png';
             return {
                 id: Number(rawArticle.id),
                 categories,
@@ -156,7 +193,7 @@ export const useArticlesStore = defineStore('articles', {
             const translations = this.transformTranslations(rawArticleData.translations ?? []);
             const dateSource =
                 rawArticleData.date ?? rawArticleData.created_at ?? new Date().toISOString();
-            const img = this.normalizeImagePath(rawArticleData.img);
+            const img = this.normalizeImagePath(rawArticleData.img) || '/img/no-logo.png';
             return {
                 id: Number(rawArticleData.id),
                 categories,

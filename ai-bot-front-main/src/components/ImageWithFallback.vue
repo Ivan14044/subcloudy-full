@@ -48,8 +48,8 @@ function handleError() {
 const styleObject = props.style as any;
 
 const computedSrc = computed(() => {
-    if (!props.src || props.src === 'null' || props.src === 'undefined') {
-        return ERROR_IMG_SRC;
+    if (!props.src || props.src === 'null' || props.src === 'undefined' || props.src === null || props.src === '') {
+        return '/img/no-logo.png';
     }
     return props.src;
 });

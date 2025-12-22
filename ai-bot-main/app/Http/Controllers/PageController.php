@@ -3,22 +3,33 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
+use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $lang = $request->input('lang', 'ru');
+        
         $pages = Page::with('translations')
             ->where('is_active', true)
             ->get()
             ->keyBy('slug');
 
-        $data = $pages->map(function ($service) {
-            return $service->translations->groupBy('locale')->map(function ($translations) {
-                return $translations->pluck('value', 'code');
-            });
+        // Формируем данные в формате: { slug: { locale: { title, content, ... } } }
+        $data = $pages->map(function ($page) use ($lang) {
+            $translationsByLocale = $page->translations->groupBy('locale');
+            
+            // Формируем объект с переводами для каждой локали
+            $result = [];
+            foreach ($translationsByLocale as $locale => $translations) {
+                $result[$locale] = $translations->pluck('value', 'code')->toArray();
+            }
+            
+            return $result;
         });
 
         return response()->json($data);
     }
 }
+

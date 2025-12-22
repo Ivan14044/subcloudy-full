@@ -1,137 +1,297 @@
 <template>
-    <div v-if="pageStore.page && currentPageData" class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <!-- Header Section -->
-        <div class="text-center mb-16">
-            <h1 class="text-4xl font-light text-gray-900 dark:text-white mt-3">
-                {{ currentPageData.title }}
-            </h1>
+    <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <!-- Загрузка -->
+        <div v-if="isLoading" class="text-center">
+            <div class="text-gray-500 dark:text-gray-400">Загрузка...</div>
         </div>
 
-        <div class="content-page text-gray-900 dark:text-gray-300" v-html="currentPageData.content"></div>
-    </div>
-    <div v-else-if="isLoading" class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-        <div class="text-gray-500 dark:text-gray-400">????????????????...</div>
-    </div>
-    <div v-else class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">???????????????? ???? ??????????????</h1>
-        <p class="text-gray-600 dark:text-gray-400 mb-4">?????????????????????????? ???????????????? ???? ????????????????????.</p>
-        <router-link to="/" class="text-blue-500 hover:text-blue-600 underline">?????????????????? ???? ??????????????</router-link>
+        <!-- Контент страницы -->
+        <div v-else-if="pageData" class="content-page">
+            <!-- Заголовок -->
+            <div class="text-center mb-16">
+                <h1 class="text-4xl font-light text-gray-900 dark:text-white mt-3">
+                    {{ pageData.title }}
+                </h1>
+            </div>
+
+            <!-- Содержимое -->
+            <div 
+                class="text-gray-900 dark:text-gray-300 prose prose-lg dark:prose-invert max-w-none"
+                v-html="pageData.content"
+            ></div>
+        </div>
+
+        <!-- Страница не найдена -->
+        <div v-else class="text-center">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Страница не найдена
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Запрашиваемая страница не существует.
+            </p>
+            <router-link 
+                to="/" 
+                class="text-blue-500 hover:text-blue-600 underline dark:text-blue-400 dark:hover:text-blue-300"
+            >
+                Вернуться на главную
+            </router-link>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { usePageStore } from '@/stores/pages';
-import { useI18n } from 'vue-i18n';
-import { onMounted, watch, computed, ref } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { usePageStore } from '@/stores/pages';
 import { updateWebPageSEO } from '@/utils/seo';
+import i18n from '@/i18n';
 
-const pageStore = usePageStore();
-const { locale } = useI18n();
+// Константы
+const SUPPORTED_LOCALES = ['ru', 'uk', 'en', 'es', 'zh'] as const;
+const DEFAULT_LOCALE = 'ru';
+
+// Composables
 const route = useRoute();
-const isLoading = ref(false);
+const pageStore = usePageStore();
 
-// ???????????????? ???????????? ?????? ?????????????? ????????????
-const currentPageData = computed(() => {
-    console.log('[ContentPage] currentPageData computed, pageStore.page:', pageStore.page);
-    if (!pageStore.page) {
-        console.log('[ContentPage] No page in store');
-        return null;
+// Состояние
+const isLoading = ref(false);
+const pageData = ref<{ title: string; content: string } | null>(null);
+
+/**
+ * Получает текущую локаль из i18n или localStorage
+ */
+const currentLocale = computed(() => {
+    try {
+        if (i18n?.global?.locale) {
+            const localeValue = typeof i18n.global.locale === 'object' && i18n.global.locale.value
+                ? i18n.global.locale.value
+                : i18n.global.locale;
+            
+            if (localeValue && SUPPORTED_LOCALES.includes(localeValue as any)) {
+                return localeValue;
+            }
+        }
+    } catch (e) {
+        // Игнорируем ошибки
     }
-    const currentLocale = locale.value;
-    console.log('[ContentPage] Current locale:', currentLocale);
-    // ?????????????? ???????????????? ???????????? ?????? ?????????????? ????????????, ???????? ?????? - ???????????????????? ru ?????? fallback
-    const data = pageStore.page[currentLocale] || pageStore.page['ru'] || null;
-    console.log('[ContentPage] Current page data:', data);
-    return data;
+    
+    try {
+        const savedLang = localStorage.getItem('user-language');
+        if (savedLang && SUPPORTED_LOCALES.includes(savedLang as any)) {
+            return savedLang;
+        }
+    } catch (e) {
+        // Игнорируем ошибки
+    }
+    
+    return DEFAULT_LOCALE;
 });
 
-function applySeo() {
-    try {
-        const data = currentPageData.value;
-        if (!data) return;
-        updateWebPageSEO({
-            title: data.title,
-            description: (data.content || '').replace(/<[^>]+>/g, '').slice(0, 220),
-            canonical: window.location.pathname
-        });
-    } catch {}
+/**
+ * Извлекает slug из пути маршрута
+ */
+function extractSlugFromPath(path: string): string {
+    const slug = path.replace(/^\/|\/$/g, '');
+    const segments = slug.split('/').filter(Boolean);
+    
+    if (segments.length > 0 && SUPPORTED_LOCALES.includes(segments[0] as any)) {
+        segments.shift();
+    }
+    
+    return segments.join('/');
 }
 
-async function loadPage() {
-    console.log('[ContentPage] loadPage called, route.path:', route.path);
+/**
+ * Извлекает данные страницы для текущей локали
+ */
+function extractPageData(page: any, locale: string): { title: string; content: string } | null {
+    if (!page || typeof page !== 'object') {
+        return null;
+    }
+
+    // Legacy формат (плоские данные)
+    if (page.title !== undefined || page.content !== undefined) {
+        return {
+            title: String(page.title || ''),
+            content: String(page.content || '')
+        };
+    }
+
+    // Пробуем получить данные для текущей локали
+    if (page[locale] && typeof page[locale] === 'object') {
+        const localeData = page[locale];
+        if (localeData.title !== undefined || localeData.content !== undefined) {
+            return {
+                title: String(localeData.title || ''),
+                content: String(localeData.content || '')
+            };
+        }
+    }
+
+    // Fallback на русскую локаль
+    if (locale !== DEFAULT_LOCALE && page[DEFAULT_LOCALE] && typeof page[DEFAULT_LOCALE] === 'object') {
+        const ruData = page[DEFAULT_LOCALE];
+        if (ruData.title !== undefined || ruData.content !== undefined) {
+            return {
+                title: String(ruData.title || ''),
+                content: String(ruData.content || '')
+            };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Находит страницу по slug в store
+ */
+function findPageBySlug(slug: string): any {
+    if (!slug || !pageStore.pages || typeof pageStore.pages !== 'object') {
+        return null;
+    }
+
+    const normalizedSlug = slug.toLowerCase().trim();
+
+    // Прямое совпадение
+    if (pageStore.pages[slug] && typeof pageStore.pages[slug] === 'object') {
+        return pageStore.pages[slug];
+    }
+
+    // Поиск по нормализованному slug
+    for (const [key, value] of Object.entries(pageStore.pages)) {
+        if (key.toLowerCase().trim() === normalizedSlug && typeof value === 'object') {
+            return value;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Обновляет данные страницы без загрузки с сервера (для быстрого переключения языка)
+ */
+function updatePageDataForLocale(locale: string): boolean {
+    const slug = extractSlugFromPath(route.path);
+    if (!slug) return false;
+
+    const page = findPageBySlug(slug);
+    if (!page) return false;
+
+    const extractedData = extractPageData(page, locale);
+    if (!extractedData || (!extractedData.title && !extractedData.content)) {
+        return false;
+    }
+
+    pageData.value = extractedData;
+    applySEO(extractedData);
+    return true;
+}
+
+/**
+ * Загружает данные страницы
+ */
+async function loadPage(forceFetch = false): Promise<void> {
     isLoading.value = true;
+    pageData.value = null;
+
     try {
-        // ?????????????????? slug ???? ????????
-        let slug = route.path.replace(/^\/|\/$/g, '');
-        console.log('[ContentPage] Initial slug:', slug);
-        const segments = slug.split('/').filter(Boolean);
-        console.log('[ContentPage] Segments:', segments);
-        
-        // ???????? ???????????? ?????????????? - ?????? ????????????, ?????????????? ??????
-        const SUPPORTED_LOCALES = ['ru', 'uk', 'en', 'es', 'zh'];
-        if (segments.length > 0 && SUPPORTED_LOCALES.includes(segments[0])) {
-            console.log('[ContentPage] Removing locale:', segments[0]);
-            segments.shift();
-            slug = segments.join('/');
+        const slug = extractSlugFromPath(route.path);
+        if (!slug) {
+            isLoading.value = false;
+            return;
         }
-        console.log('[ContentPage] Final slug:', slug);
-        console.log('[ContentPage] Current locale:', locale.value);
-        
-        // ?????????????????? ???????????? ??????????????
-        console.log('[ContentPage] Fetching pages data...');
-        await pageStore.fetchData(locale.value);
-        console.log('[ContentPage] Pages loaded, available slugs:', Object.keys(pageStore.pages));
-        console.log('[ContentPage] Pages data:', pageStore.pages);
-        
-        // ?????????????????????????? ?????????????? ????????????????
-        if (slug && pageStore.pages[slug]) {
-            console.log('[ContentPage] Setting page for slug:', slug);
-            console.log('[ContentPage] Page data:', pageStore.pages[slug]);
-            pageStore.setPage(pageStore.pages[slug]);
-            console.log('[ContentPage] Page set, pageStore.page:', pageStore.page);
-        } else {
-            console.warn(`[ContentPage] Page not found for slug: "${slug}"`);
-            console.warn(`[ContentPage] Available slugs:`, Object.keys(pageStore.pages));
-            pageStore.setPage(null);
+
+        const locale = currentLocale.value;
+
+        // Проверяем, нужно ли загружать данные
+        const needsFetch = forceFetch || 
+                          !pageStore.pages || 
+                          Object.keys(pageStore.pages).length === 0 || 
+                          pageStore.currentLocale !== locale;
+
+        if (needsFetch) {
+            await pageStore.fetchData(locale, forceFetch);
         }
-        
-        applySeo();
+
+        // Ищем страницу по slug
+        const page = findPageBySlug(slug);
+        if (!page) {
+            isLoading.value = false;
+            return;
+        }
+
+        // Извлекаем данные для текущей локали
+        const extractedData = extractPageData(page, locale);
+        if (!extractedData || (!extractedData.title && !extractedData.content)) {
+            isLoading.value = false;
+            return;
+        }
+
+        pageData.value = extractedData;
+        applySEO(extractedData);
+
     } catch (error) {
         console.error('[ContentPage] Error loading page:', error);
-        console.error('[ContentPage] Error stack:', error.stack);
-        pageStore.setPage(null);
+        pageData.value = null;
     } finally {
         isLoading.value = false;
-        console.log('[ContentPage] loadPage finished, isLoading:', isLoading.value);
     }
 }
 
+/**
+ * Применяет SEO метаданные
+ */
+function applySEO(data: { title: string; content: string }): void {
+    try {
+        const description = data.content
+            .replace(/<[^>]+>/g, '')
+            .slice(0, 220)
+            .trim();
+
+        if (data.title || description) {
+            updateWebPageSEO({
+                title: data.title || 'Страница',
+                description: description || '',
+                canonical: route.path
+            });
+        }
+    } catch (error) {
+        console.error('[ContentPage] Error applying SEO:', error);
+    }
+}
+
+// Загружаем страницу при монтировании
 onMounted(() => {
     loadPage();
 });
 
-// ?????????????????????? ?????????????????? ????????????????
+// Перезагружаем при изменении маршрута
 watch(() => route.path, () => {
     loadPage();
 });
 
-watch(() => locale.value, () => {
-    loadPage();
-});
+// Оптимизированное переключение языка: сначала пробуем использовать уже загруженные данные
+watch(currentLocale, async (newLocale, oldLocale) => {
+    if (!oldLocale || newLocale === oldLocale) return;
 
-watch(() => pageStore.page, () => {
-    applySeo();
+    // Пробуем обновить данные без загрузки с сервера
+    if (updatePageDataForLocale(newLocale)) {
+        return; // Данные обновлены, загрузка не нужна
+    }
+
+    // Если данных нет, загружаем с сервера
+    await loadPage(true);
 });
 </script>
 
 <style scoped>
-/* ?????????? ?????? ???????????????????? ?????????????? */
+/* Базовые стили для контентных страниц */
 .content-page {
     line-height: 1.8;
 }
 
-/* ???????????????????????????? ?????????? ???????? ???????????? ?? HTML ???????????????? ?????? ?????????????? ???????? */
+/* Стили для HTML контента */
 .content-page :deep(p),
 .content-page :deep(div),
 .content-page :deep(span),
@@ -139,6 +299,27 @@ watch(() => pageStore.page, () => {
 .content-page :deep(td),
 .content-page :deep(th) {
     color: inherit;
+}
+
+/* Исправление черного цвета текста в темной теме */
+.dark .content-page :deep(p),
+.dark .content-page :deep(div),
+.dark .content-page :deep(span),
+.dark .content-page :deep(li),
+.dark .content-page :deep(td),
+.dark .content-page :deep(th) {
+    color: rgb(209, 213, 219); /* gray-300 */
+}
+
+/* Перекрытие черного цвета из inline стилей в темной теме */
+.dark .content-page :deep([style*="color: black"]),
+.dark .content-page :deep([style*="color:#000"]),
+.dark .content-page :deep([style*="color:#000000"]),
+.dark .content-page :deep([style*="color: rgb(0, 0, 0)"]),
+.dark .content-page :deep([style*="color: rgb(0,0,0)"]),
+.dark .content-page :deep([style*="color: #000"]),
+.dark .content-page :deep([style*="color: #000000"]) {
+    color: rgb(209, 213, 219) !important; /* gray-300 */
 }
 
 .content-page :deep(h1),
@@ -162,7 +343,7 @@ watch(() => pageStore.page, () => {
     color: rgb(209, 213, 219); /* gray-300 */
 }
 
-/* ?????????????? ?????????? ???????? ???? ???????????????????? ???????????? ???? ?????????????? ???????? */
+/* Исправление белого цвета текста в светлой теме */
 .content-page :deep([style*="color: white"]),
 .content-page :deep([style*="color:#fff"]),
 .content-page :deep([style*="color:#ffffff"]),
@@ -179,10 +360,11 @@ watch(() => pageStore.page, () => {
     color: rgb(209, 213, 219) !important; /* gray-300 */
 }
 
-/* ?????????? ?????? ???????????? */
+/* Стили для ссылок */
 .content-page :deep(a) {
     color: rgb(59, 130, 246); /* blue-500 */
     text-decoration: underline;
+    transition: color 0.2s;
 }
 
 .content-page :deep(a:hover) {
@@ -197,7 +379,7 @@ watch(() => pageStore.page, () => {
     color: rgb(147, 197, 253); /* blue-300 */
 }
 
-/* ?????????? ?????? ?????????????? */
+/* Стили для списков */
 .content-page :deep(ul),
 .content-page :deep(ol) {
     margin-left: 1.5rem;
@@ -207,5 +389,32 @@ watch(() => pageStore.page, () => {
 
 .content-page :deep(li) {
     margin-bottom: 0.5rem;
+}
+
+/* Стили для таблиц */
+.content-page :deep(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.content-page :deep(th),
+.content-page :deep(td) {
+    padding: 0.5rem;
+    border: 1px solid rgb(209, 213, 219);
+}
+
+.dark .content-page :deep(th),
+.dark .content-page :deep(td) {
+    border-color: rgb(55, 65, 81);
+    color: rgb(209, 213, 219); /* gray-300 */
+}
+
+/* Стили для изображений */
+.content-page :deep(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
 }
 </style>

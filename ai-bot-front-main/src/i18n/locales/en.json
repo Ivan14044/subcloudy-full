@@ -112,7 +112,16 @@
     "promocode_discount": "Promocode discount",
     "promocode_discount_empty_cart": "Promocode applied: discount will be used at checkout. Add services to your cart to see the savings.",
     "free_via_promocode": "Free via promocode for {days} days",
-    "promocode_empty_hint": "Or enter a promocode below"
+    "promocode_empty_hint": "Or enter a promocode below",
+    "payment_method_required_title": "Select payment method",
+    "payment_method_required_text": "Please select a payment method before placing your order.",
+    "trial_crypto_title": "Crypto payment unavailable for trial",
+    "trial_crypto_text": "Trial subscriptions can only be paid with a card. Please select a different payment method or change your subscription type.",
+    "trial_unavailable": "Unavailable for trial",
+    "trial_crypto_hint": "Trial subscriptions can only be paid with a card",
+    "trial_crypto_tooltip": "Crypto payment is unavailable for trial subscriptions. Please select a card or change your subscription type.",
+    "ok": "OK",
+    "secure_payment_text": "Secure payments. Your data is protected by encryption."
   },
   "subscriptions": {
     "title": "My subscriptions",
@@ -221,7 +230,10 @@
     "copyright": "SubCloudy 2025 © All rights reserved",
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
-    "refundPolicy": "Refund Policy"
+    "refundPolicy": "Refund Policy",
+    "description": "Shared subscriptions to premium services with savings up to 80%",
+    "navigation": "Navigation",
+    "legal": "Legal Information"
   },
   "reviews": {
     "title": "Your <span class='gradient-text'>satisfaction</span> drives us to <span class='gradient-text'>grow</span>!"

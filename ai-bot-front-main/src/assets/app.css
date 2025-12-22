@@ -87,10 +87,25 @@ header {
 
 html, body {
     overflow-x: hidden;
+    height: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 html {
     scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 button.swal2-confirm {
@@ -250,4 +265,137 @@ main > * {
 
 .dark .cta-button:hover {
     border-color: rgb(30, 58, 138); /* blue-900 */
+}
+
+/* SVG фильтр для модальных окон SweetAlert2 */
+.swal2-container::before {
+    content: '';
+    position: fixed;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    z-index: -1;
+}
+
+/* Liquid Glass Effect для модальных окон SweetAlert2 */
+.swal2-popup {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 6px 6px rgba(0, 0, 0, 0.2), 
+        0 0 20px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.25) !important;
+    isolation: isolate;
+}
+
+.dark .swal2-popup {
+    background: rgba(31, 41, 55, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.03);
+    box-shadow: 
+        0 6px 6px rgba(0, 0, 0, 0.2), 
+        0 0 20px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.1),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Эффект блеска для модального окна */
+.swal2-popup::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: 
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.5),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.dark .swal2-popup::before {
+    box-shadow: 
+        inset 2px 2px 1px 0 rgba(255, 255, 255, 0.1),
+        inset -1px -1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Контент модального окна должен быть поверх эффектов */
+.swal2-popup > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Улучшенные стили для кнопок в модальном окне */
+.swal2-actions {
+    position: relative;
+    z-index: 2;
+}
+
+/* Минималистичный стиль для кнопки подтверждения */
+.swal2-confirm {
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+.swal2-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+}
+
+.swal2-confirm:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+
+.dark .swal2-confirm {
+    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.dark .swal2-confirm:hover {
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+/* Минималистичный стиль для кнопки отмены */
+.swal2-cancel {
+    background: #f3f4f6 !important;
+    color: #1f2937 !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+.swal2-cancel:hover {
+    transform: translateY(-2px);
+    background: #e5e7eb !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.swal2-cancel:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .swal2-cancel {
+    background: #374151 !important;
+    color: #f3f4f6 !important;
+    border-color: #4b5563 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dark .swal2-cancel:hover {
+    background: #4b5563 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }

@@ -112,7 +112,16 @@
     "promocode_discount": "优惠码折扣",
     "promocode_discount_empty_cart": "优惠码已应用：结账时生效。请先将服务添加到购物车以查看优惠。",
     "free_via_promocode": "使用优惠码免费 {days} 天",
-    "promocode_empty_hint": "或者在下方输入优惠码"
+    "promocode_empty_hint": "或者在下方输入优惠码",
+    "payment_method_required_title": "选择支付方式",
+    "payment_method_required_text": "请在下单前选择支付方式。",
+    "trial_crypto_title": "试用版不支持加密货币支付",
+    "trial_crypto_text": "试用订阅只能使用卡支付。请选择其他支付方式或更改订阅类型。",
+    "trial_unavailable": "试用版不可用",
+    "trial_crypto_hint": "试用订阅只能使用卡支付",
+    "trial_crypto_tooltip": "试用订阅不支持加密货币支付。请选择卡支付或更改订阅类型。",
+    "ok": "知道了",
+    "secure_payment_text": "安全支付。您的数据受到加密保护。"
   },
   "subscriptions": {
     "title": "我的订阅",
@@ -217,7 +226,10 @@
     "copyright": "SubCloudy 2025 © All rights reserved",
     "termsOfService": "服务条款",
     "privacyPolicy": "隐私政策",
-    "refundPolicy": "退款政策"
+    "refundPolicy": "退款政策",
+    "description": "共享高级服务订阅，节省高达80%",
+    "navigation": "导航",
+    "legal": "法律信息"
   },
   "reviews": {
     "title": "您的<span class='gradient-text'>满意</span>是我们<span class='gradient-text'>成长</span>的动力！"

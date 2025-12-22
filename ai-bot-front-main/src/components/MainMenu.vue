@@ -1,11 +1,12 @@
 <template>
     <div class="relative flex items-center gap-5">
-        <ul class="h-100 items-center hidden lg:flex gap-2 flex-nowrap overflow-hidden">
+        <ul class="h-full items-center hidden lg:flex gap-1.5 flex-nowrap overflow-hidden" style="position: relative; z-index: 20;">
             <li
                 v-for="(item, index) in allMenuItems"
                 :key="index"
-                class="cursor-pointer text-base !text-[15px] h-[30px] d-flex align-center lh-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-2 px-lg-3 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
-                @click="handleClick(item)"
+                class="cursor-pointer text-base !text-[14px] h-[30px] flex items-center leading-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-1.5 px-lg-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
+                @click.stop="handleClick(item)"
+                style="position: relative; z-index: 21; pointer-events: auto !important;"
             >
                 {{ item.title }}
             </li>
@@ -14,7 +15,7 @@
         <!-- Кнопка бургер для мобильной версии -->
         <button
             v-if="allMenuItems.length > 0"
-            class="flex lg:hidden text-gray-700 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors !text-[15px] h-[30px] align-center lh-[15px] duration-300 px-2 px-lg-3 py-2 rounded-lg"
+            class="flex items-center lg:hidden text-gray-700 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors !text-[15px] h-[30px] leading-[15px] duration-300 px-2 px-lg-3 py-2 rounded-lg"
             :class="{ 'mr-[-20px]': isMobileMenuOpen }"
             @click="isMobileMenuOpen = true"
             :aria-label="$t('menu.openMenu')"
@@ -56,9 +57,14 @@ interface MenuItem {
 }
 
 function parseJson<T>(str: string, fallback: T): T {
+    if (!str || typeof str !== 'string') {
+        return fallback;
+    }
     try {
-        return JSON.parse(str) as T;
-    } catch {
+        const parsed = JSON.parse(str);
+        return parsed as T;
+    } catch (e) {
+        console.warn('[MainMenu] JSON parse error:', e, 'String:', str.substring(0, 100));
         return fallback;
     }
 }
@@ -94,11 +100,33 @@ const fixedMenuItems = computed<MenuItem[]>(() => [
 
 // Динамические пункты меню из опций
 const dynamicMenuItems = computed<MenuItem[]>(() => {
-    const raw = serviceOption.options.header_menu;
+    // Убеждаемся, что данные загружены
+    if (!serviceOption.isLoaded) {
+        return [];
+    }
+    
+    const options = serviceOption.options;
+    let optionsObj: Record<string, any>;
+    
+    // Если options - массив, преобразуем в объект
+    if (Array.isArray(options)) {
+        optionsObj = {};
+        options.forEach(option => {
+            if (option && option.key) {
+                optionsObj[option.key] = option.value;
+            }
+        });
+    } else if (typeof options === 'object' && options !== null) {
+        optionsObj = options;
+    } else {
+        return [];
+    }
+    
+    const raw = optionsObj.header_menu;
     if (!raw) return [];
 
     const menusByLocale = parseJson<Record<string, string>>(raw, {});
-    const menuStr = menusByLocale[locale.value] ?? '[]';
+    const menuStr = menusByLocale[locale.value] ?? menusByLocale['ru'] ?? '[]';
 
     return parseJson<MenuItem[]>(menuStr, []);
 });
@@ -109,13 +137,23 @@ const allMenuItems = computed<MenuItem[]>(() => {
 });
 
 function handleClick(item: MenuItem) {
+    console.log('[MainMenu] handleClick called with item:', item);
+    
+    if (!item || !item.link) {
+        console.warn('[MainMenu] Invalid item or link:', item);
+        return;
+    }
+    
     if (item.is_blank) {
-        window.open(item.link, '_blank');
+        console.log('[MainMenu] Opening link in new tab:', item.link);
+        window.open(item.link, '_blank', 'noopener,noreferrer');
+        isMobileMenuOpen.value = false;
         return;
     }
 
     // Если это скролл на главной странице
     if (item.is_scroll && route.path === '/') {
+        console.log('[MainMenu] Scrolling to element on home page:', item.link);
         scrollToElement(item.link);
         isMobileMenuOpen.value = false;
         return;
@@ -123,18 +161,30 @@ function handleClick(item: MenuItem) {
 
     // Если это скролл, но мы не на главной странице
     if (item.is_scroll && route.path !== '/') {
+        console.log('[MainMenu] Navigating to home then scrolling to:', item.link);
         router.push('/').then(() => {
             // Небольшая задержка, чтобы страница успела загрузиться
             setTimeout(() => {
                 scrollToElement(item.link);
-            }, 100);
+            }, 300);
+        }).catch(err => {
+            console.error('[MainMenu] Navigation error:', err);
         });
         isMobileMenuOpen.value = false;
         return;
     }
 
     // Обычная навигация
-    router.push(item.link);
+    console.log('[MainMenu] Navigating to:', item.link);
+    router.push(item.link).then(() => {
+        console.log('[MainMenu] Navigation successful to:', item.link);
+    }).catch(err => {
+        console.error('[MainMenu] Navigation error:', err);
+        // Если навигация не удалась, пробуем открыть как обычную ссылку
+        if (err.name !== 'NavigationDuplicated') {
+            window.location.href = item.link;
+        }
+    });
     isMobileMenuOpen.value = false;
 }
 </script>

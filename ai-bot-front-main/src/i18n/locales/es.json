@@ -112,7 +112,16 @@
     "promocode_discount": "Descuento por código",
     "promocode_discount_empty_cart": "Código aplicado: el descuento se usará en el pago. Añade servicios al carrito para ver el ahorro.",
     "free_via_promocode": "Gratis con código por {days} días",
-    "promocode_empty_hint": "O introduce un código promocional abajo"
+    "promocode_empty_hint": "O introduce un código promocional abajo",
+    "payment_method_required_title": "Seleccione el método de pago",
+    "payment_method_required_text": "Por favor, seleccione un método de pago antes de realizar su pedido.",
+    "trial_crypto_title": "Pago con criptomoneda no disponible para prueba",
+    "trial_crypto_text": "Las suscripciones de prueba solo se pueden pagar con tarjeta. Por favor, seleccione otro método de pago o cambie su tipo de suscripción.",
+    "trial_unavailable": "No disponible para prueba",
+    "trial_crypto_hint": "Las suscripciones de prueba solo se pueden pagar con tarjeta",
+    "trial_crypto_tooltip": "El pago con criptomoneda no está disponible para suscripciones de prueba. Por favor, seleccione una tarjeta o cambie su tipo de suscripción.",
+    "ok": "Entendido",
+    "secure_payment_text": "Pagos seguros. Sus datos están protegidos con cifrado."
   },
   "subscriptions": {
     "title": "Mis suscripciones",
@@ -217,7 +226,10 @@
     "copyright": "SubCloudy 2025 © Todos los derechos reservados",
     "termsOfService": "Términos de servicio",
     "privacyPolicy": "Política de privacidad",
-    "refundPolicy": "Política de reembolso"
+    "refundPolicy": "Política de reembolso",
+    "description": "Suscripciones compartidas a servicios premium con ahorros de hasta el 80%",
+    "navigation": "Navegación",
+    "legal": "Información Legal"
   },
   "reviews": {
     "title": "¡Tu <span class='gradient-text'>satisfacción</span> nos impulsa a <span class='gradient-text'>crecer</span>!"

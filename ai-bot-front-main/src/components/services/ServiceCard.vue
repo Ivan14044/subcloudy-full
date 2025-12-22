@@ -408,7 +408,8 @@ const tiltStyle = computed(() => {
     const finalFactor = Math.max(minFactor, cornerFactor);
     const rotateX = (0.5 - displayY.value) * baseMaxTilt * finalFactor;
     const rotateY = (displayX.value - 0.5) * baseMaxTilt * finalFactor;
-    const translateZ = isFlipped.value ? 0 : 10;
+    // Убираем translateZ чтобы избежать подпрыгивания при наведении
+    const translateZ = 0;
 
     return {
         transform: `perspective(1100px) rotateX(${rotateX.toFixed(3)}deg) rotateY(${rotateY.toFixed(3)}deg) translateZ(${translateZ}px)`,

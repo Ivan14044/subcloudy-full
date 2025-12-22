@@ -10,7 +10,7 @@
         >
             <img :src="`/img/lang/${currentLanguage.code}.png`" :alt="`${currentLanguage.name} flag`" width="24" height="16" style="aspect-ratio: 3 / 2;" />
             <Globe v-if="!currentLanguage.code" class="w-5 h-5 text-gray-600" />
-            <span class="d-flex">
+            <span class="flex items-center">
                 <span class="hidden xl:flex text-[15px]">{{ currentLanguage.name }}</span>
                 <ChevronDown
                     :class="[

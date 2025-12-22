@@ -59,6 +59,14 @@ class User extends Authenticatable
         return $this->hasMany(Notification::class);
     }
 
+    /**
+     * Get the user's support tickets.
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
     public function serviceAccounts()
     {
         return $this->belongsToMany(ServiceAccount::class, 'user_service_accounts')->withTimestamps();

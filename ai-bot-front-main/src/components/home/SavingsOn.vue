@@ -4,31 +4,31 @@
             <div
                 v-for="block in blocks"
                 :key="block.id"
-                class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow"
+                class="savings-card group h-full flex flex-col relative overflow-hidden rounded-2xl bg-white/20 dark:bg-white/[0.02] backdrop-blur-xl border border-black/10 dark:border-white/[0.08] hover:border-black/20 dark:hover:border-white/[0.15] transition-all duration-500 shadow-lg before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/60 dark:before:from-white/[0.08] before:to-transparent before:pointer-events-none"
             >
-                <div class="flex flex-col items-center text-center">
+                <div class="relative p-6 flex flex-col items-center text-center flex-1 bg-gradient-to-t from-black/[0.01] to-transparent dark:from-black/[0.02] backdrop-blur-sm z-10">
                     <img
                         v-if="block.logo"
                         :src="block.logo"
                         :alt="block.title"
                         width="64"
                         height="64"
-                        class="w-16 h-16 mb-4 object-contain"
+                        class="w-16 h-16 mb-4 object-contain relative z-10"
                         style="aspect-ratio: 1 / 1;"
                     />
-                    <h3 class="text-xl font-bold mb-2 dark:text-white">{{ block.title }}</h3>
-                    <p v-if="block.text" class="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                    <h3 class="text-xl font-bold mb-2 text-gray-900 dark:text-white relative z-10">{{ block.title }}</h3>
+                    <p v-if="block.text" class="text-gray-600 dark:text-gray-300 mb-4 text-sm relative z-10">
                         {{ block.text }}
                     </p>
-                    <div v-if="block.our_price || block.normal_price" class="mb-4">
+                    <div v-if="block.our_price || block.normal_price" class="mb-4 relative z-10">
                         <div v-if="block.our_price" class="text-2xl font-bold text-green-600 dark:text-green-400">
                             {{ block.our_price }}
                         </div>
-                        <div v-if="block.normal_price" class="text-sm text-gray-500 line-through">
+                        <div v-if="block.normal_price" class="text-sm text-gray-500 dark:text-gray-400 line-through">
                             {{ block.normal_price }}
                         </div>
                     </div>
-                    <p v-if="block.advantage" class="text-sm text-gray-700 dark:text-gray-300">
+                    <p v-if="block.advantage" class="text-sm text-gray-700 dark:text-gray-300 relative z-10">
                         {{ block.advantage }}
                     </p>
                 </div>
@@ -85,6 +85,27 @@ watch(() => locale.value, () => {
 <style scoped>
 .savings-container {
     @apply w-full;
+}
+
+.savings-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.savings-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+:global(.dark) .savings-card:hover {
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .savings-card:hover {
+        transform: none;
+    }
 }
 </style>
 

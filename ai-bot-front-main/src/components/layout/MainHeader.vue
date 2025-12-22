@@ -87,14 +87,14 @@
                         enter-from-class="opacity-0 translate-y-2"
                         enter-to-class="opacity-100 translate-y-0"
                     >
-                        <div v-if="headerStore.showMenu" class="w-full d-flex justify-between sm:pl-6 relative z-10" style="overflow: visible; min-width: 0;">
-                            <div style="overflow: visible; flex-shrink: 0;">
+                        <div v-if="headerStore.showMenu" class="w-full flex items-center justify-between sm:pl-6 relative z-20" style="overflow: visible; min-width: 0; pointer-events: auto;">
+                            <div class="flex items-center" style="overflow: visible; flex-shrink: 0; position: relative; z-index: 21;">
                                 <LanguageSelector />
                             </div>
-                            <div class="flex-shrink-1 min-w-0 hidden lg:block">
+                            <div class="flex items-center flex-shrink-1 min-w-0 hidden lg:block" style="overflow: hidden; text-overflow: ellipsis; position: relative; z-index: 21;">
                                 <MainMenu />
                             </div>
-                            <div class="relative flex items-center gap-1 flex-shrink-0">
+                            <div class="relative flex items-center gap-0.5 flex-shrink-0" style="position: relative; z-index: 21;">
                                 <ThemeSwitcher />
                                 <ServiceCart />
                                 <NotificationBell />

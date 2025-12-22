@@ -18,19 +18,80 @@ const getBrowserLocale = () => {
 
 const savedLanguage = localStorage.getItem('user-language');
 
-const i18n = createI18n({
-    legacy: false,
-    globalInjection: true,
-    locale: savedLanguage ?? 'ru', // Русский язык по умолчанию
-    fallbackLocale: 'en',
-    warnHtmlMessage: false,
-    messages: {
+// Валидация и очистка сообщений перед созданием i18n
+function validateMessages(messages) {
+    const cleaned = {};
+    for (const [locale, msgs] of Object.entries(messages)) {
+        try {
+            // Проверяем, что это валидный объект
+            if (msgs && typeof msgs === 'object') {
+                // Рекурсивно проверяем значения на наличие некорректных строк
+                // Используем глубокое копирование для избежания проблем с Proxy
+                const clean = JSON.parse(JSON.stringify(msgs, (key, value) => {
+                    // Пропускаем функции и undefined
+                    if (typeof value === 'function' || value === undefined) {
+                        return null;
+                    }
+                    // Обрабатываем циклические ссылки
+                    if (typeof value === 'object' && value !== null) {
+                        try {
+                            JSON.stringify(value);
+                        } catch (e) {
+                            return null;
+                        }
+                    }
+                    return value;
+                }));
+                cleaned[locale] = clean;
+            } else {
+                console.warn(`[i18n] Invalid messages for locale ${locale}, using empty object`);
+                cleaned[locale] = {};
+            }
+        } catch (e) {
+            console.error(`[i18n] Error validating messages for locale ${locale}:`, e);
+            console.error(`[i18n] Error details:`, e.message, e.stack);
+            cleaned[locale] = {};
+        }
+    }
+    return cleaned;
+}
+
+// Безопасное создание i18n с обработкой ошибок
+let i18n;
+try {
+    const validatedMessages = validateMessages({
         en: en,
         uk: uk,
         ru: ru,
         zh: zh,
         es: es
-    }
-});
+    });
+
+    i18n = createI18n({
+        legacy: false,
+        globalInjection: true,
+        locale: savedLanguage ?? 'ru', // Русский язык по умолчанию
+        fallbackLocale: 'en',
+        warnHtmlMessage: false,
+        messages: validatedMessages,
+        silentTranslationWarn: true,
+        silentFallbackWarn: true,
+        // Добавляем обработку ошибок парсинга
+        missingWarn: false,
+        fallbackWarn: false
+    });
+} catch (e) {
+    console.error('[i18n] Critical error creating i18n instance:', e);
+    // Создаем минимальный экземпляр i18n для предотвращения полного краха
+    i18n = createI18n({
+        legacy: false,
+        globalInjection: true,
+        locale: 'ru',
+        fallbackLocale: 'en',
+        messages: { ru: {}, en: {} },
+        silentTranslationWarn: true,
+        silentFallbackWarn: true
+    });
+}
 
 export default i18n;

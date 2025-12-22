@@ -48,6 +48,8 @@ return [
         'bot_username' => env('TELEGRAM_BOT_USERNAME'),
         'bot_id' => env('TELEGRAM_BOT_ID'),
         'redirect' => env('TELEGRAM_REDIRECT_URI', '/auth/telegram/callback'),
+        // Токен бота для авторизации (может отличаться от бота поддержки)
+        'auth_bot_token' => env('TELEGRAM_AUTH_BOT_TOKEN', env('TELEGRAM_BOT_TOKEN')),
     ],
 
     'browser_api' => [

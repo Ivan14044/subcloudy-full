@@ -100,15 +100,24 @@
             </div>
         </div>
 
-        <div :class="paymentClass('crypto')" @click="selectPaymentMethod('crypto')">
+        <div 
+            :class="paymentClass('crypto')" 
+            @click="selectPaymentMethod('crypto')"
+            class="relative"
+        >
             <div class="flex items-center gap-3 w-100">
                 <div class="w-10 h-10 rounded flex items-center justify-center">
                     <span class="text-xl">₿</span>
                 </div>
 
                 <div class="flex-1">
-                    <div class="font-medium">{{ $t('checkout.crypto') }}</div>
+                    <div class="font-medium">
+                        {{ $t('checkout.crypto') }}
+                    </div>
                     <div class="text-xs">{{ $t('checkout.crypto_placeholder') }}</div>
+                    <div v-if="hasTrial" class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        {{ $t('checkout.trial_crypto_hint') }}
+                    </div>
 
                     <div class="mt-2 flex items-center gap-2">
                         <div class="icon-pill" title="Bitcoin">
@@ -150,10 +159,33 @@
                             'w-4 h-4 rounded-full border-2 transition-all duration-300',
                             selectedPaymentMethod === 'crypto'
                                 ? 'border-blue-400 bg-blue-400'
-                                : 'border-gray-800 dark:border-gray-100'
+                                : 'border-gray-800 dark:border-gray-100',
+                            hasTrial ? 'opacity-50' : ''
                         ]"
                     />
                 </div>
+            </div>
+        </div>
+
+        <!-- Блок безопасных платежей -->
+        <div class="mt-4 glass-card rounded-lg p-4 flex items-center gap-3">
+            <div class="flex-shrink-0">
+                <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="text-green-500 dark:text-green-400"
+                >
+                    <path
+                        d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"
+                        fill="currentColor"
+                    />
+                </svg>
+            </div>
+            <div class="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                {{ $t('checkout.secure_payment_text') }}
             </div>
         </div>
     </div>
@@ -195,17 +227,22 @@ const hasTrial = computed(() => {
 
 const selectPaymentMethod = (method: 'card' | 'crypto') => {
     if (props.disabled) return;
+    // Блокируем выбор криптовалюты для триала
+    if (method === 'crypto' && hasTrial.value) {
+        return;
+    }
     selectedPaymentMethod.value = method;
     emit('update:modelValue', method);
 };
 
 const paymentClass = (method: 'card' | 'crypto') => {
+    const isCryptoDisabled = hasTrial.value && method === 'crypto';
     return [
-        'payment-method cursor-pointer rounded-lg p-4 border-2 flex items-center gap-3',
+        'payment-method rounded-lg p-4 border-2 flex items-center gap-3',
+        isCryptoDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
         selectedPaymentMethod.value === method
             ? 'border-blue-400 bg-blue-400/10'
             : 'border-transparent glass-card hover:border-blue-400/50',
-        hasTrial.value && method === 'crypto' ? 'opacity-50 pointer-events-none' : '',
         props.disabled ? 'opacity-50 pointer-events-none' : ''
     ];
 };
@@ -224,4 +261,5 @@ const paymentClass = (method: 'card' | 'crypto') => {
     border: 1px solid rgba(255, 255, 255, 0.04);
     font-size: 12px;
 }
+
 </style>

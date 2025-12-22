@@ -148,18 +148,22 @@ const faqItems = ref<FAQItem[]>([]);
 const openIndex = ref<number | null>(null);
 const isLoading = ref(false);
 
-// Анимация раскрытия
+// Анимация раскрытия - оптимизирована для плавности
 const onEnter = (el: Element) => {
     const element = el as HTMLElement;
     element.style.height = '0';
     element.style.opacity = '0';
+    element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
 };
 
 const onAfterEnter = (el: Element) => {
     const element = el as HTMLElement;
     const height = element.scrollHeight;
-    element.style.height = height + 'px';
-    element.style.opacity = '1';
+    // Используем requestAnimationFrame для плавного перехода
+    requestAnimationFrame(() => {
+        element.style.height = height + 'px';
+        element.style.opacity = '1';
+    });
 };
 
 const onLeave = (el: Element) => {
@@ -167,9 +171,13 @@ const onLeave = (el: Element) => {
     const height = element.scrollHeight;
     element.style.height = height + 'px';
     element.style.opacity = '1';
+    element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+    // Используем requestAnimationFrame для плавного перехода
     requestAnimationFrame(() => {
-        element.style.height = '0';
-        element.style.opacity = '0';
+        requestAnimationFrame(() => {
+            element.style.height = '0';
+            element.style.opacity = '0';
+        });
     });
 };
 
@@ -177,6 +185,7 @@ const onAfterLeave = (el: Element) => {
     const element = el as HTMLElement;
     element.style.height = '';
     element.style.opacity = '';
+    element.style.transition = '';
 };
 
 const toggleItem = (index: number) => {
@@ -322,12 +331,12 @@ watch(() => locale.value, () => {
 }
 
 .faq-answer-wrapper {
-    transition: height 0.3s ease-out, opacity 0.3s ease-out;
+    transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .faq-answer-enter-active,
 .faq-answer-leave-active {
-    transition: height 0.3s ease-out, opacity 0.3s ease-out;
+    transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .faq-answer-enter-from,

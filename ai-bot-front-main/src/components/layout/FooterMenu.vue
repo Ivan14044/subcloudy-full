@@ -1,18 +1,14 @@
 <template>
-    <div style="position: relative; z-index: 10;">
-        <ul class="justify-end mt-3 mb-3 md:mb-7 flex flex-col gap-5 md:flex-row" style="position: relative; z-index: 10;">
-            <li
-                v-for="(item, index) in footerMenu"
-                :key="index"
-                class="cursor-pointer font-medium text-gray-300 hover:text-white transition-colors duration-300"
-                @click.stop.prevent="handleClick(item)"
-                @mousedown.stop="console.log('[FooterMenu] Mouse down on item:', item)"
-                style="pointer-events: auto !important; user-select: none; position: relative; z-index: 11;"
-            >
-                {{ item.title }}
-            </li>
-        </ul>
-    </div>
+    <ul class="footer-menu-list">
+        <li
+            v-for="(item, index) in footerMenu"
+            :key="index"
+            class="footer-menu-item"
+            @click="handleClick(item)"
+        >
+            <span class="footer-menu-link">{{ item.title }}</span>
+        </li>
+    </ul>
 </template>
 
 <script setup lang="ts">
@@ -25,62 +21,143 @@ const serviceOption = useOptionStore();
 const router = useRouter();
 const { locale } = useI18n();
 
-function handleClick(item: { link: string; is_target: boolean }) {
-    console.log('[FooterMenu] handleClick called with item:', item);
-    console.log('[FooterMenu] Item type:', typeof item);
-    console.log('[FooterMenu] Item link:', item?.link);
-    console.log('[FooterMenu] Item is_target:', item?.is_target);
-    
+// Безопасная функция для парсинга JSON
+function parseJson<T>(str: string | T, fallback: T): T {
+    if (typeof str !== 'string') {
+        return str as T;
+    }
+    if (!str || str.trim() === '') {
+        return fallback;
+    }
+    try {
+        const parsed = JSON.parse(str);
+        return parsed as T;
+    } catch (e) {
+        console.warn('[FooterMenu] JSON parse error:', e, 'String:', str.substring(0, 100));
+        return fallback;
+    }
+}
+
+function handleClick(item: { link: string; is_target?: boolean; is_blank?: boolean }) {
     if (!item || !item.link) {
-        console.warn('[FooterMenu] Invalid item or link', item);
+        console.warn('[FooterMenu] Invalid item or link:', item);
         return;
     }
     
-    if (item.is_target) {
-        console.log('[FooterMenu] Opening link in new tab:', item.link);
-        window.open(item.link, '_blank');
+    const isTarget = item.is_target || item.is_blank;
+    
+    if (isTarget) {
+        window.open(item.link, '_blank', 'noopener,noreferrer');
     } else {
-        // ????????????????????, ?????? ???????????? ???????????????????? ?? /
-        const link = item.link.startsWith('/') ? item.link : `/${item.link}`;
-        console.log('[FooterMenu] Navigating to:', link);
-        router.push(link).then(() => {
-            console.log('[FooterMenu] Navigation successful to:', link);
-        }).catch(err => {
-            console.error('[FooterMenu] Navigation error:', err);
-            console.error('[FooterMenu] Error details:', err.message, err.stack);
+        let link = item.link;
+        if (!link.startsWith('/') && !link.startsWith('http://') && !link.startsWith('https://')) {
+            link = `/${link}`;
+        }
+        
+        router.push(link).catch(err => {
+            if (err.name !== 'NavigationDuplicated') {
+                window.location.href = link;
+            }
         });
     }
 }
 
 const footerMenu = computed(() => {
-    console.log('[FooterMenu] Computing footer menu...');
-    const raw = serviceOption.options.footer_menu;
-    console.log('[FooterMenu] Raw footer_menu:', raw);
-    console.log('[FooterMenu] Current locale:', locale.value);
+    if (!serviceOption.isLoaded) {
+        return [];
+    }
+    
+    let options = serviceOption.options;
+    
+    if (options && typeof options === 'object') {
+        try {
+            const testStringify = JSON.stringify(options);
+            options = JSON.parse(testStringify);
+        } catch (e) {
+            if (Array.isArray(options)) {
+                options = [...options];
+            } else {
+                options = { ...options };
+            }
+        }
+    }
+    
+    let optionsObj: Record<string, any>;
+    if (Array.isArray(options)) {
+        optionsObj = {};
+        options.forEach(option => {
+            if (option && option.key) {
+                optionsObj[option.key] = option.value;
+            }
+        });
+    } else if (typeof options === 'object' && options !== null) {
+        optionsObj = { ...options };
+    } else {
+        return [];
+    }
+    
+    const raw = optionsObj.footer_menu;
     
     if (!raw) {
-        console.warn('[FooterMenu] No footer_menu in options');
         return [];
     }
     
-    try {
-        const parsed = JSON.parse(raw);
-        console.log('[FooterMenu] Parsed footer_menu:', parsed);
-        const localeMenu = parsed[locale.value];
-        console.log('[FooterMenu] Menu for locale:', localeMenu);
-        
-        if (!localeMenu) {
-            console.warn('[FooterMenu] No menu for locale:', locale.value);
-            return [];
-        }
-        
-        const menu = JSON.parse(localeMenu);
-        console.log('[FooterMenu] Final menu items:', menu);
-        return menu;
-    } catch (error) {
-        console.error('[FooterMenu] Error parsing footer_menu:', error);
-        console.error('[FooterMenu] Error stack:', error.stack);
-        return [];
-    }
+    const menusByLocale = parseJson<Record<string, string>>(raw, {});
+    const menuStr = menusByLocale[locale.value] ?? menusByLocale['ru'] ?? '[]';
+    const menuItems = parseJson<Array<{ title: string; link: string; is_target?: boolean; is_blank?: boolean }>>(menuStr, []);
+    
+    // Фильтруем дубликаты
+    const legalLinks = ['/terms-of-service', '/privacy-policy', '/refund-policy', 'terms-of-service', 'privacy-policy', 'refund-policy'];
+    const filteredItems = menuItems.filter(item => {
+        const link = item.link?.toLowerCase().replace(/^\//, '') || '';
+        return !legalLinks.some(legal => link.includes(legal));
+    });
+    
+    return filteredItems;
 });
 </script>
+
+<style scoped>
+.footer-menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.footer-menu-item {
+    cursor: pointer;
+}
+
+.footer-menu-link {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    display: inline-block;
+    padding-left: 0;
+}
+
+.footer-menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    transition: width 0.3s ease;
+}
+
+.footer-menu-item:hover .footer-menu-link {
+    color: #ffffff;
+    padding-left: 8px;
+}
+
+.footer-menu-item:hover .footer-menu-link::before {
+    width: 4px;
+}
+</style>
