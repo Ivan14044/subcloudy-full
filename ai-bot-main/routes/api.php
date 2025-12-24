@@ -77,11 +77,11 @@ Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']
 
 // Support Routes (работают как для авторизованных, так и для неавторизованных пользователей)
 Route::prefix('support')->group(function () {
-    Route::match(['get', 'post'], '/ticket', [SupportController::class, 'getOrCreateTicket']);
-    Route::get('/ticket/{id}', [SupportController::class, 'getTicket']);
-    Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage']);
-    Route::get('/ticket/{id}/messages', [SupportController::class, 'getNewMessages']);
-    Route::get('/ticket/{id}/telegram-link', [SupportController::class, 'getTelegramLink']);
+    Route::match(['get', 'post'], '/ticket', [SupportController::class, 'getOrCreateTicket'])->name('api.support.ticket');
+    Route::get('/ticket/{id}', [SupportController::class, 'getTicket'])->name('api.support.get-ticket');
+    Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage'])->name('api.support.send-message');
+    Route::get('/ticket/{id}/messages', [SupportController::class, 'getNewMessages'])->name('api.support.new-messages');
+    Route::get('/ticket/{id}/telegram-link', [SupportController::class, 'getTelegramLink'])->name('api.support.telegram-link');
 });
 
 // Desktop Application Routes

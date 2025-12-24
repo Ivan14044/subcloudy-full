@@ -249,6 +249,33 @@ export const useSupportStore = defineStore('support', {
             }
         },
 
+        // Генерация ссылки для Telegram
+        async telegramLink(): Promise<string | null> {
+            if (!this.ticket) return null;
+            try {
+                const response = await axios.get(`/support/ticket/${this.ticket.id}/telegram-link`);
+                return response.data?.telegram_link || null;
+            } catch (error) {
+                console.error('Failed to get telegram link', error);
+                return null;
+            }
+        },
+
+        // Управление поллингом
+        startPolling(email?: string) {
+            this.stopPolling();
+            this.pollingId = window.setInterval(() => {
+                this.fetchNew(email);
+            }, 5000);
+        },
+
+        stopPolling() {
+            if (this.pollingId) {
+                clearInterval(this.pollingId);
+                this.pollingId = null;
+            }
+        },
+
         reset() {
             this.stopPolling();
             this.ticket = null;
