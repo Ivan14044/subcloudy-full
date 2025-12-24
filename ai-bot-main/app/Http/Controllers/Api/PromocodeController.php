@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+
+use App\\Http\\Controllers\\Controller;
 use App\Services\PromocodeValidationService;
 use Illuminate\Http\Request;
 

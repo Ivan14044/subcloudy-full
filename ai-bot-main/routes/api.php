@@ -1,15 +1,15 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\ServiceController;
-use App\Http\Controllers\OptionController;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\CookieConsentController;
-use App\Http\Controllers\CryptomusController;
-use App\Http\Controllers\MonoController;
+use App\Http\Controllers\Api\OptionController;
+use App\Http\Controllers\Api\PageController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\CookieConsentController;
+use App\Http\Controllers\Api\CryptomusController;
+use App\Http\Controllers\Api\MonoController;
 use App\Http\Controllers\Api\BrowserController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\CategoryController;
@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\ContentController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
-use App\Http\Controllers\ExtensionController;
+use App\Http\Controllers\Api\ExtensionController;
 use App\Http\Controllers\Api\PromocodeController;
 use App\Http\Controllers\Api\SupportController;
 

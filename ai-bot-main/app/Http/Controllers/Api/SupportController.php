@@ -3,14 +3,24 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+
+use App\\Http\\Controllers\\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Services\SupportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class SupportController extends Controller
 {
+    protected $supportService;
+
+    public function __construct(SupportService $supportService)
+    {
+        $this->supportService = $supportService;
+    }
+
     /**
      * Получить авторизованного пользователя из запроса
      */
@@ -29,9 +39,8 @@ class SupportController extends Controller
         // Если пользователь не авторизован, проверяем guest_email
         if (!$user) {
             $email = $request->input('email');
-            $source = $request->input('source'); // Получаем источник
+            $source = $request->input('source');
             
-            // Если email передан, валидируем его
             if ($email) {
                 $validator = Validator::make(['email' => $email], [
                     'email' => 'email',
@@ -44,45 +53,18 @@ class SupportController extends Controller
                     ], 400);
                 }
             } else if ($source !== 'telegram') {
-                // Email обязателен только если не Telegram
                 return response()->json([
                     'success' => false,
                     'error' => 'Email required for web guest users'
                 ], 400);
             }
-
-            // Ищем открытый тикет для гостя
-            $ticket = null;
-            if ($email) {
-                $ticket = Ticket::where('user_id', null)
-                    ->where('guest_email', $email)
-                    ->where('status', '!=', 'closed')
-                    ->first();
-            }
-
-            if (!$ticket) {
-                $ticket = Ticket::create([
-                    'user_id' => null,
-                    'guest_email' => $email,
-                    'status' => 'open',
-                    'subject' => 'Support Request',
-                    'external_channel' => $source === 'telegram' ? 'telegram' : null,
-                ]);
-            }
-        } else {
-            // Ищем открытый тикет для авторизованного пользователя
-            $ticket = Ticket::where('user_id', $user->id)
-                ->where('status', '!=', 'closed')
-                ->first();
-
-            if (!$ticket) {
-                $ticket = Ticket::create([
-                    'user_id' => $user->id,
-                    'status' => 'open',
-                    'subject' => 'Support Request',
-                ]);
-            }
         }
+
+        $ticket = $this->supportService->getOrCreateTicket(
+            $user, 
+            $request->input('email'), 
+            $request->input('source')
+        );
 
         // Загружаем сообщения
         $ticket->load('messages');
@@ -168,7 +150,7 @@ class SupportController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'text' => 'required_without:image|string|nullable',
-            'image' => 'nullable|image|max:5120', // Макс 5МБ
+            'image' => 'nullable|image|max:5120',
             'source' => 'in:web,telegram',
         ]);
 
@@ -192,45 +174,13 @@ class SupportController extends Controller
         // Проверка доступа
         if ($user) {
             if ($ticket->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Access denied'
-                ], 403);
+                return response()->json(['success' => false, 'error' => 'Access denied'], 403);
             }
-        } else {
-            // Для гостей проверяем email
-            if ($ticket->guest_email !== $request->input('email')) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Access denied'
-                ], 403);
-            }
+        } else if ($ticket->guest_email !== $request->input('email')) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
         }
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('support', 'public');
-        }
-
-        // Создаем сообщение
-        $message = TicketMessage::create([
-            'ticket_id' => $ticket->id,
-            'sender_type' => 'client',
-            'sender_id' => $user ? $user->id : null,
-            'source' => $request->input('source', 'web'),
-            'text' => $request->input('text'),
-            'image_path' => $imagePath,
-        ]);
-
-        // Обновляем статус тикета, если он был закрыт
-        if ($ticket->status === 'closed') {
-            $ticket->update(['status' => 'open']);
-        }
-
-        // Обновляем external_channel, если указан источник
-        if ($request->input('source') === 'telegram' && !$ticket->external_channel) {
-            $ticket->update(['external_channel' => 'telegram']);
-        }
+        $message = $this->supportService->sendMessage($ticket, $user, $request->all());
 
         return response()->json([
             'success' => true,
@@ -257,41 +207,23 @@ class SupportController extends Controller
         $ticket = Ticket::find($ticketId);
 
         if (!$ticket) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Ticket not found'
-            ], 404);
+            return response()->json(['success' => false, 'error' => 'Ticket not found'], 404);
         }
 
         // Проверка доступа
         if ($user) {
             if ($ticket->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Access denied'
-                ], 403);
+                return response()->json(['success' => false, 'error' => 'Access denied'], 403);
             }
-        } else {
-            if ($ticket->guest_email !== $request->input('email')) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Access denied'
-                ], 403);
-            }
+        } else if ($ticket->guest_email !== $request->input('email')) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
         }
 
-        // Получаем lastMessageId из query параметров, если не передан как параметр маршрута
         if (!$lastMessageId) {
             $lastMessageId = $request->input('last_message_id');
         }
 
-        $query = $ticket->messages()->orderBy('created_at', 'asc');
-
-        if ($lastMessageId) {
-            $query->where('id', '>', $lastMessageId);
-        }
-
-        $messages = $query->get();
+        $messages = $this->supportService->getNewMessages($ticket, $lastMessageId);
 
         return response()->json([
             'success' => true,
@@ -318,30 +250,14 @@ class SupportController extends Controller
         $ticket = Ticket::find($ticketId);
 
         if (!$ticket) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Ticket not found'
-            ], 404);
+            return response()->json(['success' => false, 'error' => 'Ticket not found'], 404);
         }
 
-        // Проверка доступа
-        if ($user) {
-            if ($ticket->user_id !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Access denied'
-                ], 403);
-            }
+        if ($user && $ticket->user_id !== $user->id) {
+            return response()->json(['success' => false, 'error' => 'Access denied'], 403);
         }
 
-        // Получаем имя бота из настроек или используем дефолтное
-        $botUsername = config('services.telegram.bot_username', 'your_support_bot');
-        $telegramLink = "https://t.me/{$botUsername}?start=SUPPORT_{$ticket->id}";
-
-        // Обновляем external_channel
-        if (!$ticket->external_channel) {
-            $ticket->update(['external_channel' => 'telegram']);
-        }
+        $telegramLink = $this->supportService->getTelegramLink($ticket);
 
         return response()->json([
             'success' => true,
