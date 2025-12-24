@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-
-use App\\Http\\Controllers\\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Services\SupportService;
