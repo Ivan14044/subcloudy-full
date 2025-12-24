@@ -2,13 +2,30 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vueI18n from '@intlify/unplugin-vue-i18n/vite';
 import path from 'node:path';
+import { copyFileSync, mkdirSync } from 'fs';
 
 export default defineConfig({
     plugins: [
         vue(),
         vueI18n({
             include: path.resolve(__dirname, './src/locales/**')
-        })
+        }),
+        // Плагин для копирования logo.webp в dist/img/
+        {
+            name: 'copy-logo',
+            writeBundle() {
+                const src = path.resolve(__dirname, 'src/assets/logo.webp');
+                const destDir = path.resolve(__dirname, 'dist/img');
+                const dest = path.resolve(destDir, 'logo.webp');
+                try {
+                    mkdirSync(destDir, { recursive: true });
+                    copyFileSync(src, dest);
+                    console.log('✓ Logo copied to dist/img/logo.webp');
+                } catch (error) {
+                    console.warn('Failed to copy logo.webp:', error);
+                }
+            }
+        }
     ],
     resolve: {
         alias: {
@@ -40,8 +57,9 @@ export default defineConfig({
         minify: 'terser',
         terserOptions: {
             compress: {
-                drop_console: true,
-                drop_debugger: true
+                drop_console: false, // Оставляем console.log для отладки
+                drop_debugger: true,
+                pure_funcs: [] // Не удаляем никакие функции
             }
         }
     }

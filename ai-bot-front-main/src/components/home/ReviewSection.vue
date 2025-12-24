@@ -53,7 +53,7 @@
         </svg>
 
         <swiper
-            v-if="reviews.length > 0"
+            v-if="Array.isArray(reviews) && reviews.length > 0"
             :key="swiperKey"
             :modules="[Navigation, Pagination, Autoplay]"
             :slides-per-view="1"
@@ -80,7 +80,7 @@
             :pagination="{ clickable: true }"
             class="mt-8 px-6"
         >
-            <swiper-slide v-for="(review, index) in reviews" :key="`${review.id}-${index}`" class="pb-12">
+            <swiper-slide v-for="(review, index) in (Array.isArray(reviews) ? reviews : [])" :key="`${review.id}-${index}`" class="pb-12">
                 <div class="liquid-glass-wrapper review-card">
                     <div class="liquid-glass-effect"></div>
                     <div class="liquid-glass-tint"></div>
@@ -137,7 +137,7 @@
                 </div>
             </swiper-slide>
         </swiper>
-        <div v-if="!isLoading && reviews.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="!isLoading && (!Array.isArray(reviews) || reviews.length === 0)" class="text-center py-8 text-gray-500">
             Нет отзывов для отображения
         </div>
         <div v-if="isLoading" class="text-center py-8 text-gray-500">
@@ -180,7 +180,16 @@ async function loadReviews() {
         
         if (response.data && response.data.success !== false) {
             const data = response.data.data || response.data || [];
-            reviews.value = Array.isArray(data) ? data : [];
+            // Убеждаемся, что data - это массив
+            if (Array.isArray(data)) {
+                reviews.value = data;
+            } else if (data && typeof data === 'object' && Array.isArray(Object.values(data))) {
+                // Если data - объект с массивами, берем первый массив
+                const firstArray = Object.values(data).find(item => Array.isArray(item));
+                reviews.value = Array.isArray(firstArray) ? firstArray : [];
+            } else {
+                reviews.value = [];
+            }
             console.log('[ReviewSection] Loaded reviews count:', reviews.value.length);
             console.log('[ReviewSection] Reviews data:', reviews.value);
             swiperKey.value = Date.now();

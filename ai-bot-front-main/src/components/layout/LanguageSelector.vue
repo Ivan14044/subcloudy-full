@@ -79,16 +79,18 @@ import { useI18n } from 'vue-i18n';
 import { Globe, ChevronDown } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/auth';
 
-// TODO: Add other languages
-const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'uk', name: 'Українська' },
-    { code: 'ru', name: 'Русский' },
-    { code: 'zh', name: '中文' },
-    { code: 'es', name: 'Español' }
-];
+const { locale, t } = useI18n();
 
-const { locale } = useI18n();
+// Языки - названия будут локализованы динамически
+const languageCodes = ['en', 'uk', 'ru', 'zh', 'es'];
+
+// Вычисляемое свойство для языков с локализованными названиями
+const languages = computed(() => {
+    return languageCodes.map(code => ({
+        code,
+        name: t(`language.names.${code}`) || code.toUpperCase()
+    }));
+});
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const buttonRef = ref<HTMLElement | null>(null);
@@ -97,9 +99,10 @@ const authStore = useAuthStore();
 
 const currentLocale = computed(() => locale.value);
 
-const currentLanguage = computed(
-    () => languages.find(lang => lang.code === currentLocale.value) || languages[0]
-);
+const currentLanguage = computed(() => {
+    const lang = languages.value.find(lang => lang.code === currentLocale.value) || languages.value[0];
+    return lang;
+});
 
 const dropdownStyle = ref({ top: '0px', left: '0px' });
 
@@ -146,6 +149,13 @@ const changeLanguage = async (code: string) => {
 
 const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
+    
+    // ИГНОРИРУЕМ клики внутри модального окна поддержки
+    const supportModal = document.querySelector('.modal-overlay');
+    if (supportModal && supportModal.contains(target)) {
+        return;
+    }
+    
     if (
         dropdownRef.value && 
         !dropdownRef.value.contains(target) &&
@@ -169,10 +179,16 @@ onMounted(() => {
 
     document.addEventListener('mousedown', handleClickOutside);
 
-    languages.forEach(lang => {
-        const img = new Image();
-        img.src = `/img/lang/${lang.code}.png`;
-    });
+    // Безопасный forEach с проверкой типа
+    const langsArray = languages.value;
+    if (Array.isArray(langsArray)) {
+        langsArray.forEach(lang => {
+            if (lang && lang.code) {
+                const img = new Image();
+                img.src = `/img/lang/${lang.code}.png`;
+            }
+        });
+    }
 
     document.addEventListener('mousedown', handleClickOutside);
 });

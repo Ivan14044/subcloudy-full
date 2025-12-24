@@ -151,6 +151,13 @@ const toggleDropdown = () => {
 
 const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
+    
+    // ИГНОРИРУЕМ клики внутри модального окна поддержки
+    const supportModal = document.querySelector('.modal-overlay');
+    if (supportModal && supportModal.contains(target)) {
+        return;
+    }
+    
     if (
         dropdownRef.value && 
         !dropdownRef.value.contains(target) &&

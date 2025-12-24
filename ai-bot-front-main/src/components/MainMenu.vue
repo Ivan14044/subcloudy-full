@@ -111,12 +111,18 @@ const dynamicMenuItems = computed<MenuItem[]>(() => {
     // Если options - массив, преобразуем в объект
     if (Array.isArray(options)) {
         optionsObj = {};
-        options.forEach(option => {
-            if (option && option.key) {
-                optionsObj[option.key] = option.value;
-            }
-        });
-    } else if (typeof options === 'object' && options !== null) {
+        // Безопасный forEach - Array.isArray уже проверил, что это массив
+        try {
+            options.forEach(option => {
+                if (option && option.key) {
+                    optionsObj[option.key] = option.value;
+                }
+            });
+        } catch (e) {
+            console.error('[MainMenu] Error in forEach:', e);
+            return [];
+        }
+    } else if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
         optionsObj = options;
     } else {
         return [];

@@ -59,8 +59,11 @@ async function loadBlocks() {
             params: { lang: locale.value }
         });
         
-        if (response.data.success) {
-            blocks.value = response.data.data || [];
+        if (response.data && response.data.success !== false) {
+            const data = response.data.data || response.data || [];
+            blocks.value = Array.isArray(data) ? data : [];
+        } else {
+            blocks.value = [];
         }
     } catch (error) {
         console.error('Failed to load savings blocks:', error);

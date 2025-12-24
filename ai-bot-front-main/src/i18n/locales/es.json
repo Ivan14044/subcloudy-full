@@ -174,7 +174,7 @@
     },
     "activation": {
       "title": "Activación rápida",
-      "description": "Si no recibes el acceso en el tiempo indicado, te reembolsaremos el dinero."
+      "description": "Activación automática en pocos minutos después del pago."
     },
     "support": {
       "title": "Soporte 24/7",
@@ -182,7 +182,7 @@
     },
     "payment": {
       "title": "Pagos seguros",
-      "description": "Nuestro equipo está en línea 24/7 — disponible en inglés, ucraniano y ruso."
+      "description": "Sus pagos se procesan de forma segura con cifrado estándar de la industria."
     }
   },
   "steps": {
@@ -312,5 +312,33 @@
     "macos": "Descargar para macOS",
     "back": "Atrás",
     "note": "La aplicación está disponible para Windows y macOS"
+  },
+  "support": {
+    "button": "Soporte",
+    "title": "Servicio de soporte",
+    "selectChannel": "Seleccione el canal de comunicación",
+    "channelWeb": "Chat en el sitio",
+    "channelWebDesc": "Continuar conversación en el sitio",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Cambiar a Telegram para comunicarse",
+    "enterEmail": "Ingrese su correo electrónico para continuar",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Iniciar chat",
+    "loading": "Cargando...",
+    "messagePlaceholder": "Ingrese su mensaje...",
+    "switchToTelegram": "Cambiar a Telegram",
+    "send": "Enviar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "chatInitError": "No se pudo inicializar el chat",
+    "errors": {
+      "ticketNotFound": "Ticket no encontrado",
+      "createTicketFailed": "No se pudo crear el ticket",
+      "sendMessageFailed": "No se pudo enviar el mensaje",
+      "createTicketError": "Error al crear el ticket",
+      "sendMessageError": "Error al enviar el mensaje",
+      "telegramLinkFailed": "No se pudo obtener el enlace de Telegram",
+      "telegramLinkError": "Error al obtener el enlace de Telegram"
+    }
   }
 }

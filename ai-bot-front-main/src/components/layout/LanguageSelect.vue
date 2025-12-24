@@ -92,7 +92,15 @@ const changeLanguage = (code: string) => {
 };
 
 const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    const target = event.target as Node;
+    
+    // ИГНОРИРУЕМ клики внутри модального окна поддержки
+    const supportModal = document.querySelector('.modal-overlay');
+    if (supportModal && supportModal.contains(target)) {
+        return;
+    }
+    
+    if (dropdownRef.value && !dropdownRef.value.contains(target)) {
         isOpen.value = false;
     }
 };

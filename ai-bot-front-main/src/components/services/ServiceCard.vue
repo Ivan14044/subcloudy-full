@@ -583,8 +583,14 @@ onUnmounted(() => {
     position: relative;
     z-index: 1;
     isolation: isolate;
-    will-change: transform;
+    will-change: auto;
     width: 100%;
+}
+
+.service-card:hover,
+.service-card.is-active,
+.service-card:focus-within {
+    will-change: transform;
 }
 
 .service-card.theme-light .card-side {
@@ -632,6 +638,13 @@ onUnmounted(() => {
     position: relative;
     z-index: 2;
     backface-visibility: hidden;
+    will-change: auto;
+}
+
+.service-card:hover .card-inner,
+.service-card.is-active .card-inner,
+.service-card:focus-within .card-inner {
+    will-change: transform;
 }
 
 .card-inner.flipped {

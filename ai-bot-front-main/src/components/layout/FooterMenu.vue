@@ -85,12 +85,18 @@ const footerMenu = computed(() => {
     let optionsObj: Record<string, any>;
     if (Array.isArray(options)) {
         optionsObj = {};
-        options.forEach(option => {
-            if (option && option.key) {
-                optionsObj[option.key] = option.value;
-            }
-        });
-    } else if (typeof options === 'object' && options !== null) {
+        // Безопасный forEach - Array.isArray уже проверил, что это массив
+        try {
+            options.forEach(option => {
+                if (option && option.key) {
+                    optionsObj[option.key] = option.value;
+                }
+            });
+        } catch (e) {
+            console.error('[FooterMenu] Error in forEach:', e);
+            return [];
+        }
+    } else if (typeof options === 'object' && options !== null && !Array.isArray(options)) {
         optionsObj = { ...options };
     } else {
         return [];

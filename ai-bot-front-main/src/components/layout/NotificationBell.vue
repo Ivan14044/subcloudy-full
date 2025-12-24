@@ -195,6 +195,13 @@ const updateDropdownPosition = () => {
 
 function handleClickOutside(event) {
     const target = event.target;
+    
+    // ИГНОРИРУЕМ клики внутри модального окна поддержки
+    const supportModal = document.querySelector('.modal-overlay');
+    if (supportModal && supportModal.contains(target)) {
+        return;
+    }
+    
     if (
         containerRef.value && 
         !containerRef.value.contains(target) &&

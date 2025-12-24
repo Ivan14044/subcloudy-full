@@ -75,21 +75,13 @@ Route::middleware('ext.auth')->group(function () {
 
 Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']);
 
-// Support Routes (авторизованные пользователи)
-Route::middleware('auth:sanctum')->prefix('support')->group(function () {
-    Route::get('/ticket', [SupportController::class, 'getOrCreateTicket']);
+// Support Routes (работают как для авторизованных, так и для неавторизованных пользователей)
+Route::prefix('support')->group(function () {
+    Route::match(['get', 'post'], '/ticket', [SupportController::class, 'getOrCreateTicket']);
     Route::get('/ticket/{id}', [SupportController::class, 'getTicket']);
     Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage']);
     Route::get('/ticket/{id}/messages', [SupportController::class, 'getNewMessages']);
     Route::get('/ticket/{id}/telegram-link', [SupportController::class, 'getTelegramLink']);
-});
-
-// Support Routes для неавторизованных пользователей (с email)
-Route::prefix('support')->group(function () {
-    Route::post('/ticket', [SupportController::class, 'getOrCreateTicket']);
-    Route::get('/ticket/{id}', [SupportController::class, 'getTicket']);
-    Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage']);
-    Route::get('/ticket/{id}/messages', [SupportController::class, 'getNewMessages']);
 });
 
 // Desktop Application Routes

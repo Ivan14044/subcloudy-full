@@ -75,11 +75,17 @@ class SupportController extends Controller
     public function sendMessage(Request $request, $id)
     {
         $request->validate([
-            'text' => 'required|string|min:1',
+            'text' => 'required_without:image|string|nullable',
+            'image' => 'nullable|image|max:5120',
         ]);
 
         $ticket = Ticket::findOrFail($id);
         $admin = auth()->user();
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('support', 'public');
+        }
 
         // Создаем сообщение от админа
         $message = TicketMessage::create([
@@ -88,6 +94,7 @@ class SupportController extends Controller
             'sender_id' => $admin->id,
             'source' => 'web',
             'text' => $request->input('text'),
+            'image_path' => $imagePath,
         ]);
 
         // Обновляем статус тикета
@@ -97,10 +104,35 @@ class SupportController extends Controller
 
         // Если у тикета есть Telegram канал, отправляем сообщение через бота
         if ($ticket->telegram_chat_id) {
-            $this->sendTelegramMessage($ticket->telegram_chat_id, $request->input('text'));
+            if ($request->input('text')) {
+                $this->sendTelegramMessage($ticket->telegram_chat_id, $request->input('text'));
+            }
+            // Если есть изображение, отправляем и его
+            if ($imagePath) {
+                $this->sendTelegramPhoto($ticket->telegram_chat_id, storage_path('app/public/' . $imagePath));
+            }
         }
 
         return redirect()->back()->with('success', 'Сообщение отправлено');
+    }
+
+    /**
+     * Отправить фото в Telegram через бота
+     */
+    private function sendTelegramPhoto($chatId, $photoPath)
+    {
+        $botToken = config('services.telegram.bot_token');
+        if (!$botToken) return;
+
+        try {
+            \Illuminate\Support\Facades\Http::attach(
+                'photo', file_get_contents($photoPath), basename($photoPath)
+            )->post("https://api.telegram.org/bot{$botToken}/sendPhoto", [
+                'chat_id' => $chatId,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error sending Telegram photo', ['chat_id' => $chatId, 'error' => $e->getMessage()]);
+        }
     }
 
     /**

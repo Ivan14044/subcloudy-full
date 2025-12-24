@@ -28,29 +28,45 @@ class SupportController extends Controller
         
         // Если пользователь не авторизован, проверяем guest_email
         if (!$user) {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email',
-            ]);
+            $email = $request->input('email');
+            $source = $request->input('source'); // Получаем источник
+            
+            // Если email передан, валидируем его
+            if ($email) {
+                $validator = Validator::make(['email' => $email], [
+                    'email' => 'email',
+                ]);
 
-            if ($validator->fails()) {
+                if ($validator->fails()) {
+                    return response()->json([
+                        'success' => false,
+                        'error' => 'Invalid email format'
+                    ], 400);
+                }
+            } else if ($source !== 'telegram') {
+                // Email обязателен только если не Telegram
                 return response()->json([
                     'success' => false,
-                    'error' => 'Email required for guest users'
+                    'error' => 'Email required for web guest users'
                 ], 400);
             }
 
             // Ищем открытый тикет для гостя
-            $ticket = Ticket::where('user_id', null)
-                ->where('guest_email', $request->email)
-                ->where('status', '!=', 'closed')
-                ->first();
+            $ticket = null;
+            if ($email) {
+                $ticket = Ticket::where('user_id', null)
+                    ->where('guest_email', $email)
+                    ->where('status', '!=', 'closed')
+                    ->first();
+            }
 
             if (!$ticket) {
                 $ticket = Ticket::create([
                     'user_id' => null,
-                    'guest_email' => $request->email,
+                    'guest_email' => $email,
                     'status' => 'open',
                     'subject' => 'Support Request',
+                    'external_channel' => $source === 'telegram' ? 'telegram' : null,
                 ]);
             }
         } else {
@@ -83,6 +99,7 @@ class SupportController extends Controller
                         'sender_type' => $message->sender_type,
                         'source' => $message->source,
                         'text' => $message->text,
+                        'image_url' => $message->image_path ? asset('storage/' . $message->image_path) : null,
                         'created_at' => $message->created_at->toISOString(),
                     ];
                 }),
@@ -136,6 +153,7 @@ class SupportController extends Controller
                         'sender_type' => $message->sender_type,
                         'source' => $message->source,
                         'text' => $message->text,
+                        'image_url' => $message->image_path ? asset('storage/' . $message->image_path) : null,
                         'created_at' => $message->created_at->toISOString(),
                     ];
                 }),
@@ -149,7 +167,8 @@ class SupportController extends Controller
     public function sendMessage(Request $request, $ticketId)
     {
         $validator = Validator::make($request->all(), [
-            'text' => 'required|string|min:1',
+            'text' => 'required_without:image|string|nullable',
+            'image' => 'nullable|image|max:5120', // Макс 5МБ
             'source' => 'in:web,telegram',
         ]);
 
@@ -188,6 +207,11 @@ class SupportController extends Controller
             }
         }
 
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('support', 'public');
+        }
+
         // Создаем сообщение
         $message = TicketMessage::create([
             'ticket_id' => $ticket->id,
@@ -195,6 +219,7 @@ class SupportController extends Controller
             'sender_id' => $user ? $user->id : null,
             'source' => $request->input('source', 'web'),
             'text' => $request->input('text'),
+            'image_path' => $imagePath,
         ]);
 
         // Обновляем статус тикета, если он был закрыт
@@ -214,7 +239,11 @@ class SupportController extends Controller
                 'sender_type' => $message->sender_type,
                 'source' => $message->source,
                 'text' => $message->text,
+                'image_url' => $message->image_path ? asset('storage/' . $message->image_path) : null,
                 'created_at' => $message->created_at->toISOString(),
+            ],
+            'ticket' => [
+                'status' => $ticket->status,
             ],
         ]);
     }
@@ -251,6 +280,11 @@ class SupportController extends Controller
             }
         }
 
+        // Получаем lastMessageId из query параметров, если не передан как параметр маршрута
+        if (!$lastMessageId) {
+            $lastMessageId = $request->input('last_message_id');
+        }
+
         $query = $ticket->messages()->orderBy('created_at', 'asc');
 
         if ($lastMessageId) {
@@ -261,12 +295,14 @@ class SupportController extends Controller
 
         return response()->json([
             'success' => true,
+            'status' => $ticket->status,
             'messages' => $messages->map(function ($message) {
                 return [
                     'id' => $message->id,
                     'sender_type' => $message->sender_type,
                     'source' => $message->source,
                     'text' => $message->text,
+                    'image_url' => $message->image_path ? asset('storage/' . $message->image_path) : null,
                     'created_at' => $message->created_at->toISOString(),
                 ];
             }),

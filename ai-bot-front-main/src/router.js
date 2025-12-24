@@ -21,11 +21,6 @@ import { useAuthStore } from './stores/auth';
 import { usePageStore } from './stores/pages';
 import { updateWebPageSEO } from './utils/seo';
 import i18n from './i18n';
-// #region agent log
-try {
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:25',message:'i18n imported',data:{hasI18n:!!i18n,hasGlobal:!!(i18n&&i18n.global)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-} catch(e) {}
-// #endregion
 import { getSeoStrings } from './utils/seoStrings';
 import { prefetchRoute } from './utils/prefetchUtils';
 
@@ -162,12 +157,6 @@ const routes = [
     }
 ];
 
-// #region agent log
-try {
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:181',message:'Creating router',data:{routesCount:routes.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-} catch(e) {}
-// #endregion
-
 const router = createRouter({
     history: createWebHistory(),
     routes,
@@ -201,22 +190,9 @@ const router = createRouter({
     }
 });
 
-// #region agent log
-try {
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:207',message:'Router created, registering beforeEach',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-} catch(e) {}
-// #endregion
-
 router.beforeEach(async (to, from, next) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:194',message:'beforeEach entry',data:{path:to.path,fullPath:to.fullPath},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
-    
     // Синхронизация локали с URL (/ru/...)
     try {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:197',message:'Before i18n access',data:{hasI18n:!!i18n,hasGlobal:!!(i18n&&i18n.global)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         
         const segs = to.path.split('/').filter(Boolean);
         const langCandidate = segs[0];
@@ -228,9 +204,6 @@ router.beforeEach(async (to, from, next) => {
                     currentI18nLocale = i18n.global.locale.value;
                 }
             } catch (i18nGetError) {
-                // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:210',message:'Error getting i18n locale',data:{error:i18nGetError?.message,stack:i18nGetError?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
                 console.error('[Router] Error getting i18n locale:', i18nGetError);
                 // Пробуем получить из localStorage
                 try {
@@ -244,26 +217,17 @@ router.beforeEach(async (to, from, next) => {
             }
             
             if (currentI18nLocale !== langCandidate) {
-                // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:225',message:'Setting i18n locale',data:{from:currentI18nLocale,to:langCandidate},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                // #endregion
                 try {
                     if (i18n && i18n.global && i18n.global.locale) {
                         i18n.global.locale.value = langCandidate;
                     }
                 } catch (i18nSetError) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:232',message:'Error setting i18n locale',data:{error:i18nSetError?.message,stack:i18nSetError?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-                    // #endregion
                     console.error('[Router] Error setting i18n locale:', i18nSetError);
                 }
                 try { localStorage.setItem('user-language', langCandidate); } catch {}
             }
         }
     } catch (e) {
-        // #region agent log
-        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:240',message:'Error in locale sync',data:{error:e?.message,stack:e?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         console.error('[Router] Error in locale synchronization:', e);
     }
     const authStore = useAuthStore();
@@ -295,12 +259,6 @@ router.beforeEach(async (to, from, next) => {
     if (to.meta.isDynamic) {
         // Обертываем весь блок в try-catch для защиты от любых ошибок
         try {
-            // #region agent log
-            try {
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:301',message:'Dynamic route handler entry',data:{path:to.path},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            } catch(e) {}
-            // #endregion
-            
             console.log('[Router] Dynamic route detected, path:', to.path);
             
             let pageStore;
@@ -308,18 +266,8 @@ router.beforeEach(async (to, from, next) => {
                 console.log('[Router] Starting page store initialization...');
                 pageStore = usePageStore();
                 console.log('[Router] Page store initialized');
-                // #region agent log
-                try {
-                    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:315',message:'Page store initialized',data:{hasPages:!!pageStore.pages},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                } catch(e) {}
-                // #endregion
             } catch (storeError) {
                 console.error('[Router] Error initializing page store:', storeError);
-                // #region agent log
-                try {
-                    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:322',message:'Page store init error',data:{error:storeError?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                } catch(e) {}
-                // #endregion
                 // Продолжаем без store, пусть ContentPage сам загрузит данные
                 return next();
             }
@@ -329,18 +277,11 @@ router.beforeEach(async (to, from, next) => {
             // Получаем локаль безопасным способом
             let currentLocale = 'ru'; // Значение по умолчанию
             try {
-                // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:265',message:'Before getting locale in dynamic route',data:{hasI18n:!!i18n},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                // #endregion
-                
                 // Пробуем получить локаль из i18n напрямую
                 try {
                     if (i18n && i18n.global && i18n.global.locale && i18n.global.locale.value) {
                         currentLocale = i18n.global.locale.value;
                         console.log('[Router] Locale from i18n.global:', currentLocale);
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:272',message:'Got locale from i18n',data:{locale:currentLocale},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                        // #endregion
                     } else {
                         // Пробуем получить из localStorage
                         try {
@@ -354,9 +295,6 @@ router.beforeEach(async (to, from, next) => {
                         }
                     }
                 } catch (i18nAccessError) {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:285',message:'Error accessing i18n in dynamic route',data:{error:i18nAccessError?.message,stack:i18nAccessError?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                    // #endregion
                     console.error('[Router] Error accessing i18n, using fallback:', i18nAccessError);
                     // Пробуем получить из localStorage как fallback
                     try {
@@ -370,9 +308,6 @@ router.beforeEach(async (to, from, next) => {
                 }
             } catch (i18nError) {
                 console.error('[Router] Error getting locale, using default:', i18nError);
-                // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:297',message:'Error in locale getter',data:{error:i18nError?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                // #endregion
                 // Пробуем получить из localStorage как fallback
                 try {
                     const savedLang = localStorage.getItem('user-language');
@@ -384,9 +319,6 @@ router.beforeEach(async (to, from, next) => {
                 }
             }
             console.log('[Router] Using locale:', currentLocale);
-            // #region agent log
-            fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:310',message:'Locale determined',data:{locale:currentLocale},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
             
             // Извлекаем slug из пути, убирая локаль если она есть
             let slug = to.path.replace(/^\/|\/$/g, '');
@@ -492,10 +424,6 @@ router.beforeEach(async (to, from, next) => {
             }
             
             if (foundPage && foundSlug && typeof foundPage === 'object' && foundPage !== null) {
-                // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:450',message:'Page found, preparing to set',data:{slug:foundSlug,hasKeys:Object.keys(foundPage).length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
-                
                 console.log('[Router] Setting page for slug:', foundSlug);
                 console.log('[Router] Page data structure:', foundPage);
                 console.log('[Router] Page data type:', typeof foundPage);
@@ -505,25 +433,13 @@ router.beforeEach(async (to, from, next) => {
                 // Убеждаемся, что данные валидны перед установкой
                 if (Object.keys(foundPage).length > 0) {
                     try {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:463',message:'Calling setPage',data:{slug:foundSlug},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         pageStore.setPage(foundPage);
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:466',message:'setPage completed',data:{hasPage:!!pageStore.page},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         console.log('[Router] Page set successfully');
                         console.log('[Router] pageStore.page after set:', pageStore.page);
                         console.log('[Router] pageStore.page type:', typeof pageStore.page);
                         console.log('[Router] pageStore.page keys:', pageStore.page ? Object.keys(pageStore.page) : 'null');
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:472',message:'Calling next()',data:{path:to.path},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         return next();
                     } catch (e) {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:476',message:'Error in setPage',data:{error:e?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                        // #endregion
                         console.error('[Router] Error setting page:', e);
                         pageStore.setPage(null);
                         return next();
@@ -563,11 +479,6 @@ router.beforeEach(async (to, from, next) => {
             return next();
             }
             } catch (innerError) {
-                // #region agent log
-                try {
-                    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:566',message:'Error in dynamic route handler inner try',data:{error:innerError?.message,stack:innerError?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-                } catch(e) {}
-                // #endregion
                 console.error('[Router] Error in dynamic route handler inner try:', innerError);
                 console.error('[Router] Error stack:', innerError.stack);
                 // Продолжаем навигацию, пусть ContentPage обработает отсутствие данных
@@ -581,11 +492,6 @@ router.beforeEach(async (to, from, next) => {
                 return next();
             }
         } catch (outerError) {
-            // #region agent log
-            try {
-                fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:585',message:'Error in dynamic route handler outer catch',data:{error:outerError?.message,stack:outerError?.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'M'})}).catch(()=>{});
-            } catch(e) {}
-            // #endregion
             console.error('[Router] CRITICAL: Error in dynamic route handler outer catch:', outerError);
             console.error('[Router] Error stack:', outerError.stack);
             // Продолжаем навигацию в любом случае
@@ -598,10 +504,6 @@ router.beforeEach(async (to, from, next) => {
             return next();
         }
     }
-    
-    // #region agent log
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:556',message:'beforeEach completed, calling next()',data:{path:to.path,isDynamic:!!to.meta.isDynamic},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-    // #endregion
 
     next();
 });
@@ -684,11 +586,5 @@ router.afterEach((to) => {
         });
     } catch (_) {}
 });
-
-// #region agent log
-try {
-    fetch('http://127.0.0.1:7243/ingest/2d4847af-9357-42a3-b2e4-f6ffc47c0ee5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'router.js:661',message:'Router module loaded, exporting router',data:{hasRouter:!!router},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-} catch(e) {}
-// #endregion
 
 export default router;

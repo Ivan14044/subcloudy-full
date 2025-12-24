@@ -223,7 +223,14 @@
     "openMenu": "Open menu"
   },
   "language": {
-    "selector": "Select language"
+    "selector": "Select language",
+    "names": {
+      "en": "English",
+      "ru": "Russian",
+      "uk": "Ukrainian",
+      "zh": "Chinese",
+      "es": "Spanish"
+    }
   },
   "footer": {
     "address": "FOP Knysh Alla Oleksandrivna 08297 Kyiv region, Bucha district, Bucha city, Shose Nove, building 42",
@@ -316,5 +323,39 @@
     "macos": "Download for macOS",
     "back": "Back",
     "note": "The application is available for Windows and macOS"
+  },
+  "support": {
+    "button": "Support",
+    "title": "Support Service",
+    "selectChannel": "Select communication channel",
+    "channelWeb": "Chat on site",
+    "channelWebDesc": "Continue conversation on site",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Switch to Telegram for communication",
+    "enterEmail": "Enter your email to continue",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Start chat",
+    "loading": "Loading...",
+    "messagePlaceholder": "Enter your message...",
+    "switchToTelegram": "Switch to Telegram",
+    "send": "Send",
+    "close": "Close",
+        "back": "Back",
+        "chatInitError": "Failed to initialize chat",
+        "statuses": {
+          "open": "Open",
+          "in_progress": "In Progress",
+          "closed": "Closed"
+        },
+        "statusChangedTo": "Status changed to: {status}",
+        "errors": {
+      "ticketNotFound": "Ticket not found",
+      "createTicketFailed": "Failed to create ticket",
+      "sendMessageFailed": "Failed to send message",
+      "createTicketError": "Error creating ticket",
+      "sendMessageError": "Error sending message",
+      "telegramLinkFailed": "Failed to get Telegram link",
+      "telegramLinkError": "Error getting Telegram link"
+    }
   }
 }

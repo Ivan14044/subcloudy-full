@@ -174,7 +174,7 @@
     },
     "activation": {
       "title": "Быстрая активация",
-      "description": "Если доступ не надан в указанное время — мы вернем деньги."
+      "description": "Автоматическая активация в течение нескольких минут после оплаты."
     },
     "support": {
       "title": "24/7 поддержка",
@@ -182,7 +182,7 @@
     },
     "payment": {
       "title": "Безопасные платежи",
-      "description": "Наша команда работает 24/7 — доступна на английском, украинском и русском."
+      "description": "Ваши платежи обрабатываются безопасно с использованием стандартного отраслевого шифрования."
     }
   },
   "steps": {
@@ -223,7 +223,14 @@
     "openMenu": "Открыть меню"
   },
   "language": {
-    "selector": "Выбрать язык"
+    "selector": "Выбрать язык",
+    "names": {
+      "en": "English",
+      "ru": "Русский",
+      "uk": "Українська",
+      "zh": "中文",
+      "es": "Español"
+    }
   },
   "footer": {
     "address": "ФОП Книш Алла Александровна 08297, Киевская обл., Бучанский р-н, г. Буча, шоссе Новое, дом 42",
@@ -331,51 +338,24 @@
     "loading": "Загрузка...",
     "messagePlaceholder": "Введите ваше сообщение...",
     "switchToTelegram": "Перейти в Telegram",
-    "send": "Отправить"
-  }
-}
-
-  },
-  "loader": {
-    "starting": "Запуск системы",
-    "checking_plugin": "Проверка расширения браузера",
-    "preparing": "Подготовка окружения",
-    "syncing": "Синхронизация данных",
-    "browser": "Запуск браузера"
-  },
-  "articles": {
-    "title": "<span class='gradient-text'>Полезные</span> статьи",
-    "allArticles": "Все статьи",
-    "readMore": "Читать далее",
-    "description": "Полезные материалы, инструкции и новости. Используйте категории и фильтры, чтобы быстро найти нужное."
-  },
-  "savings": {
-    "title": "Ваши <span class='gradient-text'>сбережения</span> на подписках",
-    "description": "Платите меньше — получайте те же сервисы без переплат."
-  },
-  "downloadApp": {
-    "title": "Используйте десктопное приложение",
-    "description": "Для использования сервиса необходимо скачать и установить десктопное приложение SubCloudy",
-    "info": "После установки приложения вы сможете открывать и использовать все ваши подписки прямо из приложения.",
-    "windows": "Скачать для Windows",
-    "macos": "Скачать для macOS",
-    "back": "Назад",
-    "note": "Приложение доступно для Windows и macOS"
-  },
-  "support": {
-    "button": "Поддержка",
-    "title": "Служба поддержки",
-    "selectChannel": "Выберите способ связи",
-    "channelWeb": "Чат на сайте",
-    "channelWebDesc": "Продолжить диалог на сайте",
-    "channelTelegram": "Telegram",
-    "channelTelegramDesc": "Перейти для общения в Telegram",
-    "enterEmail": "Введите ваш email для продолжения",
-    "emailPlaceholder": "your@email.com",
-    "startChat": "Начать чат",
-    "loading": "Загрузка...",
-    "messagePlaceholder": "Введите ваше сообщение...",
-    "switchToTelegram": "Перейти в Telegram",
-    "send": "Отправить"
+    "send": "Отправить",
+    "close": "Закрыть",
+        "back": "Назад",
+        "chatInitError": "Не удалось инициализировать чат",
+        "statuses": {
+          "open": "Открыто",
+          "in_progress": "В работе",
+          "closed": "Закрыто"
+        },
+        "statusChangedTo": "Статус изменен на: {status}",
+        "errors": {
+      "ticketNotFound": "Тикет не найден",
+      "createTicketFailed": "Не удалось создать тикет",
+      "sendMessageFailed": "Не удалось отправить сообщение",
+      "createTicketError": "Ошибка при создании тикета",
+      "sendMessageError": "Ошибка при отправке сообщения",
+      "telegramLinkFailed": "Не удалось получить ссылку Telegram",
+      "telegramLinkError": "Ошибка при получении ссылки Telegram"
+    }
   }
 }

@@ -174,7 +174,7 @@
     },
     "activation": {
       "title": "快速激活",
-      "description": "如果您在指定时间内没有收到访问权限，我们将退还您的钱——无需麻烦。"
+      "description": "付款后几分钟内自动激活。"
     },
     "support": {
       "title": "24/7 支持",
@@ -312,5 +312,33 @@
     "macos": "下载 macOS 版",
     "back": "返回",
     "note": "该应用程序适用于 Windows 和 macOS"
+  },
+  "support": {
+    "button": "支持",
+    "title": "支持服务",
+    "selectChannel": "选择通信渠道",
+    "channelWeb": "网站聊天",
+    "channelWebDesc": "在网站上继续对话",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "切换到 Telegram 进行交流",
+    "enterEmail": "输入您的电子邮件以继续",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "开始聊天",
+    "loading": "加载中...",
+    "messagePlaceholder": "输入您的消息...",
+    "switchToTelegram": "切换到 Telegram",
+    "send": "发送",
+    "close": "关闭",
+    "back": "返回",
+    "chatInitError": "无法初始化聊天",
+    "errors": {
+      "ticketNotFound": "未找到工单",
+      "createTicketFailed": "无法创建工单",
+      "sendMessageFailed": "无法发送消息",
+      "createTicketError": "创建工单时出错",
+      "sendMessageError": "发送消息时出错",
+      "telegramLinkFailed": "无法获取 Telegram 链接",
+      "telegramLinkError": "获取 Telegram 链接时出错"
+    }
   }
 }

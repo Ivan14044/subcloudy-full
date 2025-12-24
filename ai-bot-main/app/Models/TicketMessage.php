@@ -16,6 +16,7 @@ class TicketMessage extends Model
         'sender_id',
         'source',
         'text',
+        'image_path',
     ];
 
     protected $casts = [

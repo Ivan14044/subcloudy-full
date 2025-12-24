@@ -221,6 +221,16 @@
     "faq": "FAQ",
     "blog": "Блог"
   },
+  "language": {
+    "selector": "Вибрати мову",
+    "names": {
+      "en": "English",
+      "ru": "Русский",
+      "uk": "Українська",
+      "zh": "中文",
+      "es": "Español"
+    }
+  },
   "footer": {
     "address": "ФОП Книш Алла Олександрівна 08297, Київська обл., Бучанський р-н, м. Буча, шосе Нове, будинок 42",
     "copyright": "SubCloudy 2025 © Всі права захищені",
@@ -312,5 +322,33 @@
     "macos": "Завантажити для macOS",
     "back": "Назад",
     "note": "Додаток доступний для Windows та macOS"
+  },
+  "support": {
+    "button": "Підтримка",
+    "title": "Служба підтримки",
+    "selectChannel": "Виберіть спосіб зв'язку",
+    "channelWeb": "Чат на сайті",
+    "channelWebDesc": "Продовжити діалог на сайті",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Перейти для спілкування в Telegram",
+    "enterEmail": "Введіть ваш email для продовження",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Почати чат",
+    "loading": "Завантаження...",
+    "messagePlaceholder": "Введіть ваше повідомлення...",
+    "switchToTelegram": "Перейти в Telegram",
+    "send": "Надіслати",
+    "close": "Закрити",
+    "back": "Назад",
+    "chatInitError": "Не вдалося ініціалізувати чат",
+    "errors": {
+      "ticketNotFound": "Тикет не знайдено",
+      "createTicketFailed": "Не вдалося створити тикет",
+      "sendMessageFailed": "Не вдалося надіслати повідомлення",
+      "createTicketError": "Помилка при створенні тикету",
+      "sendMessageError": "Помилка при надсиланні повідомлення",
+      "telegramLinkFailed": "Не вдалося отримати посилання Telegram",
+      "telegramLinkError": "Помилка при отриманні посилання Telegram"
+    }
   }
 }

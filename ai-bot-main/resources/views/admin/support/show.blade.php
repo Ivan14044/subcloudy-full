@@ -41,17 +41,30 @@
                                                     @endif
                                                 </small>
                                             </div>
-                                            <div>{{ $message->text }}</div>
+                                            <div>
+                                                {{ $message->text }}
+                                                @if($message->image_path)
+                                                    <div class="mt-2">
+                                                        <a href="{{ asset('storage/' . $message->image_path) }}" target="_blank">
+                                                            <img src="{{ asset('storage/' . $message->image_path) }}" class="img-fluid rounded" style="max-height: 200px;">
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                         <div class="card-footer">
-                            <form method="POST" action="{{ route('admin.support.send-message', $ticket->id) }}">
+                            <form method="POST" action="{{ route('admin.support.send-message', $ticket->id) }}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group">
-                                    <textarea name="text" class="form-control" rows="3" placeholder="Введите ваш ответ..." required></textarea>
+                                    <textarea name="text" class="form-control" rows="3" placeholder="Введите ваш ответ..."></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="image">Прикрепить изображение:</label>
+                                    <input type="file" name="image" class="form-control-file" accept="image/*">
                                 </div>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane"></i> Отправить
@@ -71,8 +84,12 @@
                             <p><strong>Пользователь:</strong> 
                                 @if($ticket->user)
                                     {{ $ticket->user->name }} ({{ $ticket->user->email }})
+                                @elseif($ticket->guest_email)
+                                    Гость ({{ $ticket->guest_email }})
+                                @elseif($ticket->external_channel === 'telegram' || $ticket->telegram_chat_id)
+                                    <span class="text-info"><i class="fab fa-telegram"></i> Telegram Guest</span>
                                 @else
-                                    Гость ({{ $ticket->guest_email ?? 'N/A' }})
+                                    Гость (N/A)
                                 @endif
                             </p>
                             <p><strong>Статус:</strong> 
@@ -134,5 +151,25 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        const lastMessageId = {{ $ticket->messages->last() ? $ticket->messages->last()->id : 0 }};
+        const audio = new Audio('/sounds/notification.mp3');
+        
+        function pollMessages() {
+            $.get('{{ route('api.support.new-messages', $ticket->id) }}', { last_message_id: lastMessageId }, function(data) {
+                if (data.success && data.messages.length > 0) {
+                    audio.play().catch(e => console.warn('Audio play failed', e));
+                    location.reload();
+                }
+            });
+        }
+        
+        setInterval(pollMessages, 5000);
+    });
+</script>
 @stop
 

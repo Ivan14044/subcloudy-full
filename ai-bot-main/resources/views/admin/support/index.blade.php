@@ -64,7 +64,15 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $ticket->user ? $ticket->user->email : ($ticket->guest_email ?? 'N/A') }}
+                                        @if($ticket->user)
+                                            {{ $ticket->user->email }}
+                                        @elseif($ticket->guest_email)
+                                            {{ $ticket->guest_email }}
+                                        @elseif($ticket->external_channel === 'telegram' || $ticket->telegram_chat_id)
+                                            <span class="text-info"><i class="fab fa-telegram"></i> Telegram Guest</span>
+                                        @else
+                                            <span class="text-muted">N/A</span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($ticket->status === 'open')
@@ -134,6 +142,19 @@
                     "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
                 }
             });
+
+            // Polling for new tickets
+            const lastTicketId = {{ $tickets->first() ? $tickets->first()->id : 0 }};
+            const audio = new Audio('/sounds/notification.mp3');
+            
+            function checkNewTickets() {
+                $.get('/api/support/stats', function(data) {
+                    // Можно реализовать более сложную логику, но для начала просто проверяем общее количество
+                    // Или добавить эндпоинт для проверки новых тикетов
+                });
+            }
+            // Пока оставим только звук в деталях тикета для простоты, 
+            // так как в списке админ может не захотеть авторелоад
         });
     </script>
     @endpush

@@ -22,7 +22,7 @@ export const useOptionStore = defineStore('options', {
             try {
                 const response = await axios.get('/options');
                 // Валидируем и очищаем данные перед сохранением
-                const data = response.data;
+                const data = response.data?.data || response.data;
                 
                 // Если данные - массив, проверяем каждый элемент
                 if (Array.isArray(data)) {
@@ -53,21 +53,25 @@ export const useOptionStore = defineStore('options', {
                 } else if (typeof data === 'object' && data !== null) {
                     // Если данные - объект, проверяем footer_menu и header_menu
                     const cleanedData = { ...data };
-                    ['footer_menu', 'header_menu'].forEach(key => {
-                        if (cleanedData[key]) {
-                            try {
-                                if (typeof cleanedData[key] === 'string' && cleanedData[key].trim()) {
-                                    JSON.parse(cleanedData[key]);
-                                } else if (typeof cleanedData[key] === 'object') {
-                                    JSON.stringify(cleanedData[key]);
+                    // Безопасный forEach - используем массив ключей
+                    const menuKeys = ['footer_menu', 'header_menu'];
+                    if (Array.isArray(menuKeys)) {
+                        menuKeys.forEach(key => {
+                            if (cleanedData[key]) {
+                                try {
+                                    if (typeof cleanedData[key] === 'string' && cleanedData[key].trim()) {
+                                        JSON.parse(cleanedData[key]);
+                                    } else if (typeof cleanedData[key] === 'object') {
+                                        JSON.stringify(cleanedData[key]);
+                                    }
+                                } catch (e) {
+                                    console.warn(`[OptionStore] Invalid JSON in ${key}, error:`, e.message);
+                                    console.warn(`[OptionStore] Invalid value (first 100 chars):`, String(cleanedData[key]).substring(0, 100));
+                                    cleanedData[key] = '{}';
                                 }
-                            } catch (e) {
-                                console.warn(`[OptionStore] Invalid JSON in ${key}, error:`, e.message);
-                                console.warn(`[OptionStore] Invalid value (first 100 chars):`, String(cleanedData[key]).substring(0, 100));
-                                cleanedData[key] = '{}';
                             }
-                        }
-                    });
+                        });
+                    }
                     this.options = cleanedData;
                 } else {
                     this.options = data;

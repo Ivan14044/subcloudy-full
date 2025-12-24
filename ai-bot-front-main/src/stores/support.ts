@@ -13,177 +13,248 @@ interface TicketMessage {
 interface Ticket {
     id: number;
     status: 'open' | 'in_progress' | 'closed';
-    subject: string;
+    subject?: string;
     messages: TicketMessage[];
 }
 
+interface SupportState {
+    ticket: Ticket | null;
+    guestEmail: string | null;
+    isModalVisible: boolean;
+    loading: boolean;
+    error: string | null;
+    pollingId: number | null;
+    lastMessageId: number | null;
+    unreadCount: number;
+    lastStatus: string | null;
+}
+
 export const useSupportStore = defineStore('support', {
-    state: () => ({
-        ticket: null as Ticket | null,
+    state: (): SupportState => ({
+        ticket: null,
+        guestEmail: localStorage.getItem('support_guest_email'),
+        isModalVisible: false,
         loading: false,
-        error: null as string | null,
-        pollingInterval: null as number | null,
+        error: null,
+        pollingId: null,
+        lastMessageId: null,
+        unreadCount: 0,
+        lastStatus: null,
     }),
 
     getters: {
         hasTicket: (state) => !!state.ticket,
-        lastMessageId: (state) => {
-            if (!state.ticket || !state.ticket.messages.length) return null;
-            return Math.max(...state.ticket.messages.map(m => m.id));
-        },
+        ticketId: (state) => state.ticket?.id ?? null,
+        messages: (state) => state.ticket?.messages ?? [],
     },
 
     actions: {
-        async getOrCreateTicket(email?: string) {
+        // Создаем или получаем тикет
+        async ensureTicket(email?: string, isTelegramGuest: boolean = false): Promise<boolean> {
             this.loading = true;
             this.error = null;
-
             try {
-                const authStore = useAuthStore();
-                const config: any = {};
-
-                // Если пользователь не авторизован, передаем email
-                if (!authStore.isAuthenticated && email) {
-                    config.params = { email };
-                }
-
-                const response = await axios.get('/api/support/ticket', config);
+                const auth = useAuthStore();
+                const savedTicketId = localStorage.getItem('support_ticket_id');
+                const savedEmail = localStorage.getItem('support_guest_email');
                 
-                if (response.data.success) {
-                    this.ticket = response.data.ticket;
-                    return this.ticket;
-                } else {
-                    throw new Error(response.data.error || 'Failed to get ticket');
+                // Если передан новый email, который отличается от сохраненного,
+                // игнорируем старый ID тикета и очищаем текущий тикет в сторе
+                let ticketIdToTry = savedTicketId;
+                if (email && savedEmail && email.trim().toLowerCase() !== savedEmail.trim().toLowerCase()) {
+                    ticketIdToTry = null;
+                    this.ticket = null;
+                    this.lastMessageId = null;
                 }
+
+                const effectiveEmail = email || this.guestEmail || undefined;
+                
+                let response;
+                
+                if (auth.isAuthenticated) {
+                    response = await axios.get('/support/ticket');
+                } else if (ticketIdToTry) {
+                    // Пытаемся получить существующий тикет по ID для гостя
+                    try {
+                        response = await axios.get(`/support/ticket/${ticketIdToTry}`, {
+                            params: { email: effectiveEmail }
+                        });
+                    } catch (e) {
+                        // Если по ID не нашли или доступ запрещен, пробуем создать/получить по email
+                        const payload: any = { email: effectiveEmail };
+                        if (isTelegramGuest) payload.source = 'telegram';
+                        response = await axios.post('/support/ticket', payload);
+                    }
+                } else {
+                    const payload: any = { email: effectiveEmail };
+                    if (isTelegramGuest) payload.source = 'telegram';
+                    response = await axios.post('/support/ticket', payload);
+                }
+
+                if (!response.data?.success || !response.data?.ticket) {
+                    this.error = response.data?.error || 'Не удалось создать тикет';
+                    return false;
+                }
+
+                this.ticket = response.data.ticket;
+                this.lastStatus = this.ticket?.status || null;
+                
+                // Сохраняем данные для гостей для персистентности
+                if (!auth.isAuthenticated) {
+                    if (effectiveEmail) {
+                        this.guestEmail = effectiveEmail;
+                        localStorage.setItem('support_guest_email', effectiveEmail);
+                    }
+                    localStorage.setItem('support_ticket_id', String(this.ticket.id));
+                }
+
+                const msgs = this.ticket.messages || [];
+                this.lastMessageId = msgs.length ? msgs[msgs.length - 1].id : null;
+                return true;
             } catch (error: any) {
-                this.error = error.response?.data?.error || error.message || 'Ошибка при загрузке обращения';
-                throw error;
+                this.error = error.response?.data?.error || error.message || 'Ошибка при создании тикета';
+                return false;
             } finally {
                 this.loading = false;
             }
         },
 
-        async sendMessage(text: string, source: 'web' | 'telegram' = 'web', email?: string) {
+        // Отправка сообщения (с поддержкой изображений)
+        async send(text: string, source: 'web' | 'telegram' = 'web', email?: string, file?: File): Promise<boolean> {
             if (!this.ticket) {
-                throw new Error('No ticket available');
+                this.error = 'Тикет не найден';
+                return false;
             }
 
             this.loading = true;
             this.error = null;
-
             try {
-                const authStore = useAuthStore();
-                const config: any = {
-                    text,
-                    source,
-                };
-
-                // Если пользователь не авторизован, передаем email
-                if (!authStore.isAuthenticated && email) {
-                    config.email = email;
-                }
-
-                const response = await axios.post(
-                    `/api/support/ticket/${this.ticket.id}/message`,
-                    config
-                );
-
-                if (response.data.success) {
-                    // Добавляем новое сообщение в список
-                    if (this.ticket) {
-                        this.ticket.messages.push(response.data.message);
+                const auth = useAuthStore();
+                
+                let response;
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('text', text || '');
+                    formData.append('source', source);
+                    if (!auth.isAuthenticated && email) {
+                        formData.append('email', email);
                     }
-                    return response.data.message;
+                    formData.append('image', file);
+                    response = await axios.post(`/support/ticket/${this.ticket.id}/message`, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
                 } else {
-                    throw new Error(response.data.error || 'Failed to send message');
+                    const payload: any = { text, source };
+                    if (!auth.isAuthenticated && email) {
+                        payload.email = email;
+                    }
+                    response = await axios.post(`/support/ticket/${this.ticket.id}/message`, payload);
                 }
+
+                if (!response.data?.success || !response.data?.message) {
+                    this.error = response.data?.error || 'Не удалось отправить сообщение';
+                    return false;
+                }
+
+                if (!this.ticket.messages) {
+                    this.ticket.messages = [];
+                }
+                this.ticket.messages.push(response.data.message);
+                this.lastMessageId = response.data.message.id;
+                
+                if (response.data.ticket?.status && this.ticket.status !== response.data.ticket.status) {
+                    this.ticket.status = response.data.ticket.status;
+                    this.lastStatus = this.ticket.status;
+                }
+                return true;
             } catch (error: any) {
                 this.error = error.response?.data?.error || error.message || 'Ошибка при отправке сообщения';
-                throw error;
+                return false;
             } finally {
                 this.loading = false;
             }
         },
 
-        async getNewMessages(email?: string) {
+        // Получение новых сообщений
+        async fetchNew(email?: string): Promise<boolean> {
             if (!this.ticket) {
-                return;
+                return false;
             }
-
             try {
-                const authStore = useAuthStore();
-                const config: any = {};
-
+                const auth = useAuthStore();
+                const params: Record<string, any> = {};
+                if (!auth.isAuthenticated && email) {
+                    params.email = email;
+                }
                 if (this.lastMessageId) {
-                    config.params = { last_message_id: this.lastMessageId };
+                    params.last_message_id = this.lastMessageId;
                 }
 
-                // Если пользователь не авторизован, передаем email
-                if (!authStore.isAuthenticated && email) {
-                    if (config.params) {
-                        config.params.email = email;
-                    } else {
-                        config.params = { email };
+                const response = await axios.get(`/support/ticket/${this.ticket.id}/messages`, { params });
+                if (!response.data?.success || !response.data?.messages) {
+                    return false;
+                }
+                
+                const newMessages = response.data.messages as TicketMessage[];
+                const newStatus = response.data.status;
+
+                let hasNewAdminMsg = false;
+                let statusChanged = false;
+
+                if (newStatus && this.lastStatus !== newStatus) {
+                    statusChanged = true;
+                    this.lastStatus = newStatus;
+                    if (this.ticket) this.ticket.status = newStatus;
+                }
+
+                if (newMessages.length) {
+                    if (!this.ticket.messages) {
+                        this.ticket.messages = [];
+                    }
+                    this.ticket.messages.push(...newMessages);
+                    this.lastMessageId = newMessages[newMessages.length - 1].id;
+                    
+                    // Проверяем, есть ли сообщения от админа
+                    hasNewAdminMsg = newMessages.some(m => m.sender_type === 'admin');
+                    
+                    if (hasNewAdminMsg && !this.isModalVisible) {
+                        this.unreadCount += newMessages.filter(m => m.sender_type === 'admin').length;
                     }
                 }
 
-                const response = await axios.get(
-                    `/api/support/ticket/${this.ticket.id}/messages`,
-                    config
-                );
-
-                if (response.data.success && response.data.messages.length > 0) {
-                    // Добавляем новые сообщения
-                    if (this.ticket) {
-                        this.ticket.messages.push(...response.data.messages);
-                    }
+                if (hasNewAdminMsg || statusChanged) {
+                    this.triggerNotification(statusChanged ? 'status' : 'message');
                 }
-            } catch (error: any) {
-                console.error('Error fetching new messages:', error);
+
+                return true;
+            } catch (error) {
+                console.warn('polling error', error);
+                return false;
             }
         },
 
-        async getTelegramLink() {
-            if (!this.ticket) {
-                throw new Error('No ticket available');
-            }
-
-            try {
-                const response = await axios.get(
-                    `/api/support/ticket/${this.ticket.id}/telegram-link`
-                );
-
-                if (response.data.success) {
-                    return response.data.telegram_link;
-                } else {
-                    throw new Error(response.data.error || 'Failed to get Telegram link');
-                }
-            } catch (error: any) {
-                this.error = error.response?.data?.error || error.message || 'Ошибка при получении ссылки';
-                throw error;
-            }
-        },
-
-        startPolling(email?: string) {
-            this.stopPolling();
+        triggerNotification(type: 'message' | 'status') {
+            // Проигрываем звук
+            const audio = new Audio('/sounds/notification.mp3');
+            audio.play().catch(e => console.warn('Audio play failed', e));
             
-            // Polling каждые 3 секунды
-            this.pollingInterval = window.setInterval(() => {
-                this.getNewMessages(email);
-            }, 3000);
+            // Генерируем событие для компонента (чтобы показать уведомление в чате)
+            window.dispatchEvent(new CustomEvent('support-notification', { detail: { type } }));
         },
 
-        stopPolling() {
-            if (this.pollingInterval !== null) {
-                clearInterval(this.pollingInterval);
-                this.pollingInterval = null;
+        setModalVisible(visible: boolean) {
+            this.isModalVisible = visible;
+            if (visible) {
+                this.unreadCount = 0; // Сбрасываем счетчик при открытии
             }
         },
 
         reset() {
+            this.stopPolling();
             this.ticket = null;
             this.error = null;
-            this.stopPolling();
+            this.lastMessageId = null;
+            this.loading = false;
         },
     },
 });
