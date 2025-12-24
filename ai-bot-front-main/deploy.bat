@@ -18,3 +18,4 @@ echo   ssh root@193.111.63.104 "cd /var/www/html && tar -xzf /tmp/dist.tar.gz"
 echo.
 pause
 
+

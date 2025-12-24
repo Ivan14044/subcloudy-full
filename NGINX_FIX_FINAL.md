@@ -91,3 +91,4 @@ nginx -t && systemctl reload nginx
 2. `curl -I https://subcloudy.com/admin/login` - должен вернуть 200 или правильный ответ от Laravel
 3. Проверить логи: `tail -f /var/log/nginx/error.log`
 
+

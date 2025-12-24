@@ -33,3 +33,4 @@ PHP-FPM возвращает "Primary script unknown", что означает, 
 4. Попробовать использовать `fastcgi_param DOCUMENT_ROOT` явно
 5. Проверить, не конфликтует ли глобальный `root` с `root` в location блоке
 
+

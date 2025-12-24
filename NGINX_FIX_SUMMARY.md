@@ -42,3 +42,4 @@ PHP-FPM все еще возвращает "Primary script unknown", что оз
 3. Проверить настройки `open_basedir` в PHP-FPM
 4. Попробовать использовать `alias` вместо `root` в location блоке
 
+

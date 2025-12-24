@@ -56,3 +56,4 @@
 3. Применить правильную конфигурацию для Laravel
 4. Проверить работу: `curl https://subcloudy.com/api/services`
 
+

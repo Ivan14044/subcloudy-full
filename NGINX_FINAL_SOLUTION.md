@@ -156,3 +156,4 @@ nginx -t && systemctl reload nginx
 
 Из-за ограничений PowerShell через plink, конфигурацию нужно применить **напрямую на сервере через SSH**.
 
+

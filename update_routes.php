@@ -7,3 +7,4 @@ $new_content = str_replace($old, $new, $content);
 file_put_contents($path, $new_content);
 echo "Updated routes/api.php\n";
 
+

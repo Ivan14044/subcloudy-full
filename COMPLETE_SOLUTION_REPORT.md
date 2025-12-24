@@ -95,3 +95,4 @@ location ~ \.php$ {
 3. Проверить работу: `curl https://subcloudy.com/api/services`
 4. Проверить админ-панель: `curl https://subcloudy.com/admin/login`
 
+
