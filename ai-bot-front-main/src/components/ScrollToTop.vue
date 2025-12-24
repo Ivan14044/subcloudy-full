@@ -1,6 +1,6 @@
 <template>
     <button
-        class="scroll-to-top-btn glass-button text-dark dark:text-white/90 fixed bottom-6 right-6 z-50 rounded-full w-10 h-10 flex items-center justify-center transition-none"
+        class="scroll-to-top-btn glass-button text-dark dark:text-white/90 fixed bottom-24 right-6 z-50 rounded-full w-10 h-10 flex items-center justify-center transition-none"
         :class="{ visible: isVisible, 'glass-dark': isDark, 'glass-light': !isDark }"
         aria-label="Scroll to top"
         @click="scrollToTop"

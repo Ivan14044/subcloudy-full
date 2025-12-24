@@ -44,12 +44,17 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         sourcemap: false,
+        chunkSizeWarningLimit: 1000,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    'vendor-vue': ['vue', 'vue-router', 'pinia'],
-                    'vendor-i18n': ['vue-i18n'],
-                    'vendor-ui': ['lucide-vue-next']
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('vue') || id.includes('pinia')) return 'vendor-vue';
+                        if (id.includes('lucide')) return 'vendor-ui';
+                        if (id.includes('lottie')) return 'vendor-lottie';
+                        if (id.includes('axios')) return 'vendor-axios';
+                        return 'vendor';
+                    }
                 }
             }
         },
@@ -57,9 +62,13 @@ export default defineConfig({
         minify: 'terser',
         terserOptions: {
             compress: {
-                drop_console: false, // Оставляем console.log для отладки
+                drop_console: true,
                 drop_debugger: true,
-                pure_funcs: [] // Не удаляем никакие функции
+                pure_funcs: ['console.log', 'console.info', 'console.debug']
+            },
+            mangle: true,
+            format: {
+                comments: false
             }
         }
     }

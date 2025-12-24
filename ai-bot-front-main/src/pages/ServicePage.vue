@@ -67,6 +67,7 @@
                                                 width="140"
                                                 height="140"
                                                 loading="lazy"
+                                                decoding="async"
                                                 class="service-card__logo-img"
                                                 style="aspect-ratio: 1 / 1;"
                                             />

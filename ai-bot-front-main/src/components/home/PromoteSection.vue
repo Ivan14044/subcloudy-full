@@ -4,7 +4,7 @@
     >
         <div class="text-center flex flex-col items-center justify-start">
             <div class="access-icon mb-4">
-                <img src="/img/emoji-star.png" width="40" height="40" class="max-h-[40px] max-w-[40px]" alt="Access" style="aspect-ratio: 1 / 1;" />
+                <img src="/img/emoji-star.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Access" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.access.title') }}</h3>
             <p class="text-gray-500 dark:text-gray-400 leading-5">
@@ -13,7 +13,7 @@
         </div>
         <div class="text-center flex flex-col items-center justify-start">
             <div class="pricing-icon mb-4">
-                <img src="/img/emoji-cash.png" width="40" height="40" class="max-h-[40px] max-w-[40px]" alt="Pricing" style="aspect-ratio: 1 / 1;" />
+                <img src="/img/emoji-cash.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Pricing" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.pricing.title') }}</h3>
             <p class="text-gray-500 dark:text-gray-400 leading-5">
@@ -22,7 +22,7 @@
         </div>
         <div class="text-center flex flex-col items-center justify-start">
             <div class="refund-icon mb-4">
-                <img src="/img/emoji-hands.png" width="40" height="40" class="max-h-[40px] max-w-[40px]" alt="Refund" style="aspect-ratio: 1 / 1;" />
+                <img src="/img/emoji-hands.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Refund" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.refund.title') }}</h3>
             <p class="text-gray-500 dark:text-gray-400 leading-5">
@@ -35,6 +35,8 @@
                     src="/img/emoji-roket.png"
                     width="40"
                     height="40"
+                    loading="lazy"
+                    decoding="async"
                     class="max-h-[40px] max-w-[40px]"
                     alt="Activation"
                     style="aspect-ratio: 1 / 1;"
@@ -49,7 +51,7 @@
         </div>
         <div class="text-center flex flex-col items-center justify-start">
             <div class="support-icon mb-4">
-                <img src="/img/emoji-proger.png" width="40" height="40" class="max-h-[40px] max-w-[40px]" alt="Support" style="aspect-ratio: 1 / 1;" />
+                <img src="/img/emoji-proger.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Support" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">
                 {{ $t('promote.support.title') }}
@@ -60,7 +62,7 @@
         </div>
         <div class="text-center flex flex-col items-center justify-start">
             <div class="payment-icon mb-4">
-                <img src="/img/emoji-card.png" width="40" height="40" class="max-h-[40px] max-w-[40px]" alt="Payment" style="aspect-ratio: 1 / 1;" />
+                <img src="/img/emoji-card.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Payment" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">
                 {{ $t('promote.payment.title') }}

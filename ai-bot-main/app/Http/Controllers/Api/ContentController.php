@@ -7,7 +7,7 @@ use App\Models\Content;
 
 class ContentController extends Controller
 {
-    public function show(string $code)
+    public function getByCode(string $code)
     {
         $content = Content::where('code', $code)->with('translations')->firstOrFail();
 

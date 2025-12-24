@@ -4,8 +4,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
 import DefaultLayout from '@/components/layout/DefaultLayout.vue';
 import EmptyLayout from '@/components/layout/EmptyLayout.vue';
@@ -22,6 +23,7 @@ import logo from '@/assets/logo.webp';
 import { prefetchCriticalRoutes } from '@/utils/prefetchUtils';
 
 const { locale } = useI18n();
+const route = useRoute();
 const isLoading = ref(true);
 const loadingStore = useLoadingStore();
 const authStore = useAuthStore();
@@ -29,6 +31,15 @@ const authStore = useAuthStore();
 const isStartSessionPage = /^\/session-start(\/\d+)?$/.test(window.location.pathname);
 
 const layoutComponent = computed(() => (isStartSessionPage ? EmptyLayout : DefaultLayout));
+
+// Force scroll to top on route change
+watch(() => route.path, () => {
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'instant' as any
+    });
+});
 
 onMounted(async () => {
     loadingStore.start();

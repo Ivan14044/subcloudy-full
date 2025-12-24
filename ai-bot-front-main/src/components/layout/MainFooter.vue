@@ -75,6 +75,8 @@
                                 alt="Visa Mastercard"
                                 width="168"
                                 height="56"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                     </div>

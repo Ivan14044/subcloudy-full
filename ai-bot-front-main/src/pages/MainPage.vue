@@ -110,14 +110,17 @@
 </template>
 
 <script setup lang="ts">
-import AboutSection from '../components/home/AboutSection.vue';
-import ArticleSection from '../components/home/ArticleSection.vue';
-import ServiceSelector from '../components/home/ServiceSelector.vue';
+import { defineAsyncComponent } from 'vue';
 import HeroSection from '../components/home/HeroSection.vue';
-import PromoteSection from '../components/home/PromoteSection.vue';
-import StepsSection from '../components/home/StepsSection.vue';
-import SubscribeSection from '../components/home/SubscribeSection.vue';
-import ReviewSection from '../components/home/ReviewSection.vue';
+import ServiceSelector from '../components/home/ServiceSelector.vue';
 import SavingsOn from '../components/home/SavingsOn.vue';
-import FAQSection from '../components/home/FAQSection.vue';
+
+// Async components for sections below the fold
+const AboutSection = defineAsyncComponent(() => import('../components/home/AboutSection.vue'));
+const ArticleSection = defineAsyncComponent(() => import('../components/home/ArticleSection.vue'));
+const PromoteSection = defineAsyncComponent(() => import('../components/home/PromoteSection.vue'));
+const StepsSection = defineAsyncComponent(() => import('../components/home/StepsSection.vue'));
+const SubscribeSection = defineAsyncComponent(() => import('../components/home/SubscribeSection.vue'));
+const ReviewSection = defineAsyncComponent(() => import('../components/home/ReviewSection.vue'));
+const FAQSection = defineAsyncComponent(() => import('../components/home/FAQSection.vue'));
 </script>

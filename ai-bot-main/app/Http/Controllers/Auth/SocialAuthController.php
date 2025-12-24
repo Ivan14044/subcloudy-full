@@ -268,7 +268,7 @@ class SocialAuthController extends Controller
         }
 
         // Получаем секретный ключ для проверки
-        $botToken = config('services.telegram.bot_token');
+        $botToken = config('services.telegram.auth_bot_token') ?: config('services.telegram.bot_token');
         if (empty($botToken)) {
             Log::error('Telegram validation: bot_token is empty in config');
             return false;

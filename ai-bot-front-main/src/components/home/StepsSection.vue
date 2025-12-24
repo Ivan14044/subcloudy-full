@@ -19,6 +19,8 @@
                     alt="eyes emoji"
                     width="48"
                     height="48"
+                    loading="lazy"
+                    decoding="async"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
                     style="aspect-ratio: 1 / 1;"
                 />
@@ -59,6 +61,8 @@
                     alt="pencil emoji"
                     width="48"
                     height="48"
+                    loading="lazy"
+                    decoding="async"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
                     style="aspect-ratio: 1 / 1;"
                 />
@@ -96,6 +100,8 @@
                     alt="fire emoji"
                     width="48"
                     height="48"
+                    loading="lazy"
+                    decoding="async"
                     class="shadow dark:shadow-black w-12 bg-white/80 p-2 position-absolute right-4 top-4 rounded-full"
                     style="aspect-ratio: 1 / 1;"
                 />

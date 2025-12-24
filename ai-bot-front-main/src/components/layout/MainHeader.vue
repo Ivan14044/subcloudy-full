@@ -74,6 +74,7 @@
                             alt="Logo"
                             width="32"
                             height="32"
+                            decoding="async"
                             class="!w-[29px] sm:w-8 sm:h-8 object-contain rounded-full spin-slow-reverse"
                             style="aspect-ratio: 1 / 1;"
                         />

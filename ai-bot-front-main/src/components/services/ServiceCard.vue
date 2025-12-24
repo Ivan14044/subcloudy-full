@@ -78,6 +78,7 @@
                                 height="80"
                                 class="w-20 h-20 object-contain"
                                 loading="lazy"
+                                decoding="async"
                                 style="aspect-ratio: 1 / 1;"
                                 @load="updateContainerHeight"
                             />

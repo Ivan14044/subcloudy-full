@@ -161,32 +161,16 @@ const router = createRouter({
     history: createWebHistory(),
     routes,
     scrollBehavior(to, from, savedPosition) {
-        // 1) Back/forward — use browser-saved position
         if (savedPosition) {
-            try {
-                sessionStorage.setItem('articlesUsedSavedPosition', '1');
-            } catch (_) {}
             return savedPosition;
         }
 
-        // Defer scrolling for article/category list pages until data is loaded in component
-        if (to.meta && to.meta.isArticlesList) {
-            return false;
-        }
-
-        // 2) Anchors — scroll to element
         if (to.hash) {
-            return { el: to.hash, top: 0, left: 0, behavior: 'auto' };
+            return { el: to.hash, top: 0, behavior: 'smooth' };
         }
 
-        // 3) Default — ensure layout is ready (Firefox quirk)
-        return new Promise(resolve => {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    resolve({ top: 0, left: 0, behavior: 'auto' });
-                });
-            });
-        });
+        // Always scroll to top on route change
+        return { top: 0, left: 0 };
     }
 });
 
