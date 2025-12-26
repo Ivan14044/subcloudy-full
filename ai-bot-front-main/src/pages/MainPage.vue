@@ -1,19 +1,14 @@
 <template>
+    <!-- Hero Section -->
     <div
-        v-intersect="{ threshold: 0.01, rootMargin: '0px 0px -80% 0px' }"
-        class="section-container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none min-h-screen flex align-center mt-[50px] lg:mt-0"
+        class="hero-placeholder max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pointer-events-none min-h-screen flex items-center"
     >
-        <!-- Hero Section -->
-        <section id="hero" class="bg-transparent absolute top-0 left-0 px-[15px] md:static md:px-0">
-            <HeroSection />
-        </section>
+        <HeroSection class="w-full" />
     </div>
-    <div
-        v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }"
-        class="mx-auto px-4 pt-5 md:pt-24 pb-7 md:pb-16 sm:px-6 lg:px-8"
-    >
+
+    <div class="mx-auto px-4 pt-5 md:pt-24 pb-7 md:pb-16 sm:px-6 lg:px-8">
         <!-- Savings Section -->
-        <section id="savings" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="savings" class="mb-16 min-h-[400px]" style="content-visibility: auto; contain-intrinsic-size: 1px 400px;">
             <div class="text-center mb-8">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
@@ -28,71 +23,63 @@
         </section>
 
         <!-- Steps Section -->
-        <section id="steps">
+        <section id="steps" class="min-h-[300px]" style="content-visibility: auto; contain-intrinsic-size: 1px 300px;">
             <div class="text-center mb-8 relative z-2">
                 <h2
-                    class="text-[32px] md:text-[48px] lg:text-[64px]m text-gray-900 dark:text-white mt-3 leading-none"
+                    class="text-[32px] md:text-[48px] lg:text-[64px] text-gray-900 dark:text-white mt-3 leading-none"
                     v-html="$t('steps.title')"
                 ></h2>
             </div>
-
             <StepsSection />
         </section>
     </div>
+
     <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <!-- Services Section -->
-        <section id="services" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="services" class="mb-16 min-h-[600px]" style="content-visibility: auto; contain-intrinsic-size: 1px 600px;">
             <div class="text-center mb-16">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] text-gray-900 dark:text-white mt-3 leading-none"
                     v-html="$t('services.title')"
                 ></h2>
             </div>
-
             <ServiceSelector />
         </section>
 
         <!-- Articles Section -->
-        <section id="articles" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="articles" class="mb-16 min-h-[500px]" style="content-visibility: auto; contain-intrinsic-size: 1px 500px;">
             <ArticleSection />
         </section>
 
         <!-- About Section -->
-        <section
-            id="about"
-            v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }"
-            class="flex flex-col lg:flex-row items-center justify-center gap-20 pt-20 pb-24"
-        >
+        <section id="about" class="flex flex-col lg:flex-row items-center justify-center gap-20 pt-20 pb-24 min-h-[400px]">
             <AboutSection />
         </section>
 
         <!-- Promote Section -->
-        <section id="promote" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="promote" class="mb-16 min-h-[300px]">
             <div class="text-center mb-16">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
                     v-html="$t('promote.title')"
                 ></h2>
             </div>
-
             <PromoteSection />
         </section>
 
-
         <!-- Reviews Section -->
-        <section id="reviews" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="reviews" class="mb-16 min-h-[400px]">
             <div class="text-center mb-8">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
                     v-html="$t('reviews.title')"
                 ></h2>
             </div>
-            
             <ReviewSection />
         </section>
 
         <!-- FAQ Section -->
-        <section id="faq" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="faq" class="mb-16 min-h-[400px]">
             <div class="text-center mb-8">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
@@ -103,7 +90,7 @@
         </section>
 
         <!-- Subscribe Section -->
-        <section id="subscribe" v-intersect="{ threshold: 0.08, rootMargin: '0px 0px -40% 0px' }" class="mb-16">
+        <section id="subscribe" class="mb-16 min-h-[300px]">
             <SubscribeSection />
         </section>
     </div>
@@ -112,10 +99,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue';
 import HeroSection from '../components/home/HeroSection.vue';
-import ServiceSelector from '../components/home/ServiceSelector.vue';
-import SavingsOn from '../components/home/SavingsOn.vue';
 
-// Async components for sections below the fold
+// Асинхронная загрузка всех компонентов для уменьшения начального бандла
+const ServiceSelector = defineAsyncComponent(() => import('../components/home/ServiceSelector.vue'));
+const SavingsOn = defineAsyncComponent(() => import('../components/home/SavingsOn.vue'));
 const AboutSection = defineAsyncComponent(() => import('../components/home/AboutSection.vue'));
 const ArticleSection = defineAsyncComponent(() => import('../components/home/ArticleSection.vue'));
 const PromoteSection = defineAsyncComponent(() => import('../components/home/PromoteSection.vue'));

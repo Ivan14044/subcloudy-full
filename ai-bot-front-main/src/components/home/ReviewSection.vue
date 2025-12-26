@@ -130,7 +130,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-gray-500 dark:text-gray-400 text-base line-clamp-4">
+                        <p class="text-gray-600 dark:text-gray-300 text-base line-clamp-4">
                             {{ review.text }}
                         </p>
                     </div>

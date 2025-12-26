@@ -1,8 +1,8 @@
 <template>
-    <div v-if="isAuthenticated" id="userMenu" ref="dropdownRef" class="d-flex gap-5 relative">
+    <div v-if="isAuthenticated" id="userMenu" ref="dropdownRef" class="flex gap-5 relative">
         <button
             ref="buttonRef"
-            class="px-2 px-lg-3 d-flex py-2 h-[32px] text-base leading-4 items-center rounded-lg hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+            class="px-2 lg:px-3 flex py-2 h-[32px] text-base leading-4 items-center rounded-lg hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 group"
             @click="toggleDropdown"
             :aria-label="$t('auth.userMenu')"
             :aria-expanded="isOpen"
@@ -84,9 +84,9 @@
             </Transition>
         </Teleport>
     </div>
-    <div v-else id="loginMenu" ref="dropdownRef" class="d-flex align-center top-3 right-6 z-50">
+    <div v-else id="loginMenu" ref="dropdownRef" class="flex items-center top-3 right-6 z-50">
         <button
-            class="px-2 px-lg-3 d-flex py-2 h-[32px] text-base leading-4 align-center backdrop-blur-sm rounded-lg hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 group"
+            class="px-2 lg:px-3 flex py-2 h-[32px] text-base leading-4 items-center backdrop-blur-sm rounded-lg hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 group"
             @click="handleAuthAction"
         >
             <LogIn class="w-5 h-5" />
@@ -119,11 +119,14 @@ const updateDropdownPosition = () => {
     if (!buttonRef.value || !isOpen.value) return;
     
     nextTick(() => {
-        const rect = buttonRef.value!.getBoundingClientRect();
-        dropdownStyle.value = {
-            top: `${rect.bottom + 5}px`,
-            right: `${window.innerWidth - rect.right}px`
-        };
+        // Используем requestAnimationFrame для батчинга чтений layout свойств
+        requestAnimationFrame(() => {
+            const rect = buttonRef.value!.getBoundingClientRect();
+            dropdownStyle.value = {
+                top: `${rect.bottom + 5}px`,
+                right: `${window.innerWidth - rect.right}px`
+            };
+        });
     });
 };
 

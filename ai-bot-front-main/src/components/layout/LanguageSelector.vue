@@ -3,7 +3,7 @@
         <!-- Language Button -->
         <button
             ref="buttonRef"
-            class="cursor-pointer gap-[7px] text-sm leading-4 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 pl-2 pr-1 pl-lg-3 pr-lg-2 py-2 rounded-lg flex items-center relative z-10"
+            class="cursor-pointer gap-[7px] text-sm leading-4 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 pl-2 pr-1 lg:pl-3 lg:pr-2 py-2 rounded-lg flex items-center relative z-10"
             @click="toggleDropdown"
             :aria-label="`${$t('language.selector')} ${currentLanguage.name}`"
             :aria-expanded="isOpen"
@@ -47,9 +47,10 @@
                             class="flex h-[44px] items-center gap-3 w-full px-4 text-sm text-left hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors relative"
                             :class="[
                                 language.code === currentLocale
-                                    ? 'text-gray-800 dark:text-blue-700 font-weight-bold'
+                                    ? 'text-gray-800 dark:text-blue-700 font-bold'
                                     : 'text-gray-900 dark:!text-white'
                             ]"
+                            :aria-label="`Выбрать язык ${language.name}`"
                             @click="changeLanguage(language.code)"
                         >
                             <span class="relative z-10 flex items-center">
@@ -111,12 +112,15 @@ const updateDropdownPosition = () => {
     if (!buttonRef.value || !isOpen.value) return;
     
     nextTick(() => {
-        const rect = buttonRef.value!.getBoundingClientRect();
-        // Для position: fixed используем только координаты viewport, без scrollY/scrollX
-        dropdownStyle.value = {
-            top: `${rect.bottom + 5}px`,
-            left: `${rect.left}px`
-        };
+        // Используем requestAnimationFrame для батчинга чтений layout свойств
+        requestAnimationFrame(() => {
+            const rect = buttonRef.value!.getBoundingClientRect();
+            // Для position: fixed используем только координаты viewport, без scrollY/scrollX
+            dropdownStyle.value = {
+                top: `${rect.bottom + 5}px`,
+                left: `${rect.left}px`
+            };
+        });
     });
 };
 

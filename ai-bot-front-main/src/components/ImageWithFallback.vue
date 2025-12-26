@@ -7,9 +7,9 @@
             class="w-full h-full"
             v-bind="$attrs"
             :data-original-url="src"
-            width="400"
-            height="300"
-            style="aspect-ratio: 4 / 3;"
+            :width="width || 400"
+            :height="height || 300"
+            :style="aspectRatio ? { 'aspect-ratio': aspectRatio } : { 'aspect-ratio': '4 / 3' }"
         />
         <img
             v-else
@@ -18,9 +18,9 @@
             v-bind="$attrs"
             @error="handleError"
             class="w-full h-full object-cover"
-            width="400"
-            height="300"
-            style="aspect-ratio: 4 / 3;"
+            :width="width || 400"
+            :height="height || 300"
+            :style="aspectRatio ? { 'aspect-ratio': aspectRatio } : { 'aspect-ratio': '4 / 3' }"
         />
     </div>
 </template>
@@ -37,6 +37,9 @@ const props = defineProps<{
     src?: string;
     alt?: string;
     style?: string | Record<string, string>;
+    width?: string | number;
+    height?: string | number;
+    aspectRatio?: string;
 }>();
 
 const didError = ref(false);

@@ -37,7 +37,7 @@
                         class="flex h-[44px] items-center gap-3 w-full px-4 py-3 text-sm text-left hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors relative"
                         :class="[
                             language.code === currentLocale
-                                ? 'text-gray-800 dark:text-blue-700 font-weight-bold'
+                                ? 'text-gray-800 dark:text-blue-700 font-bold'
                                 : 'text-gray-900 dark:!text-white'
                         ]"
                         @click="changeLanguage(language.code)"

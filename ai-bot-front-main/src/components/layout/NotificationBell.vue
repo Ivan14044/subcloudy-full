@@ -2,7 +2,7 @@
     <div v-if="isAuthenticated" ref="containerRef" class="relative">
         <div
             ref="buttonRef"
-            class="px-2 px-lg-3 d-flex h-[32px] rounded-lg transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-gray-700 cursor-pointer"
+            class="px-2 lg:px-3 flex h-[32px] rounded-lg transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-gray-700 cursor-pointer"
             @click.stop="toggleDropdown"
         >
             <!-- Bell icon -->
@@ -44,7 +44,7 @@
                     <div class="liquid-glass-shine"></div>
                     <div class="liquid-glass-text">
                         <BoxLoader v-if="loading" />
-                        <div class="px-2 px-lg-3 py-2 border-b font-semibold text-gray-900 dark:text-white relative z-10">
+                        <div class="px-2 lg:px-3 py-2 border-b font-semibold text-gray-900 dark:text-white relative z-10">
                             {{ $t('notifications.dropdown_title') }}
                             <button
                                 class="text-gray-900 dark:text-white text-2xl leading-none float-right close-dropdown"
@@ -186,11 +186,14 @@ const updateDropdownPosition = () => {
     if (!buttonRef.value || !dropdownOpen.value) return;
     
     nextTick(() => {
-        const rect = buttonRef.value.getBoundingClientRect();
-        dropdownStyle.value = {
-            top: `${rect.bottom + 5}px`,
-            right: `${window.innerWidth - rect.right}px`
-        };
+        // Используем requestAnimationFrame для батчинга чтений layout свойств
+        requestAnimationFrame(() => {
+            const rect = buttonRef.value.getBoundingClientRect();
+            dropdownStyle.value = {
+                top: `${rect.bottom + 5}px`,
+                right: `${window.innerWidth - rect.right}px`
+            };
+        });
     });
 };
 

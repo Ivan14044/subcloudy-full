@@ -439,23 +439,48 @@ const tick = () => {
     rafId = requestAnimationFrame(tick);
 };
 
+let cardRect: DOMRect | null = null;
+
 const onPointerMove = (e: PointerEvent) => {
     if (!cardRef.value || isMobile.value) return;
-    const rect = cardRef.value.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
+    if (!cardRect) {
+        // Используем requestAnimationFrame для батчинга чтений
+        requestAnimationFrame(() => {
+            if (cardRef.value) {
+                cardRect = cardRef.value.getBoundingClientRect();
+            }
+        });
+        return;
+    }
+    const x = (e.clientX - cardRect.left) / cardRect.width;
+    const y = (e.clientY - cardRect.top) / cardRect.height;
     targetX.value = Math.max(0, Math.min(1, x));
     targetY.value = Math.max(0, Math.min(1, y));
     displayX.value = targetX.value;
     displayY.value = targetY.value;
 };
 const onPointerEnter = () => {
-    if (cardRef.value) cardRef.value.classList.add('is-active');
+    if (cardRef.value) {
+        // Первый RAF для изменения DOM
+        requestAnimationFrame(() => {
+            if (cardRef.value) {
+                cardRef.value.classList.add('is-active');
+                // Второй RAF для чтения layout свойств после применения изменений
+                requestAnimationFrame(() => {
+                    if (cardRef.value) {
+                        cardRect = cardRef.value.getBoundingClientRect();
+                        updateContainerHeight();
+                    }
+                });
+            }
+        });
+    }
 };
 const onPointerLeave = () => {
     targetX.value = 0.5;
     targetY.value = 0.5;
     if (cardRef.value) cardRef.value.classList.remove('is-active');
+    cardRect = null;
 };
 const onPointerDown = (e: PointerEvent) => {
     (e.target as Element).setPointerCapture?.(e.pointerId);
@@ -468,10 +493,13 @@ const updateContainerHeight = async () => {
     await nextTick();
     const frontEl = frontRef.value as HTMLElement | null;
     const backEl = backRef.value as HTMLElement | null;
-    const frontH = frontEl ? frontEl.scrollHeight : 0;
-    const backH = backEl ? backEl.scrollHeight : 0;
-    const desired = Math.max(frontH, backH);
-    containerHeight.value = desired > 0 ? Math.ceil(desired) : null;
+    if (!frontEl || !backEl) return;
+
+    // Используем проверенный способ расчета высоты для сохранения дизайна
+    const frontH = frontEl.scrollHeight;
+    const backH = backEl.scrollHeight;
+    const desired = Math.max(frontH, backH, 440);
+    containerHeight.value = Math.ceil(desired);
 };
 
 let innerTransitionHandler: ((e: TransitionEvent) => void) | null = null;
@@ -541,10 +569,15 @@ const handleResize = () => {
     }
 };
 
+let resizeTimeout: number | null = null;
+const debouncedUpdateHeight = () => {
+    if (resizeTimeout) clearTimeout(resizeTimeout);
+    resizeTimeout = window.setTimeout(updateContainerHeight, 100);
+};
+
 onMounted(() => {
     handleResize();
     rafId = requestAnimationFrame(tick);
-    updateContainerHeight();
 
     innerTransitionHandler = (e: TransitionEvent) => onInnerTransitionEnd(e);
     innerWebkitHandler = (e: Event) => onInnerTransitionEnd(e);
@@ -555,7 +588,10 @@ onMounted(() => {
 
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('resize', updateContainerHeight, { passive: true });
-    setTimeout(updateContainerHeight, 160);
+    
+    // Принудительно вызываем расчет высоты при загрузке для сохранения дизайна
+    setTimeout(updateContainerHeight, 100);
+    setTimeout(updateContainerHeight, 500); // Повторный вызов после подгрузки шрифтов/картинок
 });
 
 onUnmounted(() => {
@@ -563,8 +599,9 @@ onUnmounted(() => {
         cancelAnimationFrame(rafId);
         rafId = null;
     }
+    if (resizeTimeout) clearTimeout(resizeTimeout);
     window.removeEventListener('resize', handleResize);
-    window.removeEventListener('resize', updateContainerHeight);
+    window.removeEventListener('resize', debouncedUpdateHeight);
     if (innerTransitionHandler && innerRef.value)
         innerRef.value.removeEventListener(
             'transitionend',
@@ -586,6 +623,7 @@ onUnmounted(() => {
     isolation: isolate;
     will-change: auto;
     width: 100%;
+    min-height: 440px;
 }
 
 .service-card:hover,

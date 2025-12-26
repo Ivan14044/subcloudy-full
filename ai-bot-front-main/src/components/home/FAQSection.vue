@@ -54,26 +54,13 @@
 
         <div
             v-if="faqItems.length > 0"
-            itemscope
-            itemtype="https://schema.org/FAQPage"
             class="max-w-4xl mx-auto"
         >
             <div
                 v-for="(item, index) in faqItems"
                 :key="index"
-                itemprop="mainEntity"
-                itemscope
-                itemtype="https://schema.org/Question"
                 class="faq-item mb-4"
             >
-                <!-- SEO Metadata (Hidden from user, but visible to crawlers) -->
-                <div style="display: none;">
-                    <span itemprop="name">{{ item.question }}</span>
-                    <div itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
-                        <div itemprop="text">{{ item.answer }}</div>
-                    </div>
-                </div>
-
                 <div
                     class="liquid-glass-wrapper faq-question-wrapper rounded-lg overflow-hidden transition-all duration-300"
                     :class="{ 'faq-item-open': openIndex === index }"
@@ -139,7 +126,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import axios from 'axios';
 
@@ -153,36 +140,45 @@ const faqItems = ref<FAQItem[]>([]);
 const openIndex = ref<number | null>(null);
 const isLoading = ref(false);
 
-// Анимация раскрытия - оптимизирована для плавности
+// Анимация раскрытия - оптимизирована для плавности без Forced Layout
 const onEnter = (el: Element) => {
     const element = el as HTMLElement;
     element.style.height = '0';
     element.style.opacity = '0';
-    element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    // Используем ResizeObserver для получения высоты без принудительной компоновки
+    const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+            const height = entry.contentRect.height;
+            if (height > 0) {
+                element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+                element.style.height = height + 'px';
+                element.style.opacity = '1';
+                observer.disconnect();
+            }
+        }
+    });
+    
+    // Наблюдаем за внутренним контентом для получения его высоты
+    const content = element.querySelector('.faq-answer');
+    if (content) observer.observe(content);
 };
 
 const onAfterEnter = (el: Element) => {
     const element = el as HTMLElement;
-    const height = element.scrollHeight;
-    // Используем requestAnimationFrame для плавного перехода
-    requestAnimationFrame(() => {
-        element.style.height = height + 'px';
-        element.style.opacity = '1';
-    });
+    element.style.height = 'auto';
 };
 
 const onLeave = (el: Element) => {
     const element = el as HTMLElement;
-    const height = element.scrollHeight;
+    // Перед закрытием фиксируем текущую высоту
+    const height = element.offsetHeight;
     element.style.height = height + 'px';
-    element.style.opacity = '1';
-    element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
-    // Используем requestAnimationFrame для плавного перехода
+    
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            element.style.height = '0';
-            element.style.opacity = '0';
-        });
+        element.style.transition = 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1)';
+        element.style.height = '0';
+        element.style.opacity = '0';
     });
 };
 
@@ -214,6 +210,7 @@ const loadFAQ = async () => {
         if (response.data && response.data.success !== false) {
             const data = response.data.data || [];
             faqItems.value = Array.isArray(data) ? data : [];
+            updateFaqSchema();
         } else {
             faqItems.value = [];
         }
@@ -225,8 +222,40 @@ const loadFAQ = async () => {
     }
 };
 
+const updateFaqSchema = () => {
+    // Удаляем старый скрипт если он есть
+    const oldScript = document.getElementById('faq-jsonld');
+    if (oldScript) oldScript.remove();
+
+    if (faqItems.value.length === 0) return;
+
+    const schema = {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': faqItems.value.map(item => ({
+            '@type': 'Question',
+            'name': item.question,
+            'acceptedAnswer': {
+                '@type': 'Answer',
+                'text': item.answer
+            }
+        }))
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'faq-jsonld';
+    script.text = JSON.stringify(schema);
+    document.head.appendChild(script);
+};
+
 onMounted(() => {
     loadFAQ();
+});
+
+onBeforeUnmount(() => {
+    const oldScript = document.getElementById('faq-jsonld');
+    if (oldScript) oldScript.remove();
 });
 
 watch(() => locale.value, () => {

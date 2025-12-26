@@ -13,6 +13,8 @@
                         :alt="block.title"
                         width="64"
                         height="64"
+                        loading="lazy"
+                        decoding="async"
                         class="w-16 h-16 mb-4 object-contain relative z-10"
                         style="aspect-ratio: 1 / 1;"
                     />
@@ -24,7 +26,7 @@
                         <div v-if="block.our_price" class="text-2xl font-bold text-green-600 dark:text-green-400">
                             {{ block.our_price }}
                         </div>
-                        <div v-if="block.normal_price" class="text-sm text-gray-500 dark:text-gray-400 line-through">
+                        <div v-if="block.normal_price" class="text-sm text-gray-600 dark:text-gray-300 line-through">
                             {{ block.normal_price }}
                         </div>
                     </div>

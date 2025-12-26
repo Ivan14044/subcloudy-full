@@ -71,10 +71,10 @@
                         <div class="footer-payment">
                             <img 
                                 class="payment-logo" 
-                                src="/img/visa-mastercard.png" 
+                                src="/img/visa-mastercard.webp" 
                                 alt="Visa Mastercard"
-                                width="168"
-                                height="56"
+                                width="96"
+                                height="32"
                                 loading="lazy"
                                 decoding="async"
                             />

@@ -11,6 +11,7 @@
                     alt="Loading..."
                     width="80"
                     height="80"
+                    fetchpriority="high"
                     class="w-20 h-20 object-contain spin-slow-reverse"
                     style="aspect-ratio: 1 / 1;"
                 />
@@ -39,7 +40,7 @@ import { useLoadingStore } from '../stores/loading';
 import PluginWarningModal from './PluginWarningModal.vue';
 import { usePluginDetection } from '@/composables/usePluginDetection';
 
-const logo = '/img/logo_trans.png';
+const logo = '/img/logo_trans.webp';
 const isStartSessionPage = /^\/session-start(\/\d+)?$/.test(window.location.pathname);
 
 const props = defineProps<{

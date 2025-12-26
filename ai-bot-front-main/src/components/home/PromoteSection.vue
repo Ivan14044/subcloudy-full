@@ -7,7 +7,7 @@
                 <img src="/img/emoji-star.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Access" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.access.title') }}</h3>
-            <p class="text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.access.description') }}
             </p>
         </div>
@@ -16,7 +16,7 @@
                 <img src="/img/emoji-cash.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Pricing" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.pricing.title') }}</h3>
-            <p class="text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.pricing.description') }}
             </p>
         </div>
@@ -25,7 +25,7 @@
                 <img src="/img/emoji-hands.png" width="40" height="40" loading="lazy" decoding="async" class="max-h-[40px] max-w-[40px]" alt="Refund" style="aspect-ratio: 1 / 1;" />
             </div>
             <h3 class="text-[20px] mb-6 dark:text-white">{{ $t('promote.refund.title') }}</h3>
-            <p class="text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.refund.description') }}
             </p>
         </div>
@@ -45,7 +45,7 @@
             <h3 class="text-[20px] mb-6 dark:text-white">
                 {{ $t('promote.activation.title') }}
             </h3>
-            <p class="text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.activation.description') }}
             </p>
         </div>
@@ -56,7 +56,7 @@
             <h3 class="text-[20px] mb-6 dark:text-white">
                 {{ $t('promote.support.title') }}
             </h3>
-            <p class="text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.support.description') }}
             </p>
         </div>
@@ -67,7 +67,7 @@
             <h3 class="text-[20px] mb-6 dark:text-white">
                 {{ $t('promote.payment.title') }}
             </h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 leading-5">
+            <p class="text-sm text-gray-600 dark:text-gray-300 leading-5">
                 {{ $t('promote.payment.description') }}
             </p>
         </div>

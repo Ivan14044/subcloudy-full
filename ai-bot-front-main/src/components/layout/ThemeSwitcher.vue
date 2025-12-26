@@ -11,13 +11,18 @@
             </filter>
         </svg>
 
-        <label class="theme-switcher__option" :class="{ 'theme-switcher__option--active': !isDark }">
+        <label 
+            class="theme-switcher__option" 
+            :class="{ 'theme-switcher__option--active': !isDark }"
+            aria-label="Светлая тема"
+        >
             <input 
                 class="theme-switcher__input" 
                 type="radio" 
                 name="theme" 
                 value="light" 
                 :checked="!isDark"
+                aria-label="Светлая тема"
                 @change="setTheme(false)"
             />
             <svg class="theme-switcher__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 36 36">
@@ -26,13 +31,18 @@
             </svg>
         </label>
         
-        <label class="theme-switcher__option" :class="{ 'theme-switcher__option--active': isDark }">
+        <label 
+            class="theme-switcher__option" 
+            :class="{ 'theme-switcher__option--active': isDark }"
+            aria-label="Темная тема"
+        >
             <input 
                 class="theme-switcher__input" 
                 type="radio" 
                 name="theme" 
                 value="dark" 
                 :checked="isDark"
+                aria-label="Темная тема"
                 @change="setTheme(true)"
             />
             <svg class="theme-switcher__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 36 36">

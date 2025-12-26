@@ -58,6 +58,7 @@
             <div
                 class="liquid-glass-wrapper dashboard rounded-full px-4 py-1 flex items-center"
                 :class="isReady ? 'w-full gap-2 justify-between' : 'w-[64px] justify-center'"
+                style="contain: layout; will-change: width"
             >
                 <div class="liquid-glass-effect"></div>
                 <div class="liquid-glass-tint"></div>
@@ -65,9 +66,10 @@
                 <div class="liquid-glass-text flex items-center w-full"
                      :class="isReady ? 'gap-2 justify-between' : 'justify-center'"
                 >
-                    <div
+                    <a
+                        href="/"
                         class="flex items-center sm:gap-2 w-[32px] sm:w-[150px] xl:!w-[160px] cursor-pointer relative z-10"
-                        @click="handleClick()"
+                        @click.prevent="router.push('/')"
                     >
                         <img
                             :src="logo"
@@ -79,9 +81,9 @@
                             style="aspect-ratio: 1 / 1;"
                         />
                         <span class="text-xl font-semibold whitespace-nowrap hidden sm:flex text-gray-900 dark:text-white">
-                            {{ printedText }}
+                            {{ headerStore.printedText }}
                         </span>
-                    </div>
+                    </a>
                     <Transition
                         appear
                         enter-active-class="transition duration-500 ease-out"
@@ -148,7 +150,8 @@ watch(
         setTimeout(() => {
             headerStore.isReady = true;
 
-            setTimeout(startTypingEffect, 900);
+            // Запускаем печать текста только после завершения анимации расширения (1.5с)
+            setTimeout(startTypingEffect, 1500);
         }, 500);
     },
     { immediate: true }

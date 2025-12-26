@@ -38,7 +38,7 @@
                                 id="email"
                                 v-model="email"
                                 type="email"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.email')"
                                 required
                             />
@@ -54,7 +54,7 @@
                                 id="password"
                                 v-model="password"
                                 type="password"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.password')"
                                 required
                             />
@@ -67,7 +67,7 @@
                     <div class="flex flex-row items-center gap-2 justify-between">
                         <div class="relative">
                             <input id="remember" v-model="remember" type="checkbox" class="mr-2" />
-                            <label for="remember" class="text-sm dark:text-gray-300">
+                            <label for="remember" class="text-sm text-gray-700 dark:text-gray-300">
                                 {{ $t('auth.rememberMe') }}
                             </label>
                         </div>
@@ -93,7 +93,7 @@
                                 path: '/register',
                                 query: redirectQuery ? { redirect: redirectQuery } : undefined
                             }"
-                            class="inline-flex items-center justify-center ml-2 px-2.5 py-1 text-xs border rounded-md bg-white text-gray-900 hover:!text-white hover:!bg-blue-600 transition font-medium dark:bg-gray-800 dark:text-gray-100 dark:hover:!bg-blue-700 dark:hover:!text-white"
+                            class="inline-flex items-center justify-center ml-2 px-2.5 py-1 text-xs border border-gray-300 rounded-md bg-white text-gray-900 hover:!text-white hover:!bg-blue-600 transition font-medium dark:bg-gray-800 dark:text-gray-100 dark:hover:!bg-blue-700 dark:hover:!text-white"
                         >
                             {{ $t('auth.registerLink') }}
                         </router-link>

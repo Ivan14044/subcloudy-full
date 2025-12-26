@@ -4,18 +4,44 @@
             <li
                 v-for="(item, index) in allMenuItems"
                 :key="index"
-                class="cursor-pointer text-base !text-[14px] h-[30px] flex items-center leading-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-1.5 px-lg-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
-                @click.stop="handleClick(item)"
-                style="position: relative; z-index: 21; pointer-events: auto !important;"
+                class="flex items-center"
             >
-                {{ item.title }}
+                <a
+                    v-if="item.is_scroll"
+                    :href="item.link"
+                    class="cursor-pointer text-base !text-[14px] h-[30px] flex items-center leading-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-1.5 lg:px-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
+                    @click.stop.prevent="handleClick(item)"
+                    style="position: relative; z-index: 21; pointer-events: auto !important;"
+                >
+                    {{ item.title }}
+                </a>
+                <a
+                    v-else-if="item.is_blank"
+                    :href="item.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="cursor-pointer text-base !text-[14px] h-[30px] flex items-center leading-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-1.5 lg:px-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
+                    @click.stop="isMobileMenuOpen = false"
+                    style="position: relative; z-index: 21; pointer-events: auto !important;"
+                >
+                    {{ item.title }}
+                </a>
+                <router-link
+                    v-else
+                    :to="item.link"
+                    class="cursor-pointer text-base !text-[14px] h-[30px] flex items-center leading-[15px] hover:bg-indigo-200 dark:hover:bg-gray-700 transition-all duration-300 px-1.5 lg:px-2.5 py-2 rounded-lg whitespace-nowrap flex-shrink-0"
+                    @click.stop="isMobileMenuOpen = false"
+                    style="position: relative; z-index: 21; pointer-events: auto !important;"
+                >
+                    {{ item.title }}
+                </router-link>
             </li>
         </ul>
 
         <!-- Кнопка бургер для мобильной версии -->
         <button
             v-if="allMenuItems.length > 0"
-            class="flex items-center lg:hidden text-gray-700 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors !text-[15px] h-[30px] leading-[15px] duration-300 px-2 px-lg-3 py-2 rounded-lg"
+            class="flex items-center lg:hidden text-gray-700 hover:bg-indigo-200 dark:hover:bg-gray-700 transition-colors !text-[15px] h-[30px] leading-[15px] duration-300 px-2 lg:px-3 py-2 rounded-lg"
             :class="{ 'mr-[-20px]': isMobileMenuOpen }"
             @click="isMobileMenuOpen = true"
             :aria-label="$t('menu.openMenu')"

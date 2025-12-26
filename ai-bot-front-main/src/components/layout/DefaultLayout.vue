@@ -3,7 +3,9 @@
         <AnimatedBackdrop :is-dark="isDark" />
         <Header v-if="!route.meta.requiresGuest" />
         <main class="main-content">
-            <router-view v-if="!isLoading" />
+            <div :class="{ 'opacity-0 pointer-events-none': isLoading }">
+                <router-view />
+            </div>
         </main>
         <Footer v-if="!route.meta.requiresGuest" />
         <ScrollToTop />
@@ -14,17 +16,19 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, provide } from 'vue';
+import { defineProps, ref, provide, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import { useTheme } from '@/composables/useTheme';
 
 import Header from '@/components/layout/MainHeader.vue';
 import Footer from '@/components/layout/MainFooter.vue';
-import CookieBanner from '@/components/CookieBanner.vue';
-import ScrollToTop from '@/components/ScrollToTop.vue';
 import AnimatedBackdrop from '@/components/layout/AnimatedBackdrop.vue';
-import SupportButton from '@/components/SupportButton.vue';
-import SupportModal from '@/components/SupportModal.vue';
+
+// Асинхронная загрузка некритичных компонентов
+const CookieBanner = defineAsyncComponent(() => import('@/components/CookieBanner.vue'));
+const ScrollToTop = defineAsyncComponent(() => import('@/components/ScrollToTop.vue'));
+const SupportButton = defineAsyncComponent(() => import('@/components/SupportButton.vue'));
+const SupportModal = defineAsyncComponent(() => import('@/components/SupportModal.vue'));
 
 defineProps<{
     isLoading: boolean;

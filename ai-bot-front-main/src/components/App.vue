@@ -4,21 +4,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 
-import DefaultLayout from '@/components/layout/DefaultLayout.vue';
-import EmptyLayout from '@/components/layout/EmptyLayout.vue';
+// Асинхронная загрузка layout компонентов для уменьшения начального бандла
+const DefaultLayout = defineAsyncComponent(() => import('@/components/layout/DefaultLayout.vue'));
+const EmptyLayout = defineAsyncComponent(() => import('@/components/layout/EmptyLayout.vue'));
 import FullPageLoader from '@/components/FullPageLoader.vue';
 
-import { useServiceStore } from '@/stores/services';
-import { usePageStore } from '@/stores/pages';
-import { useOptionStore } from '@/stores/options';
-import { useNotificationStore } from '@/stores/notifications';
 import { useLoadingStore } from '@/stores/loading';
 import { useAuthStore } from '@/stores/auth';
-import { useSupportStore } from '@/stores/support';
 
 import logo from '@/assets/logo.webp';
 import { prefetchCriticalRoutes } from '@/utils/prefetchUtils';
@@ -52,31 +48,48 @@ onMounted(async () => {
 
     authStore.init();
 
+    // Динамически импортируем stores только когда они нужны
+    const { usePageStore } = await import('@/stores/pages');
+    const { useServiceStore } = await import('@/stores/services');
+    const { useOptionStore } = await import('@/stores/options');
+
     const pageStore = usePageStore();
     const serviceStore = useServiceStore();
     const optionStore = useOptionStore();
-    const notificationStore = useNotificationStore();
-    const supportStore = useSupportStore();
 
-    // Используем Promise.allSettled для устойчивости к ошибкам
-    const promises = [
+    // Загружаем только критичные данные для первой отрисовки
+    const criticalPromises = [
         pageStore.fetchData(locale.value),
         serviceStore.fetchData(),
-        optionStore.fetchData(),
-        // Загружаем уведомления только если пользователь авторизован
-        authStore.user ? notificationStore.fetchData() : Promise.resolve(),
-        // Инициализируем техподдержку в фоне (для уведомлений)
-        (localStorage.getItem('support_ticket_id') || authStore.isAuthenticated) 
-            ? supportStore.ensureTicket().then(ok => {
-                if (ok) {
-                    const pollEmail = authStore.isAuthenticated ? undefined : (supportStore.guestEmail || localStorage.getItem('support_guest_email') || undefined);
-                    supportStore.startPolling(pollEmail);
-                }
-            }) 
-            : Promise.resolve()
+        optionStore.fetchData()
     ];
 
-    await Promise.allSettled(promises);
+    await Promise.allSettled(criticalPromises);
+
+    // Откладываем загрузку некритичных данных
+    setTimeout(async () => {
+        const { useNotificationStore } = await import('@/stores/notifications');
+        const { useSupportStore } = await import('@/stores/support');
+        
+        const notificationStore = useNotificationStore();
+        const supportStore = useSupportStore();
+        
+        const nonCriticalPromises = [
+            // Загружаем уведомления только если пользователь авторизован
+            authStore.user ? notificationStore.fetchData() : Promise.resolve(),
+            // Инициализируем техподдержку в фоне (для уведомлений)
+            (localStorage.getItem('support_ticket_id') || authStore.isAuthenticated) 
+                ? supportStore.ensureTicket().then(ok => {
+                    if (ok) {
+                        const pollEmail = authStore.isAuthenticated ? undefined : (supportStore.guestEmail || localStorage.getItem('support_guest_email') || undefined);
+                        supportStore.startPolling(pollEmail);
+                    }
+                }) 
+                : Promise.resolve()
+        ];
+        
+        await Promise.allSettled(nonCriticalPromises);
+    }, 100);
 
     preloadImages([logo, `/img/lang/${locale.value}.png`]);
 

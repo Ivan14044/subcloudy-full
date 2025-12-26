@@ -176,6 +176,28 @@ button.swal2-cancel {
     scrollbar-color: rgba(100, 100, 100, 0.8) transparent;
 }
 
+/* Стабилизация макета для предотвращения CLS */
+.liquid-glass-wrapper.dashboard {
+    min-height: 44px;
+}
+
+#hero { min-height: 600px; }
+#savings { min-height: 500px; }
+#steps { min-height: 400px; }
+#services { min-height: 800px; }
+#articles { min-height: 600px; }
+#reviews { min-height: 500px; }
+#faq { min-height: 500px; }
+
+@media (max-width: 1024px) {
+    #hero { min-height: 400px; }
+    #services { min-height: 1200px; }
+}
+
+.footer-container {
+    min-height: 400px;
+}
+
 /* Убеждаемся, что main элемент не имеет прозрачности */
 main {
     position: relative;

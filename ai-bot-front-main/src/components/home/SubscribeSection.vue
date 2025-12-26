@@ -5,7 +5,7 @@
         >
             {{ $t('subscribe.title') }}
         </h2>
-        <p class="text-gray-500 dark:text-gray-400 mb-10 text-center text-lg leading-6">
+        <p class="text-gray-600 dark:text-gray-300 mb-10 text-center text-lg leading-6">
             {{ $t('subscribe.description') }}
         </p>
         <div class="w-full relative">
@@ -25,7 +25,7 @@
                     @blur="validateEmail"
                 />
                 <button
-                    class="bg-[#000] w-full max-w-[200px] flex items-center justify-center bg-blue-500 dark:bg-blue-900 hover:bg-blue-600 dark:hover:bg-blue-800 text-white py-2 rounded-[10px] absolute right-[6px] top-[6px] h-[52px] text-[20px] font-medium"
+                    class="w-full max-w-[200px] flex items-center justify-center bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 text-white py-2 rounded-[10px] absolute right-[6px] top-[6px] h-[52px] text-[20px] font-medium"
                     type="submit"
                 >
                     {{ $t('subscribe.button') }}

@@ -26,24 +26,28 @@
 	}
 	</script>
     <link rel="icon" type="image/webp" href="/img/logo.webp"/>
-    <!-- Иконки MDI для Vuetify (если нужны) -->
-    <link rel="stylesheet" href="/node_modules/@mdi/font/css/materialdesignicons.min.css">
+    
+    <!-- Предварительное подключение к источникам -->
+    <link rel="preconnect" href="https://subcloudy.com">
+    <link rel="dns-prefetch" href="https://subcloudy.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Preconnect для API запросов -->
+    <link rel="preconnect" href="https://subcloudy.com" crossorigin>
+    
+    <link rel="preload" href="/fonts/SFTSchriftedSansTRIAL-Regular.ttf" as="font" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" href="/fonts/SFTSchriftedSansTRIAL-Medium.ttf" as="font" type="font/ttf" crossorigin="anonymous">
 
-	<!-- Prefetch ресурсов для улучшения производительности -->
-	<link rel="prefetch" as="image" href="/img/logo.webp">
-	
-	<!-- Prefetch шрифтов (не критично для первой отрисовки) -->
-	<link rel="prefetch" as="font" href="/fonts/SFTSchriftedSansTRIAL-Regular.ttf" type="font/ttf" crossorigin="anonymous">
-	<link rel="prefetch" as="font" href="/fonts/SFTSchriftedSansTRIAL-Medium.ttf" type="font/ttf" crossorigin="anonymous">
-	<link rel="prefetch" as="font" href="/fonts/SFTSchriftedSansTRIAL-Bold.ttf" type="font/ttf" crossorigin="anonymous">
-	
-	<!-- DNS Prefetch для внешних ресурсов (если используются) -->
-	<link rel="dns-prefetch" href="//fonts.googleapis.com">
-	<link rel="dns-prefetch" href="//fonts.gstatic.com">
-
-    <!-- Критический CSS встроен для быстрого рендеринга -->
     <style>
-        header{position:fixed;top:0;left:0;height:60px;width:100%;z-index:2}html,body{overflow-x:hidden}html{scroll-behavior:smooth}img[alt="Logo"]{width:32px;height:32px;aspect-ratio:1/1;object-fit:contain}footer{min-height:400px}main{position:relative;z-index:1;opacity:1!important;filter:none!important}main>*{opacity:1!important;filter:none!important}img{max-width:100%;height:auto}picture img{width:100%;height:auto}.service-card__logo-img,.service-card__logo img{aspect-ratio:1/1;object-fit:contain}
+        header { position: fixed; top: 0; left: 0; height: 60px; width: 100%; z-index: 100; }
+        html, body { overflow-x: hidden; margin: 0; padding: 0; min-height: 100vh; background-color: #ffffff; }
+        .dark body { background-color: #030712; }
+        #app { min-height: 100vh; display: flex; flex-direction: column; }
+        main { flex: 1 0 auto; min-height: 100vh; }
+        
+        .hero-placeholder { min-height: 100vh; }
+        footer { min-height: 400px; }
+        .liquid-glass-wrapper.dashboard { height: 44px; }
     </style>
     <script>
       (function () {

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// Главная страница загружается сразу (критический контент)
-import MainPage from './pages/MainPage.vue';
+// Главная страница загружается динамически для уменьшения начального бандла
+const MainPage = () => import('./pages/MainPage.vue');
 // Остальные страницы загружаются динамически (lazy loading)
 const LoginPage = () => import('./components/auth/LoginPage.vue');
 const RegisterPage = () => import('./components/auth/RegisterPage.vue');

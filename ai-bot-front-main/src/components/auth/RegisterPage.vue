@@ -38,7 +38,7 @@
                                 id="name"
                                 v-model="name"
                                 type="text"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.name')"
                                 required
                             />
@@ -54,7 +54,7 @@
                                 id="email"
                                 v-model="email"
                                 type="email"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.email')"
                                 required
                             />
@@ -70,7 +70,7 @@
                                 id="password"
                                 v-model="password"
                                 type="password"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.password')"
                                 required
                             />
@@ -86,7 +86,7 @@
                                 id="passwordConfirmation"
                                 v-model="passwordConfirmation"
                                 type="password"
-                                class="input-field dark:!border-gray-500 dark:text-gray-300"
+                                class="input-field bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                                 :placeholder="$t('auth.passwordConfirmation')"
                                 required
                             />

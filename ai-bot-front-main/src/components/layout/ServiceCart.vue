@@ -1,10 +1,15 @@
 <template>
     <div
-        class="px-2 px-lg-3 d-flex h-[32px] rounded-lg transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-gray-700 cursor-pointer"
+        class="px-2 lg:px-3 flex h-[32px] rounded-lg transition-all duration-300 hover:bg-indigo-200 dark:hover:bg-gray-700 cursor-pointer"
         @click="router.push('/checkout')"
     >
         <!-- ShoppingBag icon -->
-        <button class="relative">
+        <button 
+            class="relative"
+            :aria-label="cartStore.items.length > 0 
+                ? `Корзина, ${cartStore.items.length} ${cartStore.items.length === 1 ? 'товар' : cartStore.items.length < 5 ? 'товара' : 'товаров'}`
+                : 'Корзина пуста'"
+        >
             <ShoppingBag class="w-[20px] h-auto" />
 
             <span
@@ -21,9 +26,11 @@
 import { ShoppingBag } from 'lucide-vue-next';
 import { useCartStore } from '@/stores/cart';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 
 const cartStore = useCartStore();
 const router = useRouter();
+const { t } = useI18n();
 </script>
 
 <style scoped>

@@ -538,7 +538,12 @@ const onAfterLeave = () => {
 
 const scrollToBottom = () => {
     if (messagesRef.value) {
-        messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+        // Используем requestAnimationFrame для батчинга чтений layout свойств
+        requestAnimationFrame(() => {
+            if (messagesRef.value) {
+                messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+            }
+        });
     }
 };
 
