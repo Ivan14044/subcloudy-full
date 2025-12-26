@@ -24,6 +24,8 @@ class AuthService
 
         app(NotificationTemplateService::class)->sendToUser($user, 'registration');
 
+        EmailService::send('welcome', $user->id);
+
         NotifierService::send(
             'registration',
             __('notifier.new_user_title'),
@@ -83,4 +85,5 @@ class AuthService
         return $user;
     }
 }
+
 

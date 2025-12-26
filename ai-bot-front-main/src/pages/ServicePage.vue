@@ -204,6 +204,7 @@ import { useCartStore } from '@/stores/cart';
 import { useAuthStore } from '@/stores/auth';
 import { useOptionStore } from '@/stores/options';
 import { useWebP } from '@/composables/useWebP';
+import { updateWebPageSEO } from '@/utils/seo';
 
 interface Service {
     id: number;
@@ -336,10 +337,33 @@ onMounted(async () => {
     const current = service.value;
     if (!current) return;
 
+    updateServiceSEO();
+
     isAdded.value = cartStore.hasService(current.id);
     if (isAdded.value) {
         addedState.value = 'checkout';
     }
+});
+
+const updateServiceSEO = () => {
+    const s = service.value;
+    if (!s) return;
+
+    const name = getTranslation(s, 'name') || s.name;
+    const subtitle = getTranslation(s, 'subtitle') || '';
+    const description = getTranslation(s, 'short_description_card') || subtitle;
+
+    updateWebPageSEO({
+        title: `${name} — Подписка и оплата | SubCloudy`,
+        description: description,
+        canonical: `/service/${s.id}`,
+        image: s.logo,
+        locale: locale.value
+    });
+};
+
+watch(locale, () => {
+    updateServiceSEO();
 });
 
 watch(

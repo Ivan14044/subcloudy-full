@@ -348,6 +348,11 @@
           "closed": "Закрыто"
         },
         "statusChangedTo": "Статус изменен на: {status}",
+        "systemNotifications": {
+          "statusChanged": "Статус тикета изменен на: {status}",
+          "adminRepliedIn": "Администратор ответил вам в {channel}",
+          "ticketClosed": "Это обращение закрыто. Вы можете написать новое сообщение, чтобы возобновить диалог."
+        },
         "errors": {
       "ticketNotFound": "Тикет не найден",
       "createTicketFailed": "Не удалось создать тикет",
@@ -355,7 +360,9 @@
       "createTicketError": "Ошибка при создании тикета",
       "sendMessageError": "Ошибка при отправке сообщения",
       "telegramLinkFailed": "Не удалось получить ссылку Telegram",
-      "telegramLinkError": "Ошибка при получении ссылки Telegram"
+      "telegramLinkError": "Ошибка при получении ссылки Telegram",
+      "accessDeniedSession": "Ошибка доступа: неверный токен сессии. Начните новый диалог.",
+      "accessDeniedEmail": "Ошибка доступа: email не совпадает."
     }
   }
 }

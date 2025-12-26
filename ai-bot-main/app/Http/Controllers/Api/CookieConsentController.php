@@ -14,7 +14,10 @@ class CookieConsentController extends Controller
         $ip = $request->header('CF-Connecting-IP') ?? $request->ip();
         $countryCode = $this->getCountryCodeFromIp($ip);
 
-        $allowedCountries = json_decode(Option::get('cookie_countries', '[]'), true);
+        $allowedCountries = Option::get('cookie_countries', []);
+        if (is_string($allowedCountries)) {
+            $allowedCountries = json_decode($allowedCountries, true) ?: [];
+        }
         $showBanner = in_array($countryCode, $allowedCountries);
 
         return response()->json([
@@ -25,14 +28,28 @@ class CookieConsentController extends Controller
 
     protected function getCountryCodeFromIp(string $ip): ?string
     {
+        // 1. Пробуем через локальную базу GeoIP2
         if (class_exists(\GeoIp2\Database\Reader::class)) {
             try {
-                $reader = new \GeoIp2\Database\Reader(storage_path('app/geoip/GeoLite2-Country.mmdb'));
-                $record = $reader->country($ip);
-                return $record->country->isoCode;
+                $dbPath = storage_path('app/geoip/GeoLite2-Country.mmdb');
+                if (file_exists($dbPath)) {
+                    $reader = new \GeoIp2\Database\Reader($dbPath);
+                    $record = $reader->country($ip);
+                    return $record->country->isoCode;
+                }
             } catch (\Exception $e) {
-                return null;
+                \Log::warning('Local GeoIP failed: ' . $e->getMessage());
             }
+        }
+
+        // 2. Фолбэк: используем бесплатный внешний API (ip-api.com)
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(3)->get("http://ip-api.com/json/{$ip}?fields=countryCode");
+            if ($response->successful()) {
+                return $response->json('countryCode');
+            }
+        } catch (\Exception $e) {
+            \Log::error('External GeoIP fallback failed: ' . $e->getMessage());
         }
 
         return null;

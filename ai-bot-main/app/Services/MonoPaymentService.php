@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Client\Response;
 
 class MonoPaymentService
@@ -38,13 +39,24 @@ class MonoPaymentService
     /**
      * Списание денег по токену карты
      */
-    public static function chargeWithToken(string $cardToken, float $amount): array|false
+    public static function chargeWithToken(string $cardToken, float $amount, ?string $redirectUrl = null, ?string $webHookUrl = null): array|false
     {
-        return self::makeRequest('post', 'wallet/payment', [
+        $data = [
+            'cardToken' => $cardToken,
             'amount' => intval($amount * 100),
             'ccy' => self::CURRENCY_CODE,
-            'token' => $cardToken,
-        ]);
+            'initiationKind' => 'merchant', // merchant - платіж з ініціативи мерчанта (регулярний платіж)
+        ];
+
+        if ($redirectUrl) {
+            $data['redirectUrl'] = $redirectUrl;
+        }
+
+        if ($webHookUrl) {
+            $data['webHookUrl'] = $webHookUrl;
+        }
+
+        return self::makeRequest('post', 'wallet/payment', $data);
     }
 
     /**
@@ -56,7 +68,8 @@ class MonoPaymentService
             'walletId' => md5($walletId),
         ]);
 
-        return $response['accounts'] ?? [];
+        // Согласно документации Mono, ответ содержит поле 'wallet' с массивом карт
+        return $response['wallet'] ?? [];
     }
 
     /**
@@ -65,7 +78,22 @@ class MonoPaymentService
     private static function makeRequest(string $method, string $endpoint, array $data): array|false
     {
         $token = config('monobank.token');
+        if (!$token) {
+            Log::error('MonoPaymentService: Token not configured', [
+                'endpoint' => $endpoint,
+            ]);
+            return false;
+        }
+
         $url = "https://api.monobank.ua/api/merchant/{$endpoint}";
+
+        Log::info('MonoPaymentService: Making request', [
+            'method' => $method,
+            'endpoint' => $endpoint,
+            'url' => $url,
+            'data' => $data,
+            'token_present' => $token ? 'yes' : 'no',
+        ]);
 
         $http = Http::withHeaders(['X-Token' => $token]);
 
@@ -75,9 +103,22 @@ class MonoPaymentService
             : $http->post($url, $data);
 
         if ($response->failed()) {
+            Log::error('MonoPaymentService: Request failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'json' => $response->json(),
+                'endpoint' => $endpoint,
+                'data' => $data,
+            ]);
             return false;
         }
 
-        return $response->json();
+        $result = $response->json();
+        Log::info('MonoPaymentService: Request successful', [
+            'endpoint' => $endpoint,
+            'response' => $result,
+        ]);
+
+        return $result;
     }
 }

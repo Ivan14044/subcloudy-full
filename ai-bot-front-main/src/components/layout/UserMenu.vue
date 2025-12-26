@@ -104,6 +104,7 @@ import { useRouter } from 'vue-router';
 import { LogIn, User, ChevronDown, LogOut, UserPen, CalendarCheck } from 'lucide-vue-next';
 import { useCartStore } from '@/stores/cart';
 
+// SAVED BY AI
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const router = useRouter();
@@ -153,7 +154,7 @@ const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
     
     // ИГНОРИРУЕМ клики внутри модального окна поддержки
-    const supportModal = document.querySelector('.modal-overlay');
+    const supportModal = document.querySelector('.support-modal-container');
     if (supportModal && supportModal.contains(target)) {
         return;
     }

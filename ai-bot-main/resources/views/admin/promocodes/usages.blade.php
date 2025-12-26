@@ -23,7 +23,7 @@
                             </select>
                         </div>
                         <div class="form-inline mr-3 mb-2">
-                            <label for="userFilter" class="mr-2">{{ __('admin.user') }}:</label>
+                            <label for="userFilter" class="mr-2">{{ __('admin.user_label') }}:</label>
                             <select id="userFilter" class="select2 filter-select form-control form-control-sm">
                                 <option value="">{{ __('admin.all') }}</option>
                             </select>
@@ -35,7 +35,7 @@
                         <tr>
                             <th style="width: 60px">{{ __('admin.id') }}</th>
                             <th>{{ __('admin.promocodes') }}</th>
-                            <th>{{ __('admin.user') }}</th>
+                            <th>{{ __('admin.user_label') }}</th>
                             <th>Заказ</th>
                             <th>Использовано</th>
                             <th>{{ __('admin.created_at') }}</th>

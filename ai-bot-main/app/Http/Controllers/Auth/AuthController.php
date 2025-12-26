@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -142,6 +143,8 @@ class AuthController extends Controller
             }
 
             $tokens = $this->authService->createTokens($user);
+
+            event(new Login('sanctum', $user, $request->boolean('remember')));
 
             $user->load(['subscriptions' => fn($q) => $q->orderBy('id', 'desc')]);
             $user->active_services = $user->activeServices();

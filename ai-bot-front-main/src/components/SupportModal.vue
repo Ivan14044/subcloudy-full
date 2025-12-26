@@ -3,11 +3,11 @@
         <Transition name="modal-fade" @after-leave="onAfterLeave">
                 <div 
                     v-if="supportStore.isModalVisible" 
-                    class="modal-overlay" 
-                    @click.self="handleClose(true)"
-                    @mousedown.self="handleOverlayMouseDown"
+                    class="support-modal-container"
+                    ref="modalContainerRef"
+                    @mousedown.stop
+                    @touchstart.stop
                 >
-                <div class="modal-container">
                     <!-- Liquid Glass Effect -->
                     <div class="liquid-glass-effect"></div>
                     <div class="liquid-glass-tint"></div>
@@ -46,9 +46,7 @@
                                     type="button" 
                                     class="channel-card" 
                                     :disabled="channelLoading !== null"
-                                    @click.capture.stop.prevent="handleChannelClick('web', $event)"
-                                    @mousedown.capture.stop.prevent
-                                    @mouseup.capture.stop.prevent
+                                    @click="handleChannelClick('web', $event)"
                                 >
                                     <div class="channel-icon-wrapper">
                                         <div v-if="channelLoading === 'web'" class="channel-loading">
@@ -66,9 +64,7 @@
                                     type="button" 
                                     class="channel-card" 
                                     :disabled="channelLoading !== null"
-                                    @click.capture.stop.prevent="handleChannelClick('telegram', $event)"
-                                    @mousedown.capture.stop.prevent
-                                    @mouseup.capture.stop.prevent
+                                    @click="handleChannelClick('telegram', $event)"
                                 >
                                     <div class="channel-icon-wrapper">
                                         <div v-if="channelLoading === 'telegram'" class="channel-loading">
@@ -99,7 +95,8 @@
                                     type="button"
                                     class="submit-button"
                                     :disabled="!isEmailValid || isLoading"
-                                    @click="handleEmailSubmit"
+                                    @click.stop="handleEmailSubmit"
+                                    @mousedown.stop="(e) => { console.log('[SupportModal] Submit button mousedown event', { target: e.target, currentTarget: e.currentTarget }); }"
                                 >
                                     <span v-if="isLoading" class="button-spinner"></span>
                                     <span v-else>{{ safeT('support.startChat', 'Начать чат') }}</span>
@@ -109,25 +106,25 @@
 
                         <div v-else-if="step === 'chat'" class="step-container">
                             <div class="messages-wrapper" ref="messagesRef">
-                                <div v-if="isLoading && !messages.length" class="loading-state">
+                                <div v-if="isLoading && (!messages || !messages.length)" class="loading-state">
                                     <div class="spinner"></div>
                                     <p>{{ safeT('support.loading', 'Загрузка сообщений...') }}</p>
                                 </div>
-                                <div v-else-if="!messages.length" class="empty-state">
+                                <div v-else-if="!messages || !messages.length" class="empty-state">
                                     <p>{{ safeT('support.noMessages', 'Нет сообщений. Напишите нам!') }}</p>
                                 </div>
                                 <div v-else class="messages-list">
                                     <div 
                                         v-for="(msg, index) in messages" 
                                         :key="msg.id || index"
-                                        :class="['message-item', `message-${msg.sender_type}`]"
+                                        :class="['message-item', `message-${msg.sender_type}`, { 'system-msg-container': !msg.text && !msg.image_url }]"
                                     >
-                                        <div class="message-bubble shadow-sm">
-                                            <!-- Уведомление о смене статуса (если есть в данных сообщения) -->
-                                            <div v-if="shouldShowStatusNotification(msg, index)" class="system-notification">
-                                                {{ t('support.systemNotifications.statusChanged', { status: t(`support.statuses.${msg.ticket_status}`) }) }}
-                                            </div>
+                                        <!-- Уведомление о смене статуса -->
+                                        <div v-if="shouldShowStatusNotification(msg, index)" class="system-notification">
+                                            {{ t('support.systemNotifications.statusChanged', { status: t(`support.statuses.${msg.ticket_status}`) }) }}
+                                        </div>
 
+                                        <div v-if="msg.text || msg.image_url" class="message-bubble shadow-sm">
                                             <div v-if="msg.image_url" class="message-image-wrapper">
                                                 <img 
                                                     :src="msg.image_url" 
@@ -140,10 +137,26 @@
                                             <span class="message-time">{{ formatTime(msg.created_at) }}</span>
                                         </div>
                                     </div>
+
+                                    <!-- Уведомление об ответе в другом канале -->
+                                    <div v-if="ticket?.other_channel_reply" class="system-notification other-channel-alert">
+                                        {{ t('support.systemNotifications.adminRepliedIn', { channel: ticket.other_channel_reply === 'telegram' ? 'Telegram' : 'Web' }) }}
+                                    </div>
+
+                                    <!-- Уведомление о закрытии тикета -->
+                                    <div v-if="ticket?.status === 'closed'" class="system-notification closed-ticket-alert">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ t('support.systemNotifications.ticketClosed') }}
+                                    </div>
                                 </div>
                             </div>
 
                             <div v-if="error" class="error-message">
+                                <svg class="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
                                 {{ translateError(error) }}
                             </div>
 
@@ -156,7 +169,13 @@
                                 </div>
                             </div>
 
-                            <div class="message-input-wrapper">
+                            <div 
+                                class="message-input-wrapper"
+                                @dragover.prevent="isDragging = true"
+                                @dragleave.prevent="isDragging = false"
+                                @drop.prevent="handleDrop"
+                                :class="{ 'dragging': isDragging }"
+                            >
                                 <button class="attach-button" @click="triggerFileInput" :disabled="isLoading">
                                     <PaperclipIcon class="attach-icon" />
                                 </button>
@@ -164,14 +183,14 @@
                                     type="file" 
                                     ref="fileInput" 
                                     class="hidden" 
-                                    accept="image/*" 
+                                    accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" 
                                     @change="handleFileChange"
                                 />
                                 
                                 <input
                                     v-model="messageText"
                                     type="text"
-                                    :placeholder="safeT('support.messagePlaceholder', 'Напишите сообщение...')"
+                                    :placeholder="isDragging ? 'Отпустите файл чтобы загрузить' : safeT('support.messagePlaceholder', 'Напишите сообщение...')"
                                     class="message-input"
                                     @keyup.enter="handleSendMessage"
                                     :disabled="isLoading"
@@ -198,7 +217,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </Transition>
     </Teleport>
 </template>
@@ -222,14 +240,25 @@ const email = ref('');
 const messageText = ref('');
 const messagesRef = ref<HTMLElement | null>(null);
 const emailInputRef = ref<HTMLInputElement | null>(null);
+const modalContainerRef = ref<HTMLElement | null>(null);
 
 // Состояния для файлов
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
+const isDragging = ref(false);
 
 // Геттеры данных из стора
-const messages = computed(() => supportStore.messages);
+const messages = computed(() => {
+    const msgs = supportStore.ticket?.messages || [];
+    console.log('[SupportModal] messages computed', {
+        ticket: supportStore.ticket,
+        messages: msgs,
+        messagesLength: msgs.length,
+        isArray: Array.isArray(msgs)
+    });
+    return msgs;
+});
 const ticket = computed(() => supportStore.ticket);
 const isLoading = computed(() => supportStore.loading);
 const error = computed(() => supportStore.error);
@@ -257,28 +286,21 @@ const open = async () => {
     // Сначала открываем само окно в сторе
     supportStore.setModalVisible(true);
     
-    // Если уже есть тикет в сторе, переходим сразу в чат
-    if (supportStore.ticket) {
-        step.value = 'chat';
+    // Разрешаем скролл страницы
+    document.body.style.setProperty('overflow', 'auto', 'important');
+    document.documentElement.style.setProperty('overflow', 'auto', 'important');
+    document.body.style.setProperty('pointer-events', 'auto', 'important');
+    
+    // Если мы УЖЕ находимся в режиме чата (открыли, пообщались, закрыли и снова открыли без релоада)
+    if (supportStore.ticket && step.value === 'chat') {
+        selectedChannel.value = 'web';
         supportStore.startPolling(authStore.isAuthenticated ? undefined : supportStore.guestEmail || undefined);
         await nextTick();
         scrollToBottom();
         return;
     }
 
-    // Если есть сохраненные данные или пользователь авторизован, пытаемся восстановить
-    const savedId = localStorage.getItem('support_ticket_id');
-    if (savedId || authStore.isAuthenticated) {
-        const ok = await supportStore.ensureTicket();
-        if (ok) {
-            step.value = 'chat';
-            supportStore.startPolling(authStore.isAuthenticated ? undefined : supportStore.guestEmail || undefined);
-            await nextTick();
-            scrollToBottom();
-            return;
-        }
-    }
-
+    // Во всех остальных случаях (первый раз после релоада или первый вход) - всегда показываем выбор каналов
     step.value = 'channel';
     selectedChannel.value = null;
     email.value = authStore.isAuthenticated ? (authStore.user?.email || '') : (localStorage.getItem('support_guest_email') || '');
@@ -300,97 +322,106 @@ const handleBack = () => {
 };
 
 const handleChannelClick = async (channel: 'web' | 'telegram', event?: Event) => {
-    // Явные логи для отладки
-    console.warn('[SupportModal] ===== HANDLE CHANNEL CLICK START =====', { channel, isVisible: supportStore.isModalVisible, step: step.value, hasEvent: !!event });
-    console.log('[SupportModal] handleChannelClick START', { channel, isVisible: supportStore.isModalVisible, step: step.value, hasEvent: !!event });
-    
     if (event) {
         event.stopPropagation();
         event.preventDefault();
-        event.stopImmediatePropagation();
-        console.log('[SupportModal] Event stopped and prevented');
     }
     
-    // КРИТИЧЕСКИЙ ФИКС: Убедиться, что модальное окно открыто ДО любых асинхронных операций
     if (!supportStore.isModalVisible) {
-        console.log('[SupportModal] Modal was closed, reopening...');
         supportStore.setModalVisible(true);
     }
     
     selectedChannel.value = channel;
+    
+    // Если выбран Telegram, просто перенаправляем без создания тикета на сайте
+    if (channel === 'telegram') {
+        const botUsername = 'subcloudy_support_bot';
+        window.open(`https://t.me/${botUsername}`, '_blank');
+        handleClose(true);
+        return;
+    }
+
     channelLoading.value = channel;
     
-    console.log('[SupportModal] Channel selected, loading started', { channel, isVisible: supportStore.isModalVisible, step: step.value });
-
     try {
-        // Если выбран Telegram и пользователь - гость, пропускаем ввод email
-        if (channel === 'telegram' && !authStore.isAuthenticated) {
-            console.log('[SupportModal] Telegram selected by guest, skipping email step');
-            await initializeChat();
-            return;
-        }
-
         // Если пользователь не авторизован и выбран Web, запрашиваем email
-        if (!authStore.isAuthenticated && channel === 'web') {
-            console.log('[SupportModal] User not authenticated, switching to email step');
+        if (!authStore.isAuthenticated) {
             step.value = 'email';
-            // КРИТИЧЕСКИЙ ФИКС: Использовать setTimeout для гарантии, что DOM обновился
             await nextTick();
-            await new Promise(resolve => setTimeout(resolve, 0));
-            
+            await new Promise(resolve => setTimeout(resolve, 50));
             emailInputRef.value?.focus();
-            console.log('[SupportModal] Email step initialized', { isVisible: supportStore.isModalVisible, step: step.value });
         } else {
             // Для авторизованных пользователей сразу запускаем чат
-            console.log('[SupportModal] User authenticated, initializing chat');
             await initializeChat();
         }
     } catch (error) {
         console.error('[SupportModal] Error in handleChannelClick', error);
     } finally {
         channelLoading.value = null;
-        console.log('[SupportModal] handleChannelClick END', { channel, isVisible: supportStore.isModalVisible, step: step.value });
     }
 };
 
 const handleEmailSubmit = async () => {
-    if (!isEmailValid.value || isLoading.value) return;
+    console.log('[SupportModal] handleEmailSubmit called', {
+        isEmailValid: isEmailValid.value,
+        isLoading: isLoading.value,
+        email: email.value
+    });
+    
+    if (!isEmailValid.value || isLoading.value) {
+        console.log('[SupportModal] handleEmailSubmit: validation failed, returning');
+        return;
+    }
+    
+    console.log('[SupportModal] handleEmailSubmit: saving email and initializing chat');
     localStorage.setItem('support_guest_email', email.value.trim());
     await initializeChat();
+    console.log('[SupportModal] handleEmailSubmit: initializeChat completed');
 };
 
 const initializeChat = async () => {
-    console.log('[SupportModal] initializeChat START', { 
-        isAuthenticated: authStore.isAuthenticated, 
+    console.log('[SupportModal] initializeChat: START', {
+        isAuthenticated: authStore.isAuthenticated,
+        email: email.value,
         selectedChannel: selectedChannel.value,
-        isVisible: supportStore.isModalVisible,
-        step: step.value
+        step: step.value,
+        isModalVisible: supportStore.isModalVisible
     });
     
-    const emailValue = authStore.isAuthenticated ? undefined : email.value.trim();
-    const isTelegramGuest = selectedChannel.value === 'telegram' && !authStore.isAuthenticated;
-    const ok = await supportStore.ensureTicket(emailValue, isTelegramGuest);
-    
-    console.log('[SupportModal] Ticket ensured', { ok, isVisible: supportStore.isModalVisible, step: step.value });
-    
-    if (!ok) {
-        step.value = authStore.isAuthenticated ? 'channel' : 'email';
-        console.log('[SupportModal] Ticket creation failed, returning to step', { step: step.value });
-        return;
-    }
+    try {
+        const emailValue = authStore.isAuthenticated ? undefined : email.value.trim();
+        const isTelegramGuest = selectedChannel.value === 'telegram' && !authStore.isAuthenticated;
+        
+        console.log('[SupportModal] initializeChat: calling ensureTicket', { emailValue, isTelegramGuest });
+        
+        const ok = await supportStore.ensureTicket(emailValue, isTelegramGuest);
+        
+        console.log('[SupportModal] initializeChat: ensureTicket result', { ok, error: supportStore.error });
+        
+        if (!ok) {
+            console.error('[SupportModal] initializeChat: ensureTicket failed:', supportStore.error);
+            step.value = authStore.isAuthenticated ? 'channel' : 'email';
+            return;
+        }
 
-    if (selectedChannel.value === 'telegram') {
-        console.log('[SupportModal] Redirecting to Telegram');
-        await handleTelegramRedirect();
-        return;
-    }
+        if (selectedChannel.value === 'telegram') {
+            console.log('[SupportModal] initializeChat: redirecting to Telegram');
+            await handleTelegramRedirect();
+            return;
+        }
 
-    console.log('[SupportModal] Switching to chat step');
-    step.value = 'chat';
-    supportStore.startPolling(emailValue);
-    await nextTick();
-    scrollToBottom();
-    console.log('[SupportModal] Chat initialized', { isVisible: supportStore.isModalVisible, step: step.value });
+        console.log('[SupportModal] initializeChat: switching to chat step');
+        step.value = 'chat';
+        console.log('[SupportModal] initializeChat: step changed to chat, starting polling');
+        supportStore.startPolling(emailValue);
+        await nextTick();
+        console.log('[SupportModal] initializeChat: scrolling to bottom');
+        scrollToBottom();
+        console.log('[SupportModal] initializeChat: COMPLETED SUCCESSFULLY');
+    } catch (err) {
+        console.error('[SupportModal] initializeChat: FATAL ERROR', err);
+        alert('Произошла ошибка при запуске чата. Пожалуйста, попробуйте еще раз.');
+    }
 };
 
 const triggerFileInput = () => fileInput.value?.click();
@@ -398,9 +429,35 @@ const triggerFileInput = () => fileInput.value?.click();
 const handleFileChange = (event: Event) => {
     const input = event.target as HTMLInputElement;
     if (input.files?.length) {
-        selectedFile.value = input.files[0];
-        previewUrl.value = URL.createObjectURL(selectedFile.value);
+        processFile(input.files[0]);
     }
+};
+
+const handleDrop = (event: DragEvent) => {
+    isDragging.value = false;
+    
+    if (event.dataTransfer?.files?.length) {
+        const file = event.dataTransfer.files[0];
+        processFile(file);
+    }
+};
+
+const processFile = (file: File) => {
+    // Проверка типа файла
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Допустимы только изображения (JPEG, PNG, GIF, WebP)');
+        return;
+    }
+    
+    // Проверка размера (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Размер файла не должен превышать 5MB');
+        return;
+    }
+    
+    selectedFile.value = file;
+    previewUrl.value = URL.createObjectURL(file);
 };
 
 const removeFile = () => {
@@ -435,53 +492,48 @@ const handleSendMessage = async () => {
     scrollToBottom();
 };
 
-const handleTelegramRedirect = async () => {
-    if (!ticket.value?.id) return;
-    const link = await supportStore.telegramLink();
-    if (link) {
-        window.open(link, '_blank');
-        handleClose();
-    }
+const handleTelegramRedirect = () => {
+    const botUsername = 'subcloudy_support_bot';
+    window.open(`https://t.me/${botUsername}`, '_blank');
+    supportStore.stopPolling();
+    handleClose(true);
 };
 
-const handleOpenTelegram = async () => {
-    await handleTelegramRedirect();
+const handleOpenTelegram = () => {
+    handleTelegramRedirect();
 };
 
 const handleClose = (forceClose = false) => {
-    console.log('[SupportModal] handleClose called', { step: step.value, isVisible: supportStore.isModalVisible, forceClose });
+    console.log('[SupportModal] handleClose called', {
+        forceClose,
+        step: step.value,
+        isModalVisible: supportStore.isModalVisible,
+        stackTrace: new Error().stack
+    });
     
-    // Если закрытие принудительное (через кнопку "Закрыть") - разрешаем на любом шаге
     if (forceClose) {
-        console.log('[SupportModal] Force close - closing modal');
+        console.log('[SupportModal] handleClose: force closing modal');
         supportStore.setModalVisible(false);
-        // Не сбрасываем всё, чтобы сохранить состояние чата при повторном открытии
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+        document.body.style.pointerEvents = '';
         return;
     }
     
-    // Для клика по overlay - блокируем на шагах channel и email
     if (step.value === 'channel' || step.value === 'email') {
-        console.warn('[SupportModal] Attempted to close modal on channel/email step via overlay - prevented', { step: step.value });
+        console.log('[SupportModal] handleClose: not closing - step is', step.value);
         return;
     }
     
-    // Обычное закрытие на шаге chat
-    console.log('[SupportModal] Closing modal');
+    console.log('[SupportModal] handleClose: closing modal normally');
     supportStore.setModalVisible(false);
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.body.style.pointerEvents = '';
 };
 
-// Добавить обработчик после завершения анимации
 const onAfterLeave = () => {
-    // Здесь можно делать дополнительную очистку если нужно
-};
-
-// Предотвращаем закрытие при mousedown на overlay во время работы с каналами
-const handleOverlayMouseDown = (event: MouseEvent) => {
-    if (step.value === 'channel' || step.value === 'email') {
-        event.preventDefault();
-        event.stopPropagation();
-        console.log('[SupportModal] Overlay mousedown prevented on channel/email step');
-    }
+    // Очистка если нужно
 };
 
 const scrollToBottom = () => {
@@ -492,40 +544,17 @@ const scrollToBottom = () => {
 
 const formatTime = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-// Функция для перевода ошибок
 const translateError = (error: string | null): string => {
     if (!error) return '';
-    
-    // Пытаемся найти ключ локализации для ошибки
     const errorKeys: Record<string, string> = {
-        'Тикет не найден': 'support.errors.ticketNotFound',
+        'Ticket not found': 'support.errors.ticketNotFound',
         'Не удалось создать тикет': 'support.errors.createTicketFailed',
-        'Не удалось отправить сообщение': 'support.errors.sendMessageFailed',
-        'Ошибка при создании тикета': 'support.errors.createTicketError',
-        'Ошибка при отправке сообщения': 'support.errors.sendMessageError',
-        'Не удалось получить ссылку Telegram': 'support.errors.telegramLinkFailed',
-        'Ошибка при получении ссылки Telegram': 'support.errors.telegramLinkError',
+        'Access denied (session mismatch)': 'support.errors.accessDeniedSession',
+        'Access denied (email mismatch)': 'support.errors.accessDeniedEmail',
     };
     
     const key = errorKeys[error];
-    if (key) {
-        try {
-            return t(key);
-        } catch {
-            return error;
-        }
-    }
-    
-    // Если это уже переведенная ошибка или ключ локализации
-    if (error.startsWith('support.')) {
-        try {
-            return t(error);
-        } catch {
-            return error;
-        }
-    }
-    
-    return error;
+    return key ? t(key) : error;
 };
 
 const handleNotificationEvent = (event: any) => {
@@ -533,43 +562,132 @@ const handleNotificationEvent = (event: any) => {
     console.log('Support notification:', type);
 };
 
-watch(() => messages.value.length, () => nextTick(scrollToBottom));
+watch(() => messages.value?.length ?? 0, () => {
+    if (messages.value && Array.isArray(messages.value)) {
+        nextTick(scrollToBottom);
+    }
+});
 
-// Обработчик клавиши Escape для закрытия модального окна
 const handleEscape = (event: KeyboardEvent) => {
+    console.log('[SupportModal] handleEscape called', {
+        key: event.key,
+        isModalVisible: supportStore.isModalVisible
+    });
+    
     if (event.key === 'Escape' && supportStore.isModalVisible) {
-        handleClose(true); // Принудительное закрытие через Escape
+        console.log('[SupportModal] handleEscape: closing modal via Escape key');
+        handleClose(true);
     }
 };
 
+const handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    
+    console.log('[SupportModal] handleClickOutside called', {
+        target: target?.tagName,
+        targetClass: target?.className,
+        targetId: target?.id,
+        step: step.value,
+        isModalVisible: supportStore.isModalVisible,
+        modalContainerRefExists: !!modalContainerRef.value
+    });
+    
+    // Проверяем, был ли клик внутри контейнера модалки.
+    if (modalContainerRef.value && modalContainerRef.value.contains(target)) {
+        console.log('[SupportModal] handleClickOutside: click is inside modal container, ignoring');
+        return;
+    }
+    
+    // Дополнительная проверка: если клик был на кнопке "Начать чат" или её дочерних элементах, игнорируем
+    const submitButton = target.closest('.submit-button');
+    if (submitButton) {
+        console.log('[SupportModal] handleClickOutside: click is on submit button, ignoring', {
+            submitButton: submitButton.className
+        });
+        return;
+    }
+
+    console.log('[SupportModal] handleClickOutside: checking if should close', {
+        step: step.value,
+        isModalVisible: supportStore.isModalVisible,
+        shouldClose: step.value !== 'chat' && supportStore.isModalVisible
+    });
+
+    if (step.value !== 'chat' && supportStore.isModalVisible) {
+        console.log('[SupportModal] handleClickOutside: CLOSING MODAL - click outside detected');
+        handleClose(true);
+    } else {
+        console.log('[SupportModal] handleClickOutside: not closing modal', {
+            reason: step.value === 'chat' ? 'step is chat' : 'modal not visible'
+        });
+    }
+};
+
+const handleVisibilityChange = () => {
+    console.log('[SupportModal] visibilitychange', {
+        hidden: document.hidden,
+        isModalVisible: supportStore.isModalVisible,
+        step: step.value
+    });
+    
+    if (document.hidden) {
+        // Не останавливаем polling, но переключаем на медленный режим
+        console.log('[SupportModal] Page hidden, switching to slow polling');
+        supportStore.setPollingInterval(15000); // 15 секунд вместо 3
+    } else {
+        // Страница снова видна - возвращаем быстрый polling и сразу проверяем новые сообщения
+        console.log('[SupportModal] Page visible, switching to fast polling and fetching immediately');
+        if (supportStore.isModalVisible && step.value === 'chat') {
+            const pollEmail = authStore.isAuthenticated ? undefined : (supportStore.guestEmail || localStorage.getItem('support_guest_email') || undefined);
+            // Сразу проверяем новые сообщения
+            supportStore.fetchNew(pollEmail).then(() => {
+                // Затем запускаем быстрый polling
+                supportStore.setPollingInterval(3000);
+            });
+        }
+    }
+};
+
+// Очистка при смене авторизации
+watch(() => authStore.isAuthenticated, (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+        console.log('[SupportModal] Auth status changed, resetting support store');
+        supportStore.reset();
+        step.value = 'channel';
+    }
+});
+
+watch(() => supportStore.isModalVisible, (newVal) => {
+    console.log('[SupportModal] isModalVisible changed:', newVal);
+});
+
 onMounted(() => {
+    console.log('[SupportModal] onMounted: registering event listeners');
+    supportStore.initExternalSync();
     window.addEventListener('open-support-modal', handleOpenSupportEvent);
     window.addEventListener('keydown', handleEscape);
+    window.addEventListener('mousedown', handleClickOutside);
     window.addEventListener('support-notification', handleNotificationEvent);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    console.log('[SupportModal] onMounted: all event listeners registered');
 });
 
 onBeforeUnmount(() => {
     window.removeEventListener('open-support-modal', handleOpenSupportEvent);
     window.removeEventListener('keydown', handleEscape);
+    window.removeEventListener('mousedown', handleClickOutside);
     window.removeEventListener('support-notification', handleNotificationEvent);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
     supportStore.stopPolling();
 });
 </script>
 
 <style scoped>
-.modal-overlay {
+.support-modal-container {
     position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.05);
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding: 24px;
-    z-index: 9999;
-    pointer-events: auto;
-}
-
-.modal-container {
+    bottom: 24px;
+    right: 24px;
+    z-index: 10000;
     background: rgba(255, 255, 255, 0.7);
     border-radius: 1.25rem;
     width: 100%;
@@ -580,13 +698,11 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    position: relative;
-    z-index: 10000;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    pointer-events: auto;
+    pointer-events: auto; /* Захватываем клики только внутри окна чата */
 }
 
-.dark .modal-container {
+.dark .support-modal-container {
     background: rgba(31, 41, 55, 0.7);
     border-color: rgba(255, 255, 255, 0.1);
 }
@@ -598,7 +714,6 @@ onBeforeUnmount(() => {
     inset: 0;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    filter: url(#header-glass-distortion);
     border-radius: 1.25rem;
 }
 
@@ -787,9 +902,10 @@ onBeforeUnmount(() => {
 .spinner { width: 2.25rem; height: 2.25rem; border: 3px solid rgba(99, 102, 241, 0.1); border-top-color: rgb(99, 102, 241); border-radius: 50%; animation: spin 1s linear infinite; }
 
 .messages-list { display: flex; flex-direction: column; gap: 1rem; }
-.message-item { display: flex; }
-.message-item.message-admin { justify-content: flex-start; }
-.message-item.message-client { justify-content: flex-end; }
+.message-item { display: flex; flex-direction: column; }
+.message-item.message-admin { align-items: flex-start; }
+.message-item.message-client { align-items: flex-end; }
+.message-item.system-msg-container { align-items: center; width: 100%; }
 .message-bubble { max-width: 85%; padding: 0.75rem 1rem; border-radius: 1.15rem; position: relative; }
 
 .message-image-wrapper {
@@ -819,6 +935,13 @@ onBeforeUnmount(() => {
     border-radius: 1rem;
     margin: 0.5rem auto;
     width: fit-content;
+}
+
+.other-channel-alert {
+    background: rgba(99, 102, 241, 0.1);
+    color: rgb(99, 102, 241);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    font-weight: 500;
 }
 
 .dark .system-notification {
@@ -895,10 +1018,25 @@ onBeforeUnmount(() => {
     color: rgb(185, 28, 28);
     font-size: 0.85rem;
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 .dark .error-message { background: rgba(185, 28, 28, 0.1); color: rgb(254, 202, 202); }
+.error-icon { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
 
-.message-input-wrapper { display: flex; gap: 0.75rem; align-items: center; }
+.message-input-wrapper { 
+    display: flex; 
+    gap: 0.75rem; 
+    align-items: center; 
+    transition: all 0.3s;
+    border-radius: 2rem;
+    padding: 0.25rem;
+}
+.message-input-wrapper.dragging {
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px dashed rgb(99, 102, 241);
+}
 .message-input {
     flex: 1;
     padding: 0.85rem 1.15rem;
@@ -912,6 +1050,9 @@ onBeforeUnmount(() => {
 }
 .dark .message-input { border-color: rgba(255, 255, 255, 0.1); background: rgba(31, 41, 55, 0.6); color: white; }
 .message-input:focus { border-color: rgb(99, 102, 241); }
+.message-input-wrapper.dragging .message-input {
+    border-color: rgb(99, 102, 241);
+}
 
 .send-button {
     width: 2.75rem; height: 2.75rem;
@@ -939,8 +1080,8 @@ onBeforeUnmount(() => {
 .modal-fade-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .modal-fade-enter-from,
 .modal-fade-leave-to { opacity: 0; }
-.modal-fade-enter-from .modal-container,
-.modal-fade-leave-to .modal-container { transform: translateY(40px) scale(0.95); opacity: 0; }
+.modal-fade-enter-from .support-modal-container,
+.modal-fade-leave-to .support-modal-container { transform: translateY(40px) scale(0.95); opacity: 0; }
 
 .messages-wrapper::-webkit-scrollbar { width: 4px; }
 .messages-wrapper::-webkit-scrollbar-track { background: transparent; }
@@ -950,13 +1091,34 @@ onBeforeUnmount(() => {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 480px) {
-    .modal-overlay { padding: 0; }
-    .modal-container { 
+    .support-modal-container { 
+        bottom: 0;
+        right: 0;
+        left: 0;
+        top: 0;
         height: 100vh; 
         max-height: 100vh; 
         border-radius: 0; 
         max-width: 100%; 
+        width: 100%;
     }
+}
+
+.closed-ticket-alert {
+    background: rgba(156, 163, 175, 0.1);
+    color: rgb(107, 114, 128);
+    border: 1px solid rgba(156, 163, 175, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    max-width: 90%;
+}
+
+.dark .closed-ticket-alert {
+    background: rgba(156, 163, 175, 0.05);
+    color: rgb(156, 163, 175);
 }
 
 .gradient-text {

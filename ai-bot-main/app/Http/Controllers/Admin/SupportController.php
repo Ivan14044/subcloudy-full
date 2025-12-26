@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\User;
+use App\Services\EmailService;
+use App\Services\NotificationTemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +18,8 @@ class SupportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Ticket::with(['user', 'lastMessage'])
+        $query = Ticket::has('messages') // Показываем только тикеты с сообщениями
+            ->with(['user', 'lastMessage.sender'])
             ->orderBy('updated_at', 'desc');
 
         // Фильтры
@@ -70,13 +73,42 @@ class SupportController extends Controller
     }
 
     /**
-     * Отправить ответ администратора
+     * Получить новые сообщения (для админ-панели)
      */
+    public function getNewMessages(Request $request, $id)
+    {
+        $ticket = Ticket::findOrFail($id);
+        $lastMessageId = $request->input('last_message_id');
+
+        $query = $ticket->messages()->with('sender');
+
+        if ($lastMessageId) {
+            $query->where('id', '>', $lastMessageId);
+        }
+
+        $messages = $query->get()->map(function ($message) {
+            return [
+                'id' => $message->id,
+                'text' => $message->text,
+                'sender_type' => $message->sender_type,
+                'source' => $message->source,
+                'created_at' => $message->created_at->toIso8601String(),
+                'image_url' => $message->image_path ? asset('storage/' . $message->image_path) : null,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'messages' => $messages,
+            'status' => $ticket->status
+        ]);
+    }
+
     public function sendMessage(Request $request, $id)
     {
         $request->validate([
-            'text' => 'required_without:image|string|nullable',
-            'image' => 'nullable|image|max:5120',
+            'text' => 'required_without:image|string|nullable|max:4000',
+            'image' => 'nullable|image|max:5120|mimes:jpeg,png,jpg,gif,webp',
         ]);
 
         $ticket = Ticket::findOrFail($id);
@@ -87,13 +119,24 @@ class SupportController extends Controller
             $imagePath = $request->file('image')->store('support', 'public');
         }
 
+        // Автоматически определяем канал ответа на основе последнего сообщения клиента
+        $lastClientMsg = $ticket->messages()->where('sender_type', 'client')->latest()->first();
+        $source = $lastClientMsg ? $lastClientMsg->source : ($ticket->external_channel ?? 'web');
+
+        // Sanitize текст от XSS
+        $messageText = $request->input('text');
+        if ($messageText) {
+            $messageText = htmlspecialchars($messageText, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
+        }
+
         // Создаем сообщение от админа
         $message = TicketMessage::create([
             'ticket_id' => $ticket->id,
             'sender_type' => 'admin',
             'sender_id' => $admin->id,
-            'source' => 'web',
-            'text' => $request->input('text'),
+            'source' => $source,
+            'ticket_status' => $ticket->status === 'open' ? 'in_progress' : $ticket->status, // Сохраняем статус, который будет
+            'text' => $messageText,
             'image_path' => $imagePath,
         ]);
 
@@ -102,8 +145,26 @@ class SupportController extends Controller
             $ticket->update(['status' => 'in_progress']);
         }
 
-        // Если у тикета есть Telegram канал, отправляем сообщение через бота
-        if ($ticket->telegram_chat_id) {
+        $ticket->touch(); // Принудительное обновление времени
+
+        // Отправка email уведомления об ответе
+        if ($source === 'web' || $source === 'both') {
+            $params = [
+                'message_text' => $messageText ?: 'Прикреплено изображение',
+            ];
+
+            if ($ticket->user_id) {
+                EmailService::send('support_reply', $ticket->user_id, $params);
+                app(NotificationTemplateService::class)->sendToUser($ticket->user, 'support_reply');
+            } elseif ($ticket->guest_email) {
+                // Используем сохраненный язык тикета или 'en' по умолчанию
+                $locale = $ticket->lang ?: 'en';
+                EmailService::sendToEmail('support_reply', $ticket->guest_email, $params, $locale);
+            }
+        }
+
+        // Отправляем в Telegram только если выбран этот канал и привязан чат
+        if ($source === 'telegram' && $ticket->telegram_chat_id) {
             if ($request->input('text')) {
                 $this->sendTelegramMessage($ticket->telegram_chat_id, $request->input('text'));
             }
@@ -145,7 +206,23 @@ class SupportController extends Controller
         ]);
 
         $ticket = Ticket::findOrFail($id);
-        $ticket->update(['status' => $request->input('status')]);
+        $oldStatus = $ticket->status;
+        $newStatus = $request->input('status');
+        
+        $ticket->update(['status' => $newStatus]);
+
+        // Если статус реально изменился, создаем системное сообщение для истории
+        if ($oldStatus !== $newStatus) {
+            TicketMessage::create([
+                'ticket_id' => $ticket->id,
+                'sender_type' => 'admin',
+                'sender_id' => auth()->id(),
+                'source' => $ticket->external_channel ?? 'web',
+                'ticket_status' => $newStatus,
+                'text' => null, // Пустой текст = системное уведомление
+            ]);
+            $ticket->touch();
+        }
 
         return redirect()->back()->with('success', 'Статус обновлен');
     }
@@ -165,7 +242,7 @@ class SupportController extends Controller
         try {
             $response = \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
                 'chat_id' => $chatId,
-                'text' => $text,
+                'text' => htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5),
                 'parse_mode' => 'HTML',
             ]);
 
@@ -184,19 +261,63 @@ class SupportController extends Controller
     }
 
     /**
-     * Статистика по обращениям
+     * Статистика по обращениям (с кэшированием)
      */
     public function stats()
     {
+        // Считаем только тикеты, в которых есть хотя бы одно сообщение
+        $baseQuery = Ticket::has('messages');
+
         $stats = [
-            'total' => Ticket::count(),
-            'open' => Ticket::where('status', 'open')->count(),
-            'in_progress' => Ticket::where('status', 'in_progress')->count(),
-            'closed' => Ticket::where('status', 'closed')->count(),
-            'today' => Ticket::whereDate('created_at', today())->count(),
+            'total' => (clone $baseQuery)->count(),
+            'open' => (clone $baseQuery)->where('status', 'open')->count(),
+            'in_progress' => (clone $baseQuery)->where('status', 'in_progress')->count(),
+            'closed' => (clone $baseQuery)->where('status', 'closed')->count(),
+            'today' => (clone $baseQuery)->whereDate('created_at', today())->count(),
+            'last_client_message_id' => TicketMessage::where('sender_type', 'client')->max('id'),
         ];
 
         return response()->json($stats);
+    }
+
+    /**
+     * Массовые действия
+     */
+    public function massAction(Request $request)
+    {
+        \Log::info('Mass Action called', $request->all());
+        
+        try {
+            $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'exists:tickets,id',
+                'action' => 'required|in:close,open,delete',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Mass Action validation failed', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        $ids = $request->input('ids');
+        $action = $request->input('action');
+
+        try {
+            if ($action === 'close') {
+                Ticket::whereIn('id', $ids)->update(['status' => 'closed']);
+                return response()->json(['success' => true, 'message' => 'Обращения закрыты']);
+            } elseif ($action === 'open') {
+                Ticket::whereIn('id', $ids)->update(['status' => 'open']);
+                return response()->json(['success' => true, 'message' => 'Обращения открыты']);
+            } elseif ($action === 'delete') {
+                Ticket::whereIn('id', $ids)->delete();
+                return response()->json(['success' => true, 'message' => 'Обращения удалены']);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Mass Action execution failed', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Неизвестное действие'], 400);
     }
 }
 

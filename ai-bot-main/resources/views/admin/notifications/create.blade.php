@@ -34,7 +34,7 @@
                         </div>
 
                         <div class="form-group d-none" id="service-group">
-                            <label for="service_id">{{ __('admin.service') }}</label>
+                            <label for="service_id">{{ __('admin.service_label') }}</label>
                             <select name="service_id" id="service_id" class="form-control @error('service_id') is-invalid @enderror">
                                 <option value="" {{ old('service_id', '') == '' ? 'selected' : '' }}>Все сервисы</option>
                                 @foreach($services as $service)

@@ -24,29 +24,36 @@
                         <thead>
                         <tr>
                             <th style="width: 40px">{{ __('admin.id') }}</th>
-                            <th>{{ __('admin.service') }}</th>
+                            <th>{{ __('admin.service_label') }}</th>
                             <th class="none">{{ __('admin.login') }}</th>
                             <th>{{ __('admin.status') }}</th>
                             <th style="width: 100px">{{ __('admin.users') }}</th>
-                            <th style="width: 120px">{{ __('admin.subscription_expires') }}</th>
+                            <th style="width: 120px">{{ __('admin.expiring_at') }}</th>
                             <th class="none">{{ __('admin.used') }}</th>
                             <th class="none">{{ __('admin.last_used_at') }}</th>
                             <th class="none">{{ __('admin.created_at') }}</th>
-                            <th class="none">{{ __('admin.expiring_at') }}</th>
+                            <th class="none">{{ __('admin.users') }}</th>
                             <th style="width: 70px">{{ __('admin.action') }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach ($serviceAccounts as $serviceAccount)
                             @php
-                                $earliestExpiry = $serviceAccount->earliest_subscription_expiry;
-                                $isExpiringSoon = $earliestExpiry && $earliestExpiry->isFuture() && $earliestExpiry->diffInDays(now()) <= 7;
-                                $isExpiringVerySoon = $earliestExpiry && $earliestExpiry->isFuture() && $earliestExpiry->diffInDays(now()) <= 3;
-                                $isExpired = $earliestExpiry && $earliestExpiry->isPast();
-                                $rowClass = $isExpiringVerySoon ? 'table-danger' : ($isExpiringSoon ? 'table-warning' : '');
+                                $expiringAt = $serviceAccount->expiring_at;
+                                $isExpiringSoon = $expiringAt && $expiringAt->isFuture() && $expiringAt->diffInDays(now()) <= 7;
+                                $isExpiringVerySoon = $expiringAt && $expiringAt->isFuture() && $expiringAt->diffInDays(now()) <= 3;
+                                $isExpired = $expiringAt && $expiringAt->isPast();
+                                $rowClass = $isExpiringVerySoon || $isExpired ? 'table-danger' : ($isExpiringSoon ? 'table-warning' : '');
                             @endphp
                             <tr class="{{ $rowClass }}">
-                                <td>{{ $serviceAccount->id }}</td>
+                                <td>
+                                    {{ $serviceAccount->id }}
+                                    <span class="d-none">
+                                        @foreach($serviceAccount->users as $u)
+                                            {{ $u->email }} {{ $u->id }}
+                                        @endforeach
+                                    </span>
+                                </td>
                                 <td>
                                     @if($serviceAccount->service->logo)
                                         <img src="{{ asset($serviceAccount->service->logo) }}"
@@ -89,15 +96,13 @@
                                         @endif
                                     </span>
                                 </td>
-                                <td>
-                                    @if($earliestExpiry)
-                                        <span class="text-muted">{{ $earliestExpiry->format('Y-m-d') }}</span>
-                                        @if($isExpiringVerySoon)
-                                            <span class="badge badge-danger ml-1" title="{{ __('admin.expires_very_soon') }}">!</span>
+                                <td data-order="{{ $serviceAccount->expiring_at ? strtotime($serviceAccount->expiring_at) : 0 }}">
+                                    @if($serviceAccount->expiring_at)
+                                        <span class="text-muted">{{ $serviceAccount->expiring_at->format('Y-m-d H:i') }}</span>
+                                        @if($isExpiringVerySoon || $isExpired)
+                                            <span class="badge badge-danger ml-1" title="{{ $isExpired ? __('admin.expired') : __('admin.expires_very_soon') }}">!</span>
                                         @elseif($isExpiringSoon)
                                             <span class="badge badge-warning ml-1" title="{{ __('admin.expires_soon') }}">~</span>
-                                        @elseif($isExpired)
-                                            <span class="badge badge-secondary ml-1" title="{{ __('admin.expired') }}">×</span>
                                         @endif
                                     @else
                                         <span class="text-muted">—</span>
@@ -110,8 +115,16 @@
                                 <td class="none" data-order="{{ strtotime($serviceAccount->created_at) }}">
                                     {{ \Carbon\Carbon::parse($serviceAccount->created_at)->format('Y-m-d H:i') }}
                                 </td>
-                                <td class="none" data-order="{{ $serviceAccount->expiring_at ? strtotime($serviceAccount->expiring_at) : 0 }}">
-                                    {{ $serviceAccount->expiring_at ? \Carbon\Carbon::parse($serviceAccount->expiring_at)->format('Y-m-d H:i') : null }}
+                                <td class="none">
+                                    @if($serviceAccount->users->count() > 0)
+                                        <ul class="list-unstyled mb-0">
+                                            @foreach($serviceAccount->users as $u)
+                                                <li><small>{{ $u->email }} (ID: {{ $u->id }})</small></li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
                                 </td>
                                 <td>
                                     <a href="{{ route('admin.service-accounts.edit', $serviceAccount) }}"
@@ -166,7 +179,7 @@
     </div>
 @endsection
 
-@section('js')
+@push('js')
     <script>
         $(document).ready(function () {
             $('#service-accounts-table').DataTable({
@@ -180,10 +193,11 @@
                     {"responsivePriority": 1, "targets": 0}, // ID
                     {"responsivePriority": 2, "targets": 1}, // Service
                     {"responsivePriority": 3, "targets": 10}, // Actions
-                    {"responsivePriority": 4, "targets": 2}, // Login
-                    {"responsivePriority": 5, "targets": 3}, // Status
-                    {"responsivePriority": 6, "targets": 4}, // Users
-                    {"responsivePriority": 7, "targets": 5}, // Subscription Expires
+                    {"responsivePriority": 4, "targets": 5}, // Expiring at
+                    {"responsivePriority": 5, "targets": 2}, // Login
+                    {"responsivePriority": 6, "targets": 3}, // Status
+                    {"responsivePriority": 7, "targets": 4}, // Users Count
+                    {"responsivePriority": 8, "targets": 9}, // Users List
                 ],
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.19/i18n/Russian.json"
@@ -191,4 +205,4 @@
             });
         });
     </script>
-@endsection
+@endpush

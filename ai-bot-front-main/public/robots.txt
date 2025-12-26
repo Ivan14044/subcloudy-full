@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: /sitemap.xml
-
+Sitemap: https://subcloudy.com/sitemap.xml
 

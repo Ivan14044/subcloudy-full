@@ -95,6 +95,7 @@ const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const buttonRef = ref<HTMLElement | null>(null);
 const dropdownMenuRef = ref<HTMLElement | null>(null);
+// SAVED BY AI
 const authStore = useAuthStore();
 
 const currentLocale = computed(() => locale.value);
@@ -151,7 +152,7 @@ const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
     
     // ИГНОРИРУЕМ клики внутри модального окна поддержки
-    const supportModal = document.querySelector('.modal-overlay');
+    const supportModal = document.querySelector('.support-modal-container');
     if (supportModal && supportModal.contains(target)) {
         return;
     }

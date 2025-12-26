@@ -2,6 +2,10 @@
 
 @section('title', 'Обращения клиентов')
 
+@section('css')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+@stop
+
 @section('content_header')
     <h1>Обращения клиентов</h1>
 @stop
@@ -38,23 +42,37 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="mb-3 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary mass-action-btn" data-action="close" disabled>
+                            <i class="fas fa-check-circle"></i> Закрыть выбранные
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-info mass-action-btn" data-action="open" disabled>
+                            <i class="fas fa-envelope-open"></i> Открыть выбранные
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger mass-action-btn" data-action="delete" disabled>
+                            <i class="fas fa-trash"></i> Удалить выбранные
+                        </button>
+                    </div>
+
                     <div class="table-responsive">
                         <table id="tickets-table" class="table table-bordered table-striped">
                             <thead>
                             <tr>
+                                <th style="width: 30px"><input type="checkbox" id="select-all"></th>
                                 <th style="width: 40px">ID</th>
                                 <th>Пользователь</th>
                                 <th>Email</th>
                                 <th>Статус</th>
                                 <th>Канал</th>
                                 <th>Последнее сообщение</th>
-                                <th>Создано</th>
+                                <th>Обновлено</th>
                                 <th style="width: 100px">Действие</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach ($tickets as $ticket)
-                                <tr>
+                                <tr data-id="{{ $ticket->id }}">
+                                    <td><input type="checkbox" class="ticket-checkbox" value="{{ $ticket->id }}"></td>
                                     <td>{{ $ticket->id }}</td>
                                     <td>
                                         @if($ticket->user)
@@ -74,7 +92,7 @@
                                             <span class="text-muted">N/A</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="status-cell">
                                         @if($ticket->status === 'open')
                                             <span class="badge badge-warning">Открыто</span>
                                         @elseif($ticket->status === 'in_progress')
@@ -103,8 +121,8 @@
                                             <span class="text-muted">Нет сообщений</span>
                                         @endif
                                     </td>
-                                    <td data-order="{{ strtotime($ticket->created_at) }}">
-                                        {{ \Carbon\Carbon::parse($ticket->created_at)->format('Y-m-d H:i') }}
+                                    <td data-order="{{ strtotime($ticket->updated_at) }}">
+                                        {{ \Carbon\Carbon::parse($ticket->updated_at)->format('Y-m-d H:i') }}
                                     </td>
                                     <td>
                                         <a href="{{ route('admin.support.show', $ticket->id) }}" class="btn btn-sm btn-primary">
@@ -126,37 +144,135 @@
     </div>
 
     @push('js')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Звук для уведомлений
+            const notificationSound = new Audio('/sounds/notification.mp3');
+            let lastTicketCount = {{ $tickets->total() }};
+            let lastUpdate = Date.now();
+
             // Проверяем, не инициализирована ли таблица уже
             if ($.fn.DataTable.isDataTable('#tickets-table')) {
                 $('#tickets-table').DataTable().destroy();
             }
             
-            $('#tickets-table').DataTable({
+            const table = $('#tickets-table').DataTable({
                 "paging": false,
                 "searching": false,
                 "info": false,
-                "order": [[6, "desc"]],
+                "order": [[7, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 }
+                ],
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Russian.json"
                 }
             });
 
-            // Polling for new tickets
-            const lastTicketId = {{ $tickets->first() ? $tickets->first()->id : 0 }};
-            const audio = new Audio('/sounds/notification.mp3');
-            
+            // Поллинг для проверки новых тикетов
             function checkNewTickets() {
-                $.get('/api/support/stats', function(data) {
-                    // Можно реализовать более сложную логику, но для начала просто проверяем общее количество
-                    // Или добавить эндпоинт для проверки новых тикетов
+                $.ajax({
+                    url: '{{ route("admin.support.stats") }}',
+                    method: 'GET',
+                    success: function(data) {
+                        // Проверяем наличие новых тикетов
+                        const openCount = data.open || 0;
+                        const totalCount = data.total || 0;
+                        
+                        if (totalCount > lastTicketCount) {
+                            // Новый тикет!
+                            notificationSound.play().catch(e => console.warn('Audio play failed', e));
+                            
+                            toastr.options = {
+                                "closeButton": true,
+                                "progressBar": true,
+                                "positionClass": "toast-top-right",
+                                "timeOut": "10000"
+                            };
+                            toastr.info('Новое обращение в техподдержку!', 'Уведомление', {
+                                onclick: function() {
+                                    location.reload();
+                                }
+                            });
+                            
+                            lastTicketCount = totalCount;
+                            
+                            // Обновляем страницу через 2 секунды
+                            setTimeout(() => location.reload(), 2000);
+                        }
+                        
+                        lastUpdate = Date.now();
+                    },
+                    error: function(xhr) {
+                        console.error('Polling error:', xhr);
+                    }
                 });
             }
-            // Пока оставим только звук в деталях тикета для простоты, 
-            // так как в списке админ может не захотеть авторелоад
+
+            // Запускаем поллинг каждые 10 секунд
+            setInterval(checkNewTickets, 10000);
+
+            // Массовое выделение
+            $('#select-all').on('click', function() {
+                const rows = table.rows({ 'search': 'applied' }).nodes();
+                $('input[type="checkbox"]', rows).prop('checked', this.checked);
+                updateMassActionButtons();
+            });
+
+            $('#tickets-table tbody').on('change', 'input[type="checkbox"]', function() {
+                if (!this.checked) {
+                    const el = $('#select-all').get(0);
+                    if (el && el.checked && ('indeterminate' in el)) {
+                        el.indeterminate = true;
+                    }
+                }
+                updateMassActionButtons();
+            });
+
+            function updateMassActionButtons() {
+                const selectedCount = $('.ticket-checkbox:checked').length;
+                $('.mass-action-btn').prop('disabled', selectedCount === 0);
+            }
+
+            // Обработка массовых действий
+            $('.mass-action-btn').on('click', function() {
+                const action = $(this).data('action');
+                const selectedIds = $('.ticket-checkbox:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (!selectedIds.length) return;
+
+                let confirmMessage = 'Вы уверены?';
+                if (action === 'delete') confirmMessage = 'Удалить выбранные обращения? Это действие необратимо.';
+                if (action === 'close') confirmMessage = 'Закрыть выбранные обращения?';
+
+                if (confirm(confirmMessage)) {
+                    $.ajax({
+                        url: '{{ route("admin.support.mass-action") }}',
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            ids: selectedIds,
+                            action: action
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                toastr.success(response.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                toastr.error(response.message || 'Ошибка при выполнении действия');
+                            }
+                        },
+                        error: function(xhr) {
+                            const error = xhr.responseJSON ? xhr.responseJSON.message : 'Произошла ошибка';
+                            toastr.error(error);
+                        }
+                    });
+                }
+            });
         });
     </script>
     @endpush
 @stop
-

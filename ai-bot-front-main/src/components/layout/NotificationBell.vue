@@ -111,6 +111,7 @@ import { useServiceStore } from '@/stores/services';
 import { Bell } from 'lucide-vue-next';
 import { Teleport } from 'vue';
 
+// SAVED BY AI
 const { locale } = useI18n();
 const dropdownOpen = ref(false);
 const intervalId = ref(null);
@@ -197,7 +198,7 @@ function handleClickOutside(event) {
     const target = event.target;
     
     // ИГНОРИРУЕМ клики внутри модального окна поддержки
-    const supportModal = document.querySelector('.modal-overlay');
+    const supportModal = document.querySelector('.support-modal-container');
     if (supportModal && supportModal.contains(target)) {
         return;
     }

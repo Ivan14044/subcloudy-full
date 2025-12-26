@@ -60,14 +60,35 @@
                             <form method="POST" action="{{ route('admin.support.send-message', $ticket->id) }}" enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group">
-                                    <textarea name="text" class="form-control" rows="3" placeholder="Введите ваш ответ..."></textarea>
+                                    <label for="template-select">Быстрый ответ:</label>
+                                    <select id="template-select" class="form-control mb-2">
+                                        <option value="">-- Выбрать шаблон --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <textarea name="text" id="message-text" class="form-control" rows="3" placeholder="Введите ваш ответ..."></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="image">Прикрепить изображение:</label>
                                     <input type="file" name="image" class="form-control-file" accept="image/*">
                                 </div>
+                                <div class="alert alert-info py-2 px-3 small">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Ответ будет автоматически отправлен по каналу: 
+                                    <strong>
+                                        @php
+                                            $lastClientMsg = $ticket->messages()->where('sender_type', 'client')->latest()->first();
+                                            $source = $lastClientMsg ? $lastClientMsg->source : ($ticket->external_channel ?? 'web');
+                                        @endphp
+                                        @if($source === 'telegram')
+                                            <i class="fab fa-telegram text-primary"></i> Telegram
+                                        @else
+                                            <i class="fas fa-globe text-muted"></i> На сайт (Web)
+                                        @endif
+                                    </strong>
+                                </div>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane"></i> Отправить
+                                    <i class="fas fa-paper-plane"></i> Отправить ответ
                                 </button>
                             </form>
                         </div>
@@ -153,23 +174,123 @@
     </div>
 @stop
 
-@section('js')
+@push('js')
 <script>
     $(document).ready(function() {
-        const lastMessageId = {{ $ticket->messages->last() ? $ticket->messages->last()->id : 0 }};
+        console.log('Support Chat: Polling initialized');
+        let lastMessageId = {{ $ticket->messages->last() ? $ticket->messages->last()->id : 0 }};
         const audio = new Audio('/sounds/notification.mp3');
         
-        function pollMessages() {
-            $.get('{{ route('api.support.new-messages', $ticket->id) }}', { last_message_id: lastMessageId }, function(data) {
-                if (data.success && data.messages.length > 0) {
-                    audio.play().catch(e => console.warn('Audio play failed', e));
-                    location.reload();
+        // --- Шаблоны быстрых ответов ---
+        $.get('{{ route('admin.support-templates.api') }}', { lang: 'ru' }, function(data) {
+            if (data.success && data.templates) {
+                data.templates.forEach(function(template) {
+                    $('#template-select').append(`<option value="${template.id}">${template.title}</option>`);
+                });
+            }
+        });
+        
+        $('#template-select').on('change', function() {
+            const selectedId = $(this).val();
+            if (!selectedId) return;
+            
+            $.get('{{ route('admin.support-templates.api') }}', { lang: 'ru' }, function(data) {
+                if (data.success && data.templates) {
+                    const template = data.templates.find(t => t.id == selectedId);
+                    if (template) {
+                        $('#message-text').val(template.text);
+                        $('#template-select').val('');
+                    }
                 }
+            });
+        });
+        // ------------------------------
+
+        const messagesContainer = $('#chat-messages-container').length 
+            ? $('#chat-messages-container') 
+            : $('.card-body').first();
+        
+        function pollMessages() {
+            $.get('{{ route('admin.support.new-messages', $ticket->id) }}', { 
+                last_message_id: lastMessageId,
+                channel: 'web' 
+            })
+            .done(function(data) {
+                if (data.success && data.messages && data.messages.length > 0) {
+                    console.log('Support Chat: New messages received', data.messages.length);
+                    let hasClientMessage = false;
+                    
+                    data.messages.forEach(function(message) {
+                        const isAdmin = message.sender_type === 'admin';
+                        if (!isAdmin) hasClientMessage = true;
+                        
+                        const alignment = isAdmin ? 'justify-content-end' : 'justify-content-start';
+                        const bgClass = isAdmin ? 'bg-primary text-white' : 'bg-light';
+                        const userName = isAdmin ? 'Администратор' : '{{ $ticket->user ? $ticket->user->name : "Гость" }}';
+                        
+                        const dateObj = new Date(message.created_at);
+                        const formattedDate = dateObj.toLocaleString('ru-RU', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        
+                        const sourceIcon = message.source === 'telegram' 
+                            ? '<i class="fab fa-telegram" title="Telegram"></i>' 
+                            : '<i class="fas fa-globe" title="Web"></i>';
+                        
+                        const imageHtml = message.image_url 
+                            ? `<div class="mt-2"><a href="${message.image_url}" target="_blank"><img src="${message.image_url}" class="img-fluid rounded" style="max-height: 200px;"></a></div>`
+                            : '';
+                        
+                        const messageHtml = `
+                            <div class="mb-3">
+                                <div class="d-flex ${alignment}">
+                                    <div class="message-bubble ${bgClass}" style="max-width: 70%; padding: 10px; border-radius: 10px;">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <strong>${userName}</strong>
+                                            <small class="ml-2">${formattedDate} ${sourceIcon}</small>
+                                        </div>
+                                        <div>${message.text || ''}${imageHtml}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        messagesContainer.append(messageHtml);
+                        lastMessageId = message.id;
+                    });
+                    
+                    if (hasClientMessage) {
+                        audio.play().catch(e => console.warn('Audio play failed', e));
+                        if (typeof toastr !== 'undefined') {
+                            toastr.success('Новое сообщение от клиента', 'Поддержка');
+                        }
+                    }
+                    
+                    messagesContainer.scrollTop(messagesContainer[0].scrollHeight);
+                }
+                
+                if (data.status) {
+                    const badge = $('.ticket-status-badge');
+                    if (badge.length) {
+                        badge.removeClass('badge-warning badge-info badge-success');
+                        let statusClass = data.status === 'in_progress' ? 'badge-info' : (data.status === 'closed' ? 'badge-success' : 'badge-warning');
+                        let statusTexts = {'open': 'Открыто', 'in_progress': 'В работе', 'closed': 'Закрыто'};
+                        badge.addClass(statusClass).text(statusTexts[data.status] || data.status);
+                    }
+                }
+            })
+            .fail(function(err) {
+                console.error('Support Chat: Polling failed', err);
             });
         }
         
-        setInterval(pollMessages, 5000);
+        // Поллинг каждые 3 секунды
+        setInterval(pollMessages, 3000);
     });
 </script>
-@stop
+@endpush
 

@@ -67,6 +67,7 @@ export function updateSeo({
 	keywords,
 	image,
 	canonical,
+	robots,
 	type = 'website',
 	locale,
 	siteName = 'SubCloudy',
@@ -76,6 +77,7 @@ export function updateSeo({
 	if (title) setTitle(title);
 	if (description) setMetaName('description', description);
 	if (keywords) setMetaName('keywords', Array.isArray(keywords) ? keywords.join(', ') : String(keywords));
+	if (robots) setMetaName('robots', robots);
 
 	const canonicalUrl = buildAbsoluteUrl(canonical || window.location.pathname + window.location.search);
 	setLinkRel('canonical', canonicalUrl);
@@ -116,12 +118,13 @@ export function updateSeo({
 	}
 }
 
-export function updateWebPageSEO({ title, description, keywords, canonical, image, locale, hreflangs } = {}) {
+export function updateWebPageSEO({ title, description, keywords, canonical, robots, image, locale, hreflangs } = {}) {
 	updateSeo({
 		title,
 		description,
 		keywords,
 		canonical,
+		robots,
 		image,
 		locale,
 		type: 'website',

@@ -7,6 +7,7 @@ use App\Models\Subscription;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Services\EmailService;
+use App\Services\NotificationTemplateService;
 
 class SendExpiringSubscriptionEmails extends Command
 {
@@ -32,6 +33,10 @@ class SendExpiringSubscriptionEmails extends Command
 
             EmailService::send('subscription_expiring', $user->id, [
                 'service_name' => $serviceName
+            ]);
+
+            app(NotificationTemplateService::class)->sendToUser($user, 'subscription_expiring', [
+                'service' => $serviceName
             ]);
 
             $subscription->expiring_email_sent = true;

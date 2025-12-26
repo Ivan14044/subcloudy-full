@@ -348,6 +348,11 @@
           "closed": "Closed"
         },
         "statusChangedTo": "Status changed to: {status}",
+        "systemNotifications": {
+          "statusChanged": "Ticket status changed to: {status}",
+          "adminRepliedIn": "Administrator replied to you in {channel}",
+          "ticketClosed": "This request is closed. You can send a new message to resume the conversation."
+        },
         "errors": {
       "ticketNotFound": "Ticket not found",
       "createTicketFailed": "Failed to create ticket",
@@ -355,7 +360,9 @@
       "createTicketError": "Error creating ticket",
       "sendMessageError": "Error sending message",
       "telegramLinkFailed": "Failed to get Telegram link",
-      "telegramLinkError": "Error getting Telegram link"
+      "telegramLinkError": "Error getting Telegram link",
+      "accessDeniedSession": "Access denied: invalid session token. Please start a new chat.",
+      "accessDeniedEmail": "Access denied: email mismatch."
     }
   }
 }

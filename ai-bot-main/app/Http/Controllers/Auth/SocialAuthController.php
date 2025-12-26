@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Services\EmailService;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
@@ -75,7 +77,10 @@ class SocialAuthController extends Controller
                     'provider' => 'google',
                     'avatar' => $googleUser->getAvatar(),
                     'password' => Hash::make(\Illuminate\Support\Str::random(12)),
+                    'lang' => app()->getLocale(), // Устанавливаем текущий язык
                 ]);
+
+                EmailService::send('welcome', $user->id);
             }
 
             // Проверка на блокировку
@@ -202,7 +207,10 @@ class SocialAuthController extends Controller
                         'avatar' => $telegramData['photo_url'] ?? null,
                         'provider' => 'telegram',
                         'password' => Hash::make(rand(100000, 999999)),
+                        'lang' => app()->getLocale(), // Устанавливаем текущий язык
                     ]);
+
+                    EmailService::send('welcome', $user->id);
                 }
             } else {
                 $user->telegram_username = $telegramData['username'] ?? $user->telegram_username;
@@ -216,6 +224,9 @@ class SocialAuthController extends Controller
                     'error' => 'Account blocked'
                 ], 403);
             }
+
+            Auth::login($user);
+            event(new Login('sanctum', $user, false));
 
             $token = $user->createToken('auth_token')->plainTextToken;
             $user->active_services = $user->activeServices();

@@ -80,7 +80,7 @@
                                     <th style="width: 40px">
                                         <input type="checkbox" id="select-all-services">
                                     </th>
-                                    <th>{{ __('admin.service') }}</th>
+                                    <th>{{ __('admin.service_label') }}</th>
                                     <th style="width: 160px">{{ __('admin.free_days') }}</th>
                                 </tr>
                                 </thead>
@@ -92,7 +92,7 @@
                                             <input type="hidden" name="services[{{ $service->id }}][id]" value="{{ $service->id }}">
                                         </td>
                                         <td>
-                                            {{ $service->getTranslation('name', 'en') ?? $service->admin_name ?? (__('admin.service') . ' #'.$service->id) }}
+                                            {{ $service->getTranslation('name', 'en') ?? $service->admin_name ?? (__('admin.service_label') . ' #'.$service->id) }}
                                             @unless($service->is_active)
                                                 <span class="badge badge-secondary ml-2">{{ __('admin.inactive') }}</span>
                                             @endunless

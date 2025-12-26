@@ -62,9 +62,9 @@ export default defineConfig({
         minify: 'terser',
         terserOptions: {
             compress: {
-                drop_console: true,
+                drop_console: false, // Временно отключено для отладки
                 drop_debugger: true,
-                pure_funcs: ['console.log', 'console.info', 'console.debug']
+                // pure_funcs: ['console.log', 'console.info', 'console.debug'] // Временно отключено
             },
             mangle: true,
             format: {

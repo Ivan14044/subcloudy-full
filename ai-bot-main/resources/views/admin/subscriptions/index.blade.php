@@ -26,9 +26,9 @@
                         <tr>
                             <th style="width: 30px">{{ __('admin.id') }}</th>
                             @if(empty($user))
-                                <th>{{ __('admin.user') }}</th>
+                                <th>{{ __('admin.user_label') }}</th>
                             @endif
-                            <th>{{ __('admin.service') }}</th>
+                            <th>{{ __('admin.service_label') }}</th>
                             <th>{{ __('admin.status') }}</th>
                             <th>{{ __('admin.amount') }}</th>
                             <th>{{ __('admin.payment_info') }}</th>

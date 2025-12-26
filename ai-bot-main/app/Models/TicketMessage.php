@@ -15,6 +15,7 @@ class TicketMessage extends Model
         'sender_type',
         'sender_id',
         'source',
+        'ticket_status',
         'text',
         'image_path',
     ];

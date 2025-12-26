@@ -21,16 +21,26 @@ class EmailTemplateController extends Controller
     {
         $emailTemplate->load('translations');
 
+        // Пытаемся получить английский перевод
         $translation = $emailTemplate->translations
             ->where('locale', 'en')
             ->pluck('value', 'code')
             ->toArray();
 
+        // Если нет английского перевода, пытаемся получить русский
         if (!isset($translation['title']) || !isset($translation['message'])) {
-            abort(404, 'English translation not found for this email template.');
+            $ruTranslation = $emailTemplate->translations
+                ->where('locale', 'ru')
+                ->pluck('value', 'code')
+                ->toArray();
+            
+            if (isset($ruTranslation['title']) && isset($ruTranslation['message'])) {
+                $translation = $ruTranslation;
+            } else {
+                abort(404, 'Translation not found for this email template.');
+            }
         }
 
-        $subject = $translation['title'];
         $params = [
             'service_name' => 'ChatGPT',
             'amount' => '10.00 USD',
@@ -38,20 +48,37 @@ class EmailTemplateController extends Controller
             'url' => url('/reset-password/example')
         ];
 
-        if ($emailTemplate->code === 'reset_password') {
-            $body = view('emails.reset-password', [
-                'translation' => $translation,
-                'url' => $params['url'],
-                'email' => $params['email'],
-            ])->render();
-        } else {
-            $subject = \App\Services\EmailService::renderTemplate($translation['title'], $params);
-            $body = \App\Services\EmailService::renderTemplate($translation['message'], $params);
+        // Используем специальные шаблоны для предпросмотра
+        $subject = \App\Services\EmailService::renderTemplate($translation['title'], $params);
+        $body = null;
+        
+        switch ($emailTemplate->code) {
+            case 'reset_password':
+                $body = view('emails.reset-password', [
+                    'translation' => $translation,
+                    'url' => $params['url'],
+                    'email' => $params['email'],
+                ])->render();
+                break;
+            case 'subscription_activated':
+                $body = view('emails.templates.subscription-activated', $params)->render();
+                break;
+            case 'payment_confirmation':
+                $body = view('emails.templates.payment-confirmation', $params)->render();
+                break;
+            case 'subscription_expiring':
+                $body = view('emails.templates.subscription-expiring', $params)->render();
+                break;
+            default:
+                // Для остальных шаблонов используем сообщение из БД
+                $body = \App\Services\EmailService::renderTemplate($translation['message'], $params);
+                break;
         }
 
         return view('emails.base', [
             'subject' => $subject,
             'body' => $body,
+            'button' => false, // Отключаем кнопку по умолчанию для предпросмотра
         ]);
     }
 

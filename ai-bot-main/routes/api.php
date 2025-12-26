@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\ExtensionController;
 use App\Http\Controllers\Api\PromocodeController;
 use App\Http\Controllers\Api\SupportController;
+use App\Http\Controllers\Api\TelegramController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -77,11 +78,29 @@ Route::post('/promocodes/validate', [PromocodeController::class, 'validateCode']
 
 // Support Routes (работают как для авторизованных, так и для неавторизованных пользователей)
 Route::prefix('support')->group(function () {
-    Route::match(['get', 'post'], '/ticket', [SupportController::class, 'getOrCreateTicket'])->name('api.support.ticket');
+    // Получение или создание тикета - 60 запросов в минуту
+    Route::match(['get', 'post'], '/ticket', [SupportController::class, 'getOrCreateTicket'])
+        ->middleware('throttle:60,1')
+        ->name('api.support.ticket');
+    
+    // Получение тикета - без ограничений (нужен для polling)
     Route::get('/ticket/{id}', [SupportController::class, 'getTicket'])->name('api.support.get-ticket');
-    Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage'])->name('api.support.send-message');
+    
+    // Отправка сообщения - 60 сообщений в минуту
+    Route::post('/ticket/{id}/message', [SupportController::class, 'sendMessage'])
+        ->middleware('throttle:60,1')
+        ->name('api.support.send-message');
+    
+    // Получение новых сообщений - без ограничений (используется для polling)
     Route::get('/ticket/{id}/messages', [SupportController::class, 'getNewMessages'])->name('api.support.new-messages');
-    Route::get('/ticket/{id}/telegram-link', [SupportController::class, 'getTelegramLink'])->name('api.support.telegram-link');
+    
+    // Telegram ссылка - 30 запросов в минуту
+    Route::get('/ticket/{id}/telegram-link', [SupportController::class, 'getTelegramLink'])
+        ->middleware('throttle:30,1')
+        ->name('api.support.telegram-link');
+    
+    // Telegram webhook - без ограничений (внешний сервис)
+    Route::post('/telegram/webhook', [TelegramController::class, 'handle'])->name('api.support.telegram-webhook');
 });
 
 // Desktop Application Routes

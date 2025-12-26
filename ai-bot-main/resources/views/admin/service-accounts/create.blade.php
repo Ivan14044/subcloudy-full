@@ -17,7 +17,7 @@
                     <form method="POST" action="{{ route('admin.service-accounts.store') }}">
                         @csrf
                         <div class="form-group">
-                            <label for="type">{{ __('admin.service') }}</label>
+                            <label for="type">{{ __('admin.service_label') }}</label>
                             <select name="service_id" id="service_id"
                                     class="form-control @error('service_id') is-invalid @enderror">
                                 @foreach($services as $service)

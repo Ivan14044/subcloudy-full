@@ -10,17 +10,19 @@
         </div>
 
         <div class="flex flex-col gap-3">
-            <!-- Google кнопка -->
-            <a
-                class="flex items-center dark:text-white dark:hover:bg-gray-300 dark:hover:text-gray-800 justify-center border border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+            <!-- Google Авторизация -->
+            <button
+                type="button"
+                class="flex items-center w-full dark:text-white dark:hover:bg-gray-300 dark:hover:text-gray-800 justify-center border border-gray-300 rounded-lg px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
                 @click="openGoogleAuth"
             >
                 <img class="w-5 h-5 mr-2" src="/img/google.png" alt="google" width="20" height="20" style="aspect-ratio: 1 / 1;" />
                 <span>{{ $t('auth.google') }}</span>
-            </a>
+            </button>
 
-            <!-- Telegram кнопка -->
+            <!-- Telegram Авторизация -->
             <button
+                type="button"
                 class="flex items-center justify-center border-[#1a94d2] rounded-lg px-4 py-3 bg-[#1a94d2] hover:bg-[#1a94d2]/80 transition-colors"
                 @click="initTelegramAuth"
             >
@@ -42,7 +44,7 @@ const router = useRouter();
 const route = useRoute();
 
 const openGoogleAuth = () => {
-    // Используем специальный роут для принудительного выбора аккаунта
+    // Открываем окно авторизации Google в новом окне
     const url = '/auth/google/reauth';
     const features = `
     toolbar=no,
@@ -57,7 +59,7 @@ const openGoogleAuth = () => {
 
     const popup = window.open(url, 'googleAuth', features.replace(/\s+/g, ''));
 
-    // Слушаем сообщения от popup окна
+    // Слушаем сообщение от popup о завершении
     const messageListener = async (event: MessageEvent) => {
         // Проверяем, что сообщение от нашего домена
         if (event.origin !== window.location.origin) {
@@ -65,24 +67,24 @@ const openGoogleAuth = () => {
         }
 
         if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-            // Успешная авторизация
+            // Обработка успешной авторизации
             const { token, user } = event.data.data;
 
-            // Устанавливаем новый токен и пользователя
+            // Сохраняем токен и данные пользователя
             authStore.setToken(token);
             authStore.setUser(user);
 
-            // Убираем слушатель
+            // Удаляем слушатель
             window.removeEventListener('message', messageListener);
 
-            // Принудительно обновляем страницу для полного обновления состояния
+            // Перенаправляем пользователя на главную страницу или туда, куда он шел
             const redirectTo = route.query.redirect as string;
             router.push(redirectTo || '/');
         } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
-            // Ошибка авторизации
+            // Обработка ошибки авторизации
             console.error('Google auth error:', event.data.data.error);
 
-            // Убираем слушатель
+            // Удаляем слушатель
             window.removeEventListener('message', messageListener);
         }
     };
@@ -90,7 +92,7 @@ const openGoogleAuth = () => {
     // Добавляем слушатель сообщений
     window.addEventListener('message', messageListener);
 
-    // Убираем слушатель если popup закрыт без авторизации
+    // Удаляем слушатель если popup закрыт без завершения авторизации
     const checkClosed = setInterval(() => {
         if (popup?.closed) {
             window.removeEventListener('message', messageListener);
@@ -99,9 +101,9 @@ const openGoogleAuth = () => {
     }, 1000);
 };
 
-// Метод для инициализации Telegram Login Widget
+// Инициализация авторизации Telegram
 const initTelegramAuth = () => {
-    // Проверяем, загружен ли Telegram Widget скрипт
+    // Проверяем, загружен ли Telegram Widget
     if (!window.Telegram) {
         loadTelegramScript();
     } else {
@@ -109,7 +111,7 @@ const initTelegramAuth = () => {
     }
 };
 
-// Загрузка Telegram Widget скрипта
+// Загрузка скрипта Telegram Widget
 const loadTelegramScript = () => {
     if (document.getElementById('telegram-login-script')) return;
 
@@ -121,12 +123,10 @@ const loadTelegramScript = () => {
     document.head.appendChild(script);
 };
 
-// Показать всплывающее окно Telegram авторизации
+// Отображение всплывающего окна Telegram авторизации
 const showTelegramPopup = () => {
-    // Для этого вам нужно создать Telegram бота и получить его ID
-    // Здесь мы временно жёстко указываем ID бота, чтобы исправить ошибку Bot id required
-    // TODO: позже можно вернуть использование переменной окружения VITE_APP_TELEGRAM_BOT_ID
-    // Бот для авторизации (отдельный от бота поддержки)
+    // ВАЖНО: нужно использовать бот ID вместо названия бота
+    // Для этого нужно получить ID бота, например через @userinfobot
     const botId = '8267596067';
 
     if (window.Telegram && window.Telegram.Login) {
@@ -144,7 +144,7 @@ const showTelegramPopup = () => {
     }
 };
 
-// Обработка данных авторизации Telegram
+// Обработка результата авторизации Telegram
 const handleTelegramAuth = async (data: any) => {
     try {
         console.log('Telegram auth: sending data to callback', { hasId: !!data?.id, hasHash: !!data?.hash });

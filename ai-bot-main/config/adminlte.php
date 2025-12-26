@@ -356,93 +356,99 @@ return [
             'url' => 'admin/support',
             'icon' => 'fas fa-fw mr-1 fa-headset',
             'active' => ['support*'],
-        ],
-
-        // MANAGEMENT DROPDOWN
-        [
-            'text' => 'Управление',
-            'icon' => 'fas fa-fw mr-1 fa-briefcase',
             'submenu' => [
                 [
-                    'text' => 'Администраторы',
-                    'url' => 'admin/admins',
-                    'icon' => 'fas fa-fw mr-1 fa-user-shield',
-                    'active' => ['admins*'],
-                    'can' => 'main-admin',
+                    'text' => 'Все обращения',
+                    'url' => 'admin/support',
+                    'icon' => 'fas fa-fw fa-list',
                 ],
                 [
-                    'text' => 'Контент',
-                    'icon' => 'fas fa-fw mr-1 fa-file-alt',
-                    'submenu' => [
-                        [
-                            'text' => 'Статьи',
-                            'url' => 'admin/articles',
-                            'icon' => 'far fa-fw mr-1 fa-file-alt',
-                            'active' => ['articles*', 'categories*'],
-                        ],
-                        [
-                            'text' => 'Страницы',
-                            'url' => 'admin/pages',
-                            'icon' => 'far fa-fw mr-1 fa-file',
-                            'active' => ['pages*'],
-                        ],
-                        [
-                            'text' => 'FAQ',
-                            'url' => 'admin/contents',
-                            'icon' => 'fas fa-fw mr-1 fa-question-circle',
-                            'active' => ['contents*'],
-                        ],
-                        [
-                            'text' => 'Отзывы',
-                            'url' => 'admin/reviews',
-                            'icon' => 'fas fa-fw mr-1 fa-star',
-                            'active' => ['reviews*'],
-                        ],
-                        [
-                            'text' => 'Блоки экономии',
-                            'url' => 'admin/savings-blocks',
-                            'icon' => 'fas fa-fw mr-1 fa-percent',
-                            'active' => ['savings-blocks*'],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'Сервисы',
-                    'icon' => 'fas fa-fw mr-1 fa-sitemap',
-                    'submenu' => [
-                        [
-                            'text' => 'Все сервисы',
-                            'url' => 'admin/services',
-                            'icon' => 'fas fa-fw mr-1 fa-clipboard-list',
-                            'active' => ['services*'],
-                        ],
-                        [
-                            'text' => 'Аккаунты сервисов',
-                            'url' => 'admin/service-accounts',
-                            'icon' => 'far fa-fw mr-1 fa-user',
-                            'active' => ['service-accounts*'],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'Прокси',
-                    'url' => 'admin/proxies',
-                    'icon' => 'fas fa-fw mr-1 fa-network-wired',
-                    'active' => ['proxies*'],
-                ],
-                [
-                    'text' => 'Промокоды',
-                    'url' => 'admin/promocodes',
-                    'icon' => 'fas fa-fw mr-1 fa-ticket-alt',
-                    'active' => ['promocode*'],
-                ],
-                [
-                    'text' => 'Настройки',
-                    'url' => 'admin/settings',
-                    'icon' => 'fas fa-fw mr-1 fa-cog',
-                    'active' => ['settings*'],
+                    'text' => 'Шаблоны ответов',
+                    'url' => 'admin/support-templates',
+                    'icon' => 'fas fa-fw fa-file-alt',
+                    'active' => ['support-templates*'],
                 ],
             ],
+        ],
+
+        [
+            'text' => 'Администраторы',
+            'url' => 'admin/admins',
+            'icon' => 'fas fa-fw mr-1 fa-user-shield',
+            'active' => ['admins*'],
+            'can' => 'main-admin',
+        ],
+        [
+            'text' => 'Контент',
+            'icon' => 'fas fa-fw mr-1 fa-file-alt',
+            'submenu' => [
+                [
+                    'text' => 'Статьи',
+                    'url' => 'admin/articles',
+                    'icon' => 'far fa-fw mr-1 fa-file-alt',
+                    'active' => ['articles*', 'categories*'],
+                ],
+                [
+                    'text' => 'Страницы',
+                    'url' => 'admin/pages',
+                    'icon' => 'far fa-fw mr-1 fa-file',
+                    'active' => ['pages*'],
+                ],
+                [
+                    'text' => 'FAQ',
+                    'url' => 'admin/contents',
+                    'icon' => 'fas fa-fw mr-1 fa-question-circle',
+                    'active' => ['contents*'],
+                ],
+                [
+                    'text' => 'Отзывы',
+                    'url' => 'admin/reviews',
+                    'icon' => 'fas fa-fw mr-1 fa-star',
+                    'active' => ['reviews*'],
+                ],
+                [
+                    'text' => 'Блоки экономии',
+                    'url' => 'admin/savings-blocks',
+                    'icon' => 'fas fa-fw mr-1 fa-percent',
+                    'active' => ['savings-blocks*'],
+                ],
+            ],
+        ],
+        [
+            'text' => 'Сервисы',
+            'icon' => 'fas fa-fw mr-1 fa-sitemap',
+            'submenu' => [
+                [
+                    'text' => 'Все сервисы',
+                    'url' => 'admin/services',
+                    'icon' => 'fas fa-fw mr-1 fa-clipboard-list',
+                    'active' => ['services*'],
+                ],
+                [
+                    'text' => 'Аккаунты сервисов',
+                    'url' => 'admin/service-accounts',
+                    'icon' => 'far fa-fw mr-1 fa-user',
+                    'active' => ['service-accounts*'],
+                ],
+            ],
+        ],
+        [
+            'text' => 'Прокси',
+            'url' => 'admin/proxies',
+            'icon' => 'fas fa-fw mr-1 fa-network-wired',
+            'active' => ['proxies*'],
+        ],
+        [
+            'text' => 'Промокоды',
+            'url' => 'admin/promocodes',
+            'icon' => 'fas fa-fw mr-1 fa-ticket-alt',
+            'active' => ['promocode*'],
+        ],
+        [
+            'text' => 'Настройки',
+            'url' => 'admin/settings',
+            'icon' => 'fas fa-fw mr-1 fa-cog',
+            'active' => ['settings*'],
         ],
 
         // NOTIFICATIONS DROPDOWN
@@ -527,7 +533,7 @@ return [
 
     'plugins' => [
         'CustomCss' => [
-            'active' => true,
+            'active' => false,
             'files' => [
                 [
                     'type' => 'css',
@@ -557,12 +563,12 @@ return [
             ],
         ],
         'CustomJs' => [
-            'active' => true,
+            'active' => false,
             'files' => [
                 [
                     'type' => 'js',
                     'asset' => true,
-                    'location' => '/assets/admin/js/custom.js',
+                    'location' => 'assets/admin/js/custom.js',
                 ],
             ],
         ],

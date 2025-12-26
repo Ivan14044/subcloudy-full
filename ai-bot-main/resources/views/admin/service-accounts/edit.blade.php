@@ -24,7 +24,7 @@
                         @csrf
                         @method('PUT')
                         <div class="form-group">
-                            <label for="type">{{ __('admin.service') }}</label>
+                            <label for="type">{{ __('admin.service_label') }}</label>
                             <select name="service_id" id="service_id"
                                     class="form-control @error('service_id') is-invalid @enderror">
                                 @foreach($services as $service)
@@ -58,10 +58,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="expiring_at">Expiring at</label>
+                            <label for="expiring_at">{{ __('admin.expiring_at') }}</label>
                             <input type="datetime-local" name="expiring_at" id="expiring_at"
                                    class="form-control @error('expiring_at') is-invalid @enderror"
-                                   value="{{ old('expiring_at', $serviceAccount->expiring_at) }}">
+                                   value="{{ old('expiring_at', $serviceAccount->expiring_at ? $serviceAccount->expiring_at->format('Y-m-d\TH:i') : '') }}">
                             @error('expiring_at')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror

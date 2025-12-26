@@ -7,10 +7,11 @@
             <p class="cookie-text">
                 {{ $t('cookie.message') }}
                 <br />
+                <!-- SEO: Добавлен href для краулеров -->
                 <a
+                    href="/cookie-policy"
                     target="_blank"
                     class="underline text-blue-300 hover:text-blue-200 cursor-pointer"
-                    @click="router.push('/cookie-policy')"
                 >
                     {{ $t('cookie.title') }}
                 </a>

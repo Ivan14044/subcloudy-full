@@ -26,20 +26,45 @@ class MonoController extends Controller
 {
     public function createPayment(Request $request, PromocodeValidationService $promoService): JsonResponse
     {
-        $request->validate([
-            'services' => 'required|array|min:1',
-            'services.*' => 'integer',
-            'subscriptionTypes' => 'nullable',
-            'promocode' => 'nullable|string',
+        Log::info('Mono createPayment request', [
+            'request_data' => $request->all(),
+            'bearer_token' => $request->bearerToken() ? 'present' : 'missing',
         ]);
+
+        try {
+            $request->validate([
+                'services' => 'required|array|min:1',
+                'services.*' => 'integer',
+                'subscriptionTypes' => 'nullable',
+                'promocode' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Mono createPayment validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = $this->getApiUser($request);
         if (!$user) {
+            Log::error('Mono createPayment: Invalid token', [
+                'token' => $request->bearerToken() ? 'present' : 'missing',
+            ]);
             return response()->json(['message' => 'Invalid token'], 401);
         }
 
+        Log::info('Mono createPayment: User authenticated', ['user_id' => $user->id]);
+
         $services = Service::whereIn('id', $request->services)->get();
         if ($services->isEmpty()) {
+            Log::error('Mono createPayment: Invalid services', [
+                'requested_services' => $request->services,
+            ]);
             return response()->json(['success' => false, 'message' => 'Invalid services'], 422);
         }
 
@@ -128,6 +153,13 @@ class MonoController extends Controller
             }
         }
 
+        Log::info('Mono createPayment: Creating invoice', [
+            'amount' => $totalAmount,
+            'user_id' => $user->id,
+            'services' => $request->services,
+            'trial_ids' => $trialIds,
+        ]);
+
         $invoice = MonoPaymentService::createInvoice(
             amount: $totalAmount,
             redirectUrl: config('app.url') . '/checkout?success=true',
@@ -139,11 +171,25 @@ class MonoController extends Controller
             walletId: 'wallet_user_' . $user->id,
         );
 
+        Log::info('Mono createPayment: Invoice response', [
+            'invoice' => $invoice,
+            'has_pageUrl' => isset($invoice['pageUrl']),
+        ]);
+
         if (isset($invoice['pageUrl'])) {
             return response()->json(['success' => true, 'url' => $invoice['pageUrl']]);
         }
 
-        return response()->json(['success' => false, 'message' => 'Failed to create payment'], 422);
+        Log::error('Mono createPayment: Failed to create invoice', [
+            'invoice_response' => $invoice,
+            'amount' => $totalAmount,
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to create payment',
+            'details' => $invoice ?? 'No response from Mono API'
+        ], 422);
     }
 
     public function webhook(Request $request, PromocodeValidationService $promoService): JsonResponse

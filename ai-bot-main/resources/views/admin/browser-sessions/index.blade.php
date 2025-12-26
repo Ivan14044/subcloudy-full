@@ -32,7 +32,7 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>{{ __('admin.user') }}</label>
+                                    <label>{{ __('admin.user_label') }}</label>
                                     <select name="user_id" class="form-control">
                                         <option value="">{{ __('admin.all') }}</option>
                                         @foreach($users as $user)
@@ -45,7 +45,7 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label>{{ __('admin.service') }}</label>
+                                    <label>{{ __('admin.service_label') }}</label>
                                     <select name="service_id" class="form-control" style="z-index: 1000;">
                                         <option value="">{{ __('admin.all') }}</option>
                                         @foreach($services as $service)
@@ -106,8 +106,8 @@
                             <thead>
                             <tr>
                                 <th style="width: 180px">{{ __('admin.date_time') }}</th>
-                                <th style="width: 200px">{{ __('admin.user') }}</th>
-                                <th style="width: 200px">{{ __('admin.service') }}</th>
+                                <th style="width: 200px">{{ __('admin.user_label') }}</th>
+                                <th style="width: 200px">{{ __('admin.service_label') }}</th>
                                 <th style="width: 120px">{{ __('admin.action') }}</th>
                                 <th style="width: 120px">{{ __('admin.duration') }}</th>
                                 <th style="width: 120px">IP</th>

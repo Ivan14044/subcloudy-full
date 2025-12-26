@@ -2,7 +2,7 @@
     <div
         class="flex flex-col sm:flex-row items-start sm:items-center justify-between relative mt-[30px] sm:mt-0 min-h-[350px] lg:min-h-[600px] xl:min-h-[600px]"
     >
-        <div class="sm:max-w-[100%] md:max-w-[45%] pointer-events-none">
+        <div class="sm:max-w-[100%] md:max-w-[45%]">
             <div class="hero-content">
                 <h1
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium leading-none text-gray-900 dark:text-white mb-4"
@@ -12,7 +12,9 @@
                     class="description text-gray-700 dark:text-gray-400 mb-6 md:mb-10 leading-6 text-lg"
                     v-html="$t('hero.description')"
                 ></p>
+                <!-- SEO: Добавлен href для краулеров -->
                 <a
+                    href="#services"
                     class="cta-button pointer-events-auto cursor-pointer"
                     @click.prevent="scrollToElement('#services')"
                 >

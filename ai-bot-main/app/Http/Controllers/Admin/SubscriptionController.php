@@ -7,6 +7,8 @@ use App\Models\Subscription;
 use App\Models\Service;
 use App\Models\User;
 use App\Models\Transaction;
+use App\Services\EmailService;
+use App\Services\NotificationTemplateService;
 use Illuminate\Http\Request;
 
 class SubscriptionController extends Controller
@@ -36,7 +38,23 @@ class SubscriptionController extends Controller
         ]);
 
         $validated['payment_method'] = 'default';
-        Subscription::create($validated);
+        $subscription = Subscription::create($validated);
+
+        // Отправка уведомления об активации, если статус active
+        if ($subscription->status === Subscription::STATUS_ACTIVE) {
+            $user = $subscription->user;
+            $service = $subscription->service;
+            $serviceName = $service ? ($service->getTranslation('name', $user->lang ?? 'en') ?? $service->name) : 'Service';
+            
+            EmailService::send('subscription_activated', $subscription->user_id, [
+                'service_name' => $serviceName,
+            ]);
+
+            app(NotificationTemplateService::class)->sendToUser($subscription->user, 'purchase', [
+                'service' => $service->code ?? 'Service',
+                'date' => $subscription->next_payment_at ? \Carbon\Carbon::parse($subscription->next_payment_at)->format('d.m.Y') : '-',
+            ]);
+        }
 
 
         $redirectUrl = $request->input('return_url')
@@ -55,12 +73,29 @@ class SubscriptionController extends Controller
 
     public function update(Request $request, Subscription $subscription)
     {
+        $oldStatus = $subscription->status;
         $validated = $request->validate([
             'status' => ['required'],
             'service_id' => ['required', 'integer', 'exists:services,id'],
         ]);
 
         $subscription->update($validated);
+
+        // Если подписка стала активной вручную
+        if ($oldStatus !== Subscription::STATUS_ACTIVE && $subscription->status === Subscription::STATUS_ACTIVE) {
+            $user = $subscription->user;
+            $service = $subscription->service;
+            $serviceName = $service ? ($service->getTranslation('name', $user->lang ?? 'en') ?? $service->name) : 'Service';
+            
+            EmailService::send('subscription_activated', $subscription->user_id, [
+                'service_name' => $serviceName,
+            ]);
+
+            app(NotificationTemplateService::class)->sendToUser($subscription->user, 'purchase', [
+                'service' => $service->code ?? 'Service',
+                'date' => $subscription->next_payment_at ? \Carbon\Carbon::parse($subscription->next_payment_at)->format('d.m.Y') : '-',
+            ]);
+        }
 
         $redirectUrl = $request->input('return_url')
             ? redirect($request->input('return_url'))

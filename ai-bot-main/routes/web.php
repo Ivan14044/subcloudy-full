@@ -22,8 +22,12 @@ use App\Http\Controllers\Admin\BrowserSessionController;
 use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\SupportController as AdminSupportController;
+use App\Http\Controllers\Admin\SupportTemplateController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
 Route::prefix('admin')
     ->name('admin.')
@@ -75,7 +79,7 @@ Route::prefix('admin')
             Route::resource('categories', CategoryController::class)->except(['show']);
             Route::resource('reviews', \App\Http\Controllers\Admin\ReviewController::class)->except(['show']);
             Route::resource('savings-blocks', \App\Http\Controllers\Admin\SavingsBlockController::class)->except(['show']);
-            Route::resource('contents', ContentController::class)->only(['index', 'edit', 'update']);
+            Route::resource('contents', ContentController::class);
             Route::resource('email-templates', EmailTemplateController::class)->except(['create', 'store']);
             Route::resource('settings', SettingController::class)->only(['index', 'store']);
             Route::post('settings/test-smtp', [SettingController::class, 'testSmtp'])->name('settings.test-smtp');
@@ -89,11 +93,17 @@ Route::prefix('admin')
                 ->parameters(['admin_notifications' => 'id']);
 
             // Обращения клиентов (Support)
+            Route::get('support/stats', [AdminSupportController::class, 'stats'])->name('support.stats');
+            Route::get('support/new-messages/{id}', [AdminSupportController::class, 'getNewMessages'])->name('support.new-messages');
             Route::get('support', [AdminSupportController::class, 'index'])->name('support.index');
+            Route::post('support/mass-action', [AdminSupportController::class, 'massAction'])->name('support.mass-action');
             Route::get('support/{id}', [AdminSupportController::class, 'show'])->name('support.show');
             Route::post('support/{id}/message', [AdminSupportController::class, 'sendMessage'])->name('support.send-message');
             Route::put('support/{id}/status', [AdminSupportController::class, 'updateStatus'])->name('support.update-status');
-            Route::get('support/stats', [AdminSupportController::class, 'stats'])->name('support.stats');
+            
+            // Шаблоны быстрых ответов
+            Route::resource('support-templates', SupportTemplateController::class);
+            Route::get('api/support-templates', [SupportTemplateController::class, 'getTemplates'])->name('support-templates.api');
 
             // Управление администраторами
             Route::middleware(['admin.main'])->group(function () {

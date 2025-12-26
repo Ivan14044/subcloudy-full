@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Subscription;
+use App\Models\Service;
 use App\Services\AuthService;
 use App\Services\EmailService;
+use App\Services\NotificationTemplateService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +17,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -143,6 +146,8 @@ class AuthController extends Controller
 
             $tokens = $this->authService->createTokens($user);
 
+            event(new Login('sanctum', $user, $request->boolean('remember')));
+
             $user->load(['subscriptions' => fn($q) => $q->orderBy('id', 'desc')]);
             $user->active_services = $user->activeServices();
 
@@ -160,12 +165,25 @@ class AuthController extends Controller
         if (!empty($user->sub_data['services']) && !empty($user->sub_data['days'])) {
             $services = array_map('intval', $user->sub_data['services']);
             foreach ($services as $serviceId) {
-                Subscription::create([
+                $subscription = Subscription::create([
                     'user_id' => $user->id,
                     'status' => Subscription::STATUS_ACTIVE,
                     'payment_method' => 'default',
                     'service_id' => $serviceId,
                     'next_payment_at' => Carbon::now()->addDays($user->sub_data['days']),
+                ]);
+
+                // Уведомление об активации отложенной подписки
+                $service = Service::find($serviceId);
+                $serviceName = $service ? ($service->getTranslation('name', $user->lang ?? 'en') ?? $service->name) : 'Service';
+                
+                EmailService::send('subscription_activated', $user->id, [
+                    'service_name' => $serviceName,
+                ]);
+
+                app(NotificationTemplateService::class)->sendToUser($user, 'purchase', [
+                    'service' => $service->code ?? 'Service',
+                    'date' => $subscription->next_payment_at ? $subscription->next_payment_at->format('d.m.Y') : '-',
                 ]);
             }
         }

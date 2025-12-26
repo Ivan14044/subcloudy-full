@@ -23,7 +23,7 @@
                     <thead>
                     <tr>
                         <th style="width: 40px">{{ __('admin.id') }}</th>
-                        <th>{{ __('admin.user') }}</th>
+                        <th>{{ __('admin.user_label') }}</th>
                         <th>{{ __('admin.notifications') }}</th>
                         <th>Прочитано</th>
                         <th>{{ __('admin.created_at') }}</th>

@@ -20,21 +20,44 @@ use Illuminate\Http\Request;
 use App\Services\EmailService;
 use App\Services\PromocodeValidationService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CryptomusController extends Controller
 {
     public function createPayment(Request $request, PromocodeValidationService $promoService)
     {
-        $request->validate([
-            'services' => 'required|array|min:1',
-            'services.*' => 'integer',
-            'promocode' => 'nullable|string',
+        Log::info('Cryptomus createPayment request', [
+            'request_data' => $request->all(),
+            'bearer_token' => $request->bearerToken() ? 'present' : 'missing',
         ]);
+
+        try {
+            $request->validate([
+                'services' => 'required|array|min:1',
+                'services.*' => 'integer',
+                'promocode' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Cryptomus createPayment validation failed', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $user = $this->getApiUser($request);
         if (!$user) {
+            Log::error('Cryptomus createPayment: Invalid token', [
+                'token' => $request->bearerToken() ? 'present' : 'missing',
+            ]);
             return response()->json(['message' => 'Invalid token'], 401);
         }
+
+        Log::info('Cryptomus createPayment: User authenticated', ['user_id' => $user->id]);
 
         $services = Service::whereIn('id', $request->services)->get();
         if ($services->isEmpty()) {
@@ -95,6 +118,30 @@ class CryptomusController extends Controller
         }
 
         $orderId = 'order_' . $user->id . '_' . time();
+        
+        // Проверяем конфигурацию Cryptomus
+        $merchantUuid = config('cryptomus.merchant_uuid');
+        $paymentKey = config('cryptomus.payment_key');
+        
+        Log::info('Cryptomus createPayment: Configuration check', [
+            'merchant_uuid_present' => !empty($merchantUuid),
+            'payment_key_present' => !empty($paymentKey),
+            'order_id' => $orderId,
+            'total_amount' => $totalAmount,
+            'currency' => Option::get('currency'),
+        ]);
+
+        if (empty($merchantUuid) || empty($paymentKey)) {
+            Log::error('Cryptomus createPayment: Configuration missing', [
+                'merchant_uuid' => $merchantUuid ? 'present' : 'missing',
+                'payment_key' => $paymentKey ? 'present' : 'missing',
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Cryptomus configuration is missing',
+            ], 500);
+        }
+
         $sdk = new CryptomusSdk();
 
         $promoQuery = [];
@@ -111,28 +158,73 @@ class CryptomusController extends Controller
             }
         }
 
-        $response = $sdk->create_payment(
-            $orderId,
-            $totalAmount,
-            Option::get('currency'),
-            '',
-            '',
-            config('app.url') . '/checkout',
-            config('app.url') . '/api/cryptomus/webhook?service_ids=' . implode(',', $request->services) . '&user_id=' . $user->id . (count($promoQuery) ? '&' . http_build_query($promoQuery) : ''),
-            config('app.url') . '/checkout?success=true',
-        );
+        $webhookUrl = config('app.url') . '/api/cryptomus/webhook?service_ids=' . implode(',', $request->services) . '&user_id=' . $user->id . (count($promoQuery) ? '&' . http_build_query($promoQuery) : '');
+        
+        Log::info('Cryptomus createPayment: Creating payment', [
+            'order_id' => $orderId,
+            'amount' => $totalAmount,
+            'currency' => Option::get('currency'),
+            'webhook_url' => $webhookUrl,
+        ]);
 
-        if ($response) {
-            return response()->json([
-                'success' => true,
-                'url' => $response,
+        try {
+            $response = $sdk->create_payment(
+                $orderId,
+                $totalAmount,
+                Option::get('currency'),
+                '',
+                '',
+                config('app.url') . '/checkout',
+                $webhookUrl,
+                config('app.url') . '/checkout?success=true',
+            );
+
+            Log::info('Cryptomus createPayment: Payment response', [
+                'response' => $response,
+                'response_type' => gettype($response),
+                'has_response' => !empty($response),
             ]);
-        }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to create payment',
-        ], 422);
+            // SDK возвращает строку с URL или может вернуть массив
+            $paymentUrl = is_array($response) ? ($response['url'] ?? null) : $response;
+
+            if (!empty($paymentUrl)) {
+                return response()->json([
+                    'success' => true,
+                    'url' => $paymentUrl,
+                ]);
+            }
+
+            Log::error('Cryptomus createPayment: Empty or invalid response from SDK', [
+                'response' => $response,
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create payment - invalid response from payment provider',
+            ], 422);
+        } catch (RequestBuilderException $e) {
+            Log::error('Cryptomus createPayment: RequestBuilderException', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create payment: ' . $e->getMessage(),
+            ], 500);
+        } catch (\Exception $e) {
+            Log::error('Cryptomus createPayment: Exception', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create payment: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**

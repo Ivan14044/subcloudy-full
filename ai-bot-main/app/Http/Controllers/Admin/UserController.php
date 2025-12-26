@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Service;
 use App\Models\Subscription;
+use App\Models\UserLogin;
+use App\Models\SubscriptionLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -63,7 +65,18 @@ class UserController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('admin.users.edit', compact('user', 'subscriptions'));
+        $loginHistory = UserLogin::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $subscriptionLogs = SubscriptionLog::where('user_id', $user->id)
+            ->with('subscription.service')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get();
+
+        return view('admin.users.edit', compact('user', 'subscriptions', 'loginHistory', 'subscriptionLogs'));
     }
 
     public function update(Request $request, User $user)

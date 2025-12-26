@@ -14,7 +14,7 @@ class ServiceAccountController extends Controller
 {
     public function index()
     {
-        $serviceAccounts = ServiceAccount::with('service')
+        $serviceAccounts = ServiceAccount::with(['service', 'users'])
             ->withCount('users')
             ->orderBy('id', 'desc')
             ->get()

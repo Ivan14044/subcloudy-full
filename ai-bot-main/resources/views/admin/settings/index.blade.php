@@ -228,7 +228,7 @@
                                                         id="cookie_country_{{ $code }}"
                                                         name="cookie_countries[]"
                                                         value="{{ $code }}"
-                                                        {{ in_array($code, old('cookie_countries', json_decode(\App\Models\Option::get('cookie_countries', '[]'), true))) ? 'checked' : '' }}
+                                                        {{ in_array($code, old('cookie_countries', \App\Models\Option::get('cookie_countries', []))) ? 'checked' : '' }}
                                                 >
                                                 <label class="form-check-label" for="cookie_country_{{ $code }}">
                                                     <span class="flag-icon flag-icon-{{ strtolower($code) }}"></span>
@@ -246,14 +246,16 @@
                             </form>
                         </div>
                         <div class="tab-pane" id="content_smtp" role="tabpanel">
-                            <form method="POST" action="{{ route('admin.settings.store') }}">
+                            <form method="POST" action="{{ route('admin.settings.store') }}" id="smtp-form">
                                 @csrf
                                 <input type="hidden" name="form" value="smtp">
                                 <div class="form-group">
                                     <label for="from_address">Адрес отправителя</label>
                                     <input type="email" name="from_address" id="from_address"
                                            class="form-control @error('from_address') is-invalid @enderror"
-                                           value="{{ old('from_address', \App\Models\Option::get('from_address')) }}">
+                                           value="{{ old('from_address', \App\Models\Option::get('from_address')) }}"
+                                           placeholder="noreply@example.com">
+                                    <small class="form-text text-muted">Email адрес, с которого будут отправляться письма</small>
                                     @error('from_address')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
@@ -262,58 +264,94 @@
                                     <label for="from_name">Имя отправителя</label>
                                     <input type="text" name="from_name" id="from_name"
                                            class="form-control @error('from_name') is-invalid @enderror"
-                                           value="{{ old('from_name', \App\Models\Option::get('from_name')) }}">
+                                           value="{{ old('from_name', \App\Models\Option::get('from_name')) }}"
+                                           placeholder="Subcloudy">
+                                    <small class="form-text text-muted">Имя, которое будет отображаться в поле "От"</small>
                                     @error('from_name')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="host">Хост</label>
+                                    <label for="host">SMTP Хост</label>
                                     <input type="text" name="host" id="host"
                                            class="form-control @error('host') is-invalid @enderror"
-                                           value="{{ old('host', \App\Models\Option::get('host')) }}">
+                                           value="{{ old('host', \App\Models\Option::get('host')) }}"
+                                           placeholder="smtp.gmail.com">
+                                    <small class="form-text text-muted">Адрес SMTP сервера (например: smtp.gmail.com, smtp.mail.ru)</small>
                                     @error('host')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="port">Порт</label>
-                                    <input type="text" name="port" id="port"
+                                    <input type="number" name="port" id="port" min="1" max="65535"
                                            class="form-control @error('port') is-invalid @enderror"
-                                           value="{{ old('port', \App\Models\Option::get('port')) }}">
+                                           value="{{ old('port', \App\Models\Option::get('port')) }}"
+                                           placeholder="587">
+                                    <small class="form-text text-muted">
+                                        Стандартные порты: 587 (TLS, рекомендуется), 465 (SSL), 25 (без шифрования)
+                                    </small>
                                     @error('port')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="encryption">Шифрование</label>
-                                    <input type="text" name="encryption" id="encryption"
-                                           class="form-control @error('encryption') is-invalid @enderror"
-                                           value="{{ old('encryption', \App\Models\Option::get('encryption')) }}">
+                                    <select name="encryption" id="encryption"
+                                            class="form-control @error('encryption') is-invalid @enderror">
+                                        <option value="">Без шифрования</option>
+                                        <option value="tls" {{ old('encryption', \App\Models\Option::get('encryption')) == 'tls' ? 'selected' : '' }}>TLS</option>
+                                        <option value="ssl" {{ old('encryption', \App\Models\Option::get('encryption')) == 'ssl' ? 'selected' : '' }}>SSL</option>
+                                    </select>
+                                    <small class="form-text text-muted">
+                                        TLS рекомендуется для большинства SMTP серверов (обычно используется с портом 587)
+                                    </small>
                                     @error('encryption')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="username">Имя пользователя</label>
+                                    <label for="username">Имя пользователя (Email)</label>
                                     <input type="text" name="username" id="username"
                                            class="form-control @error('username') is-invalid @enderror"
-                                           value="{{ old('username', \App\Models\Option::get('username')) }}">
+                                           value="{{ old('username', \App\Models\Option::get('username')) }}"
+                                           placeholder="user@example.com">
+                                    <small class="form-text text-muted">Обычно это ваш email адрес для входа в почтовый сервис</small>
                                     @error('username')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="form-group">
                                     <label for="password">Пароль</label>
-                                    <input type="text" name="password" id="password"
-                                           class="form-control @error('password') is-invalid @enderror"
-                                           value="{{ old('password', \App\Models\Option::get('password')) }}">
+                                    <div class="input-group">
+                                        <input type="password" name="password" id="password"
+                                               class="form-control @error('password') is-invalid @enderror"
+                                               value="{{ old('password', \App\Models\Option::get('password')) }}"
+                                               placeholder="Введите пароль SMTP">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="toggle-password">
+                                                <i class="fas fa-eye" id="toggle-password-icon"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Пароль для SMTP авторизации. Для Gmail используйте "Пароль приложения"
+                                    </small>
                                     @error('password')
                                     <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <button type="submit" class="btn btn-primary mt-3">{{ __('admin.save') }}</button>
+                                <div class="form-group">
+                                    <button type="button" class="btn btn-info" id="test-smtp-btn">
+                                        <i class="fas fa-vial"></i> Тестировать подключение
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> {{ __('admin.save') }}
+                                    </button>
+                                </div>
+                                
+                                <div id="smtp-test-result" class="mt-3" style="display: none;"></div>
                             </form>
                         </div>
                         
@@ -398,13 +436,26 @@
             loadData('footer', footerMenu);
 
             function loadData(type, menu) {
-                let menuData = JSON.parse(menu);
+                let menuData = menu;
+                if (typeof menuData === 'string') {
+                    try {
+                        menuData = JSON.parse(menuData);
+                    } catch (e) {
+                        return;
+                    }
+                }
 
                 for (const lang in menuData) {
-                    const raw = menuData[lang];
-                    if (!raw) continue;
+                    let items = menuData[lang];
+                    if (typeof items === 'string') {
+                        try {
+                            items = JSON.parse(items);
+                        } catch (e) {
+                            continue;
+                        }
+                    }
 
-                    const items = JSON.parse(raw);
+                    if (!Array.isArray(items)) continue;
 
                     items.forEach(item => {
                         const itemHtml = `
@@ -425,7 +476,10 @@
                 }
             }
 
-            const activeTab = @json(old('form', session('active_tab')));
+            // Активируем вкладку из session или URL параметра
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabFromUrl = urlParams.get('tab');
+            const activeTab = tabFromUrl || @json(old('form', session('active_tab')));
             if (activeTab) {
                 const tabId = '#tab_' + activeTab;
                 const paneId = '#content_' + activeTab;
@@ -436,6 +490,76 @@
                 $(tabId).addClass('active');
                 $(paneId).addClass('show active');
             }
+
+            // Показать/скрыть пароль SMTP
+            $('#toggle-password').on('click', function() {
+                const $passwordInput = $('#password');
+                const $icon = $('#toggle-password-icon');
+                
+                if ($passwordInput.attr('type') === 'password') {
+                    $passwordInput.attr('type', 'text');
+                    $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    $passwordInput.attr('type', 'password');
+                    $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+
+            // Тестирование SMTP подключения
+            $('#test-smtp-btn').on('click', function() {
+                const $btn = $(this);
+                const $result = $('#smtp-test-result');
+                const originalText = $btn.html();
+                
+                // Собираем данные из формы
+                const formData = {
+                    from_address: $('#from_address').val(),
+                    from_name: $('#from_name').val(),
+                    host: $('#host').val(),
+                    port: $('#port').val(),
+                    encryption: $('#encryption').val(),
+                    username: $('#username').val(),
+                    password: $('#password').val(),
+                    _token: $('input[name="_token"]').val()
+                };
+
+                // Валидация на клиенте
+                if (!formData.from_address || !formData.host || !formData.port || !formData.username || !formData.password) {
+                    $result.html('<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Пожалуйста, заполните все обязательные поля</div>').show();
+                    return;
+                }
+
+                // Блокируем кнопку и показываем загрузку
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Тестирование...');
+                $result.hide();
+
+                // Отправляем AJAX запрос
+                $.ajax({
+                    url: '{{ route("admin.settings.test-smtp") }}',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            $result.html('<div class="alert alert-success"><i class="fas fa-check-circle"></i> ' + response.message + '</div>').show();
+                        } else {
+                            $result.html('<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ' + response.message + '</div>').show();
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Произошла ошибка при тестировании подключения';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = Object.values(xhr.responseJSON.errors).flat();
+                            errorMessage = errors.join('<br>');
+                        }
+                        $result.html('<div class="alert alert-danger"><i class="fas fa-times-circle"></i> ' + errorMessage + '</div>').show();
+                    },
+                    complete: function() {
+                        $btn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
         });
     </script>
 @endsection

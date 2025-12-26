@@ -44,7 +44,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="service_id">{{ __('admin.service') }}</label>
+                            <label for="service_id">{{ __('admin.service_label') }}</label>
                             <select name="service_id" id="service_id" class="form-control @error('service_id') is-invalid @enderror">
                                 @foreach($services as $service)
                                     <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>{{ $service->code }}</option>

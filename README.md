@@ -36,20 +36,12 @@ Subcloudy is a multi-platform ecosystem for service management and browser-based
 
 ## Deployment
 
-### Backend
-1. `cd ai-bot-main`
-2. `composer install`
-3. `php artisan migrate`
-4. `php artisan serve`
+Подробные инструкции см. в:
+- [Инструкция по деплою (RU)](DEPLOYMENT_INSTRUCTIONS_RU.md)
+- [Deployment Guide (Full)](DEPLOYMENT_GUIDE.md)
 
-### Frontend
-1. `cd ai-bot-front-main`
-2. `npm install`
-3. `npm run dev` (for development)
-4. `npm run build` (for production)
+### Краткие пути на сервере:
+- **Frontend Root:** `/var/www/subcloudy/public/`
+- **Backend Root:** `/var/www/subcloudy/ai-bot-main/`
 
-### Desktop
-1. `cd subcloudy-desktop`
-2. `npm install`
-3. `npm run dev`
 

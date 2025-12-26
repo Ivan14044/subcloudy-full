@@ -71,6 +71,7 @@ const languages = [
     { code: 'es', name: 'Español' }
 ];
 
+// SAVED BY AI
 const { locale } = useI18n();
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
@@ -95,7 +96,7 @@ const handleClickOutside = (event: MouseEvent) => {
     const target = event.target as Node;
     
     // ИГНОРИРУЕМ клики внутри модального окна поддержки
-    const supportModal = document.querySelector('.modal-overlay');
+    const supportModal = document.querySelector('.support-modal-container');
     if (supportModal && supportModal.contains(target)) {
         return;
     }

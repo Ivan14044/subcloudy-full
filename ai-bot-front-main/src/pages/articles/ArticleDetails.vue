@@ -4,13 +4,13 @@
     >
         <div class="max-w-3xl mx-auto">
             <div class="flex items-start justify-between mt-6 mb-10">
-                <h1
+                <div
                     v-if="article"
                     class="text-2xl font-medium md:text-4xl md:font-light text-dark dark:text-white min-w-0 truncate"
                     :title="article.title"
                 >
                     {{ article.title }}
-                </h1>
+                </div>
                 <BackLink class="self-start" />
             </div>
 

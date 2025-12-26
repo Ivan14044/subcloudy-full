@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\SubscriptionLog;
 
 class Subscription extends Model
 {
@@ -30,8 +31,27 @@ class Subscription extends Model
     {
         parent::boot();
 
+        static::created(function ($subscription) {
+            SubscriptionLog::create([
+                'user_id' => $subscription->user_id,
+                'subscription_id' => $subscription->id,
+                'event' => 'created',
+                'new_data' => $subscription->toArray(),
+            ]);
+        });
+
         // Очистка связей при изменении статуса на canceled или ended
         static::updating(function ($subscription) {
+            if ($subscription->isDirty()) {
+                SubscriptionLog::create([
+                    'user_id' => $subscription->user_id,
+                    'subscription_id' => $subscription->id,
+                    'event' => 'updated',
+                    'old_data' => array_intersect_key($subscription->getOriginal(), $subscription->getDirty()),
+                    'new_data' => $subscription->getDirty(),
+                ]);
+            }
+
             // Если статус меняется на canceled или ended
             if ($subscription->isDirty('status')) {
                 $oldStatus = $subscription->getOriginal('status');
@@ -67,6 +87,15 @@ class Subscription extends Model
                         ->detach();
                 }
             }
+        });
+
+        static::deleted(function ($subscription) {
+            SubscriptionLog::create([
+                'user_id' => $subscription->user_id,
+                'subscription_id' => $subscription->id,
+                'event' => 'deleted',
+                'old_data' => $subscription->toArray(),
+            ]);
         });
     }
 

@@ -1,21 +1,29 @@
 @php
     $message = $translation['message'] ?? '';
     $buttonHtml = '
-        <p style="text-align: center; margin: 30px 0;">
-            <a href="' . $url . '" class="button" style="
+        <div class="button-container">
+            <a href="' . $url . '" class="button" target="_blank" style="
                 display: inline-block;
-                background-color: #0047ff;
+                background: linear-gradient(135deg, #0047ff 0%, #007bff 100%);
                 color: #ffffff !important;
                 text-decoration: none;
-                padding: 12px 24px;
-                border-radius: 6px;
-                font-weight: bold;
+                padding: 14px 32px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 16px;
+                box-shadow: 0 4px 12px rgba(0, 71, 255, 0.3);
             ">
-                ' . __('email.reset_password') . '
+                ' . (trans('email.reset_password') ?: 'Сбросить пароль') . '
             </a>
-        </p>
+        </div>
     ';
     $message = str_replace('{{button}}', $buttonHtml, $message);
+    
+    // Добавляем badge если его нет
+    if (strpos($message, 'badge') === false) {
+        $badgeHtml = '<div class="badge badge-info">🔐 Сброс пароля</div>';
+        $message = $badgeHtml . $message;
+    }
 @endphp
 
 {!! $message !!}

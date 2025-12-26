@@ -56,31 +56,32 @@ const routes = [
             seoKey: 'home'
         }
     },
-    { path: '/login', component: LoginPage, meta: { requiresGuest: true } },
+    { path: '/login', component: LoginPage, meta: { requiresGuest: true, robots: 'noindex, nofollow' } },
     {
         path: '/register',
         component: RegisterPage,
-        meta: { requiresGuest: true }
+        meta: { requiresGuest: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/forgot-password',
         component: ForgotPasswordPage,
-        meta: { requiresGuest: true }
+        meta: { requiresGuest: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/reset-password/:token',
         component: ResetPasswordPage,
-        meta: { requiresGuest: true },
+        meta: { requiresGuest: true, robots: 'noindex, nofollow' },
         props: true
     },
     {
         path: '/auth/callback',
-        component: AuthCallback
+        component: AuthCallback,
+        meta: { robots: 'noindex, nofollow' }
     },
     {
         path: '/profile',
         component: ProfilePage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/service/:id',
@@ -100,7 +101,8 @@ const routes = [
         component: ArticlesAll,
         meta: {
             isArticlesList: true,
-            seoKey: 'articles'
+            seoKey: 'articles',
+            robots: 'noindex, follow'
         }
     },
     {
@@ -117,7 +119,8 @@ const routes = [
         component: ArticlesAll,
         meta: {
             isArticlesList: true,
-            seoKey: 'category'
+            seoKey: 'category',
+            robots: 'noindex, follow'
         }
     },
     {
@@ -128,22 +131,22 @@ const routes = [
     {
         path: '/checkout',
         component: CheckoutPage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/subscriptions',
         component: SubscriptionsPage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/download-app',
         component: DownloadAppPage,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/session-start/:id?',
         component: SessionStart,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true, robots: 'noindex, nofollow' }
     },
     {
         path: '/:slug(.*)*',
@@ -566,7 +569,8 @@ router.afterEach((to) => {
             description: baseDesc,
             keywords: to.meta?.keywords,
             canonical,
-            hreflangs
+            hreflangs,
+            robots: to.meta?.robots
         });
     } catch (_) {}
 });

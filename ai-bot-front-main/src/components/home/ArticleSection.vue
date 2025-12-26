@@ -1,4 +1,4 @@
-<template v-if="articles.length === 0">
+<template v-if="articles && articles.length > 0">
     <div class="text-center mb-16">
         <h2
             class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
@@ -22,9 +22,10 @@
             />
         </div>
         <div class="text-center mt-12">
+            <!-- SEO: Добавлен href для краулеров -->
             <a
-                class="cta-button pointer-events-auto cursor-pointer"
-                @click="router.push('/articles')"
+                href="/articles"
+                class="cta-button pointer-events-auto cursor-pointer inline-block"
             >
                 {{ t('articles.allArticles') }}
             </a>

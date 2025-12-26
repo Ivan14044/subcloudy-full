@@ -18,6 +18,8 @@ class Ticket extends Model
         'status',
         'subject',
         'guest_email',
+        'session_token',
+        'lang',
     ];
 
     protected $casts = [

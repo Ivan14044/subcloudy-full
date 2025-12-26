@@ -66,6 +66,14 @@
                 itemtype="https://schema.org/Question"
                 class="faq-item mb-4"
             >
+                <!-- SEO Metadata (Hidden from user, but visible to crawlers) -->
+                <div style="display: none;">
+                    <span itemprop="name">{{ item.question }}</span>
+                    <div itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+                        <div itemprop="text">{{ item.answer }}</div>
+                    </div>
+                </div>
+
                 <div
                     class="liquid-glass-wrapper faq-question-wrapper rounded-lg overflow-hidden transition-all duration-300"
                     :class="{ 'faq-item-open': openIndex === index }"
@@ -80,7 +88,7 @@
                             type="button"
                             :aria-expanded="openIndex === index"
                         >
-                            <span itemprop="name" class="font-medium text-lg text-gray-900 dark:text-white pr-4">
+                            <span class="font-medium text-lg text-gray-900 dark:text-white pr-4">
                                 {{ item.question }}
                             </span>
                             <svg
@@ -107,12 +115,9 @@
                                 class="faq-answer-wrapper overflow-hidden"
                             >
                                 <div
-                                    itemprop="acceptedAnswer"
-                                    itemscope
-                                    itemtype="https://schema.org/Answer"
                                     class="faq-answer px-6 pb-4 text-gray-700 dark:text-gray-300 leading-relaxed"
                                 >
-                                    <div itemprop="text">
+                                    <div>
                                         {{ item.answer }}
                                     </div>
                                 </div>
@@ -363,4 +368,3 @@ watch(() => locale.value, () => {
     }
 }
 </style>
-

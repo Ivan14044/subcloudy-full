@@ -18,6 +18,7 @@ import { useOptionStore } from '@/stores/options';
 import { useNotificationStore } from '@/stores/notifications';
 import { useLoadingStore } from '@/stores/loading';
 import { useAuthStore } from '@/stores/auth';
+import { useSupportStore } from '@/stores/support';
 
 import logo from '@/assets/logo.webp';
 import { prefetchCriticalRoutes } from '@/utils/prefetchUtils';
@@ -55,6 +56,7 @@ onMounted(async () => {
     const serviceStore = useServiceStore();
     const optionStore = useOptionStore();
     const notificationStore = useNotificationStore();
+    const supportStore = useSupportStore();
 
     // Используем Promise.allSettled для устойчивости к ошибкам
     const promises = [
@@ -62,7 +64,16 @@ onMounted(async () => {
         serviceStore.fetchData(),
         optionStore.fetchData(),
         // Загружаем уведомления только если пользователь авторизован
-        authStore.user ? notificationStore.fetchData() : Promise.resolve()
+        authStore.user ? notificationStore.fetchData() : Promise.resolve(),
+        // Инициализируем техподдержку в фоне (для уведомлений)
+        (localStorage.getItem('support_ticket_id') || authStore.isAuthenticated) 
+            ? supportStore.ensureTicket().then(ok => {
+                if (ok) {
+                    const pollEmail = authStore.isAuthenticated ? undefined : (supportStore.guestEmail || localStorage.getItem('support_guest_email') || undefined);
+                    supportStore.startPolling(pollEmail);
+                }
+            }) 
+            : Promise.resolve()
     ];
 
     await Promise.allSettled(promises);

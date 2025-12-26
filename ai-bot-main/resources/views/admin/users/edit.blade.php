@@ -84,7 +84,7 @@
                         <thead>
                         <tr>
                             <th style="width: 30px">{{ __('admin.id') }}</th>
-                            <th>{{ __('admin.service') }}</th>
+                            <th>{{ __('admin.service_label') }}</th>
                             <th>{{ __('admin.status') }}</th>
                             <th>{{ __('admin.amount') }}</th>
                             <th>{{ __('admin.payment_info') }}</th>
@@ -244,6 +244,122 @@
                         @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card card-primary card-outline card-tabs">
+                <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" id="activity-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="login-history-tab" data-toggle="pill" href="#login-history" role="tab" aria-controls="login-history" aria-selected="true">{{ __('admin.login_history') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="subscription-history-tab" data-toggle="pill" href="#subscription-history" role="tab" aria-controls="subscription-history" aria-selected="false">{{ __('admin.subscription_history') }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="activity-tabs-content">
+                        <div class="tab-pane fade show active" id="login-history" role="tabpanel" aria-labelledby="login-history-tab">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('admin.date_time') }}</th>
+                                        <th>{{ __('admin.ip_address') }}</th>
+                                        <th>{{ __('admin.user_agent') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($loginHistory as $login)
+                                        <tr>
+                                            <td>{{ $login->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <td><code>{{ $login->ip_address }}</code></td>
+                                            <td><small class="text-muted" style="word-break: break-all;">{{ $login->user_agent }}</small></td>
+                                        </tr>
+                                    @endforeach
+                                    @if($loginHistory->isEmpty())
+                                        <tr>
+                                            <td colspan="3" class="text-center">{{ __('admin.no_records') }}</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tab-pane fade" id="subscription-history" role="tabpanel" aria-labelledby="subscription-history-tab">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>{{ __('admin.date_time') }}</th>
+                                        <th>{{ __('admin.subscriptions') }}</th>
+                                        <th>{{ __('admin.event') }}</th>
+                                        <th>{{ __('admin.details') }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($subscriptionLogs as $log)
+                                        <tr>
+                                            <td>{{ $log->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <td>
+                                                @if($log->subscription)
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ url($log->subscription->service->logo) }}" class="mr-2" style="width: 20px;">
+                                                        <span>#{{ $log->subscription_id }} ({{ $log->subscription->service->code }})</span>
+                                                    </div>
+                                                @else
+                                                    #{{ $log->subscription_id }} ({{ __('admin.deleted') }})
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $badgeClass = match($log->event) {
+                                                        'created' => 'success',
+                                                        'updated' => 'info',
+                                                        'deleted' => 'danger',
+                                                        default => 'secondary'
+                                                    };
+                                                @endphp
+                                                <span class="badge badge-{{ $badgeClass }}">{{ __('admin.' . $log->event) }}</span>
+                                            </td>
+                                            <td>
+                                                @if($log->event === 'updated' && $log->old_data && $log->new_data)
+                                                    <ul class="mb-0 pl-3 small">
+                                                        @foreach($log->new_data as $key => $value)
+                                                            <li>
+                                                                <strong>{{ $key }}:</strong> 
+                                                                <span class="text-muted">{{ is_array($log->old_data[$key] ?? null) ? json_encode($log->old_data[$key]) : ($log->old_data[$key] ?? '-') }}</span> 
+                                                                &rarr; 
+                                                                <span class="text-success font-weight-bold">{{ is_array($value) ? json_encode($value) : $value }}</span>
+                                                            </li>
+                                                        @endforeach
+                                                    </ul>
+                                                @else
+                                                    @php
+                                                        $data = $log->old_data ?: $log->new_data;
+                                                        // Filter only important fields for display to avoid clutter
+                                                        $displayData = array_intersect_key($data, array_flip(['status', 'next_payment_at', 'is_auto_renew', 'payment_method']));
+                                                    @endphp
+                                                    <ul class="mb-0 pl-3 small">
+                                                        @foreach($displayData as $key => $value)
+                                                            <li><strong>{{ $key }}:</strong> {{ $value }}</li>
+                                                        @endforeach
+                                                    </ul>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    @if($subscriptionLogs->isEmpty())
+                                        <tr>
+                                            <td colspan="4" class="text-center">{{ __('admin.no_records') }}</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
