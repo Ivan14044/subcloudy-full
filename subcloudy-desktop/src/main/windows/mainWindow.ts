@@ -31,7 +31,7 @@ export async function createMainWindow(store: Store): Promise<BrowserWindow> {
       webSecurity: true,
       sandbox: true
     },
-    icon: join(__dirname, '../../resources/icons/icon.png')
+    icon: join(__dirname, '../../resources/icons/icon.ico')
   });
 
   // Сохранение размеров окна при изменении

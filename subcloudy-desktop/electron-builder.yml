@@ -3,7 +3,7 @@ productName: SubCloudy
 copyright: Copyright © 2024 SubCloudy
 
 directories:
-  output: dist-electron
+  output: release
   buildResources: resources
 
 files:
@@ -23,16 +23,19 @@ win:
     - target: nsis
       arch:
         - x64
-  icon: resources/icons/icon.ico
-  artifactName: ${productName}-Setup-${version}.${ext}
-  sign: null
+  artifactName: "${productName} Setup ${version}.${ext}"
+  publish:
+    - provider: generic
+      url: https://subcloudy.com/updates
 
 nsis:
   oneClick: false
+  perMachine: true
   allowToChangeInstallationDirectory: true
   createDesktopShortcut: always
   createStartMenuShortcut: true
-  shortcutName: ${productName}
+  shortcutName: SubCloudy
+  runAfterFinish: true
 
 # macOS Configuration
 mac:
@@ -43,9 +46,7 @@ mac:
   category: public.app-category.productivity
   hardenedRuntime: true
   gatekeeperAssess: false
-  entitlements: build/entitlements.mac.plist
-  entitlementsInherit: build/entitlements.mac.inherit.plist
-  artifactName: ${productName}-${version}.${ext}
+  artifactName: "${productName}-${version}.${ext}"
 
 dmg:
   sign: false
@@ -65,16 +66,9 @@ linux:
     - deb
   icon: resources/icons/icon.png
   category: Network
-  artifactName: ${productName}-${version}.${ext}
+  artifactName: "${productName}-${version}.${ext}"
 
-# Publish Configuration (для автообновлений)
 publish:
   provider: generic
-  url: https://updates.subcloudy.com
+  url: https://subcloudy.com/updates
   channel: latest
-
-# Updater Configuration
-updater:
-  provider: generic
-  url: https://updates.subcloudy.com
-

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session } from 'electron';
+import { app, BrowserWindow, ipcMain, session, dialog } from 'electron';
 import { join } from 'path';
 import { AuthManager } from './auth';
 import { ServiceManager } from './services';
@@ -249,9 +249,21 @@ function setupIPCHandlers() {
 // Обработка необработанных ошибок
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
+  if (app.isReady()) {
+    dialog.showErrorBox(
+      'Фатальная ошибка приложения',
+      `Произошла непредвиденная ошибка: ${error.message}\n\nПожалуйста, свяжитесь с поддержкой.`
+    );
+  }
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason: any) => {
   console.error('Unhandled Rejection:', reason);
+  if (app.isReady()) {
+    dialog.showErrorBox(
+      'Ошибка асинхронной операции',
+      `Запрос завершился неудачей: ${reason?.message || reason}\n\nПриложение продолжит работу, но некоторые функции могут быть недоступны.`
+    );
+  }
 });
 
