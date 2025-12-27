@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Hash;
 
 $user = User::where('email', 'admin@mail.com')->first();
 if ($user) {
-    $user->password = Hash::make('admin123456');
+    $user->password = Hash::make('Admin_14044');
     $user->save();
-    echo "Password for admin@mail.com updated to admin123456\n";
+    echo "Password for admin@mail.com updated to Admin_14044\n";
 } else {
     echo "Admin not found\n";
 }

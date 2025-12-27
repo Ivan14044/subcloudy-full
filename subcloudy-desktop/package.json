@@ -1,8 +1,8 @@
 {
   "name": "subcloudy-desktop",
-  "version": "1.0.0",
+  "version": "1.3.5",
   "description": "SubCloudy Desktop Application",
-  "main": "dist/main/index-fixed.js",
+  "main": "dist/main/index.js",
   "scripts": {
     "start": "electron .",
     "dev": "npm run build && electron .",
@@ -49,6 +49,12 @@
     "win": {
       "target": [
         "nsis"
+      ],
+      "publish": [
+        {
+          "provider": "generic",
+          "url": "https://subcloudy.com/updates"
+        }
       ]
     },
     "mac": {
