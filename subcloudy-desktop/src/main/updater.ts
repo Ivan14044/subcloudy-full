@@ -72,9 +72,13 @@ export class UpdateManager {
 
     autoUpdater.on('error', (error) => {
       console.error('[Updater] Error:', error);
+      // Дополнительное логирование для отладки на стороне пользователя
+      if (error.message.includes('electron-updater')) {
+        console.error('[Updater] Critical: electron-updater module error. Check dependencies.');
+      }
       this.updateStatus({
         status: 'error',
-        error: error.message
+        error: `Ошибка обновления: ${error.message}`
       });
     });
   }

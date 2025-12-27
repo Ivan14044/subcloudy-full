@@ -28,6 +28,7 @@ app.disableHardwareAcceleration();
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
+  console.log('[SubCloudy] Another instance is already running, quitting...');
   app.quit();
 } else {
   app.on('second-instance', () => {

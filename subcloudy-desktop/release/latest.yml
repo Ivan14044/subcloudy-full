@@ -1,8 +1,8 @@
-version: 1.3.6
+version: 1.0.0
 files:
-  - url: SubCloudy Setup 1.3.6.exe
-    sha512: UqEISkZeooaHfHIBXmWV7vtkMSndYispOZoYmRKtHO5H9XzZ5qM9+KxgOvMqynAU2gDKHG6k0rB+Re9tyJR7bQ==
-    size: 85802113
-path: SubCloudy Setup 1.3.6.exe
-sha512: UqEISkZeooaHfHIBXmWV7vtkMSndYispOZoYmRKtHO5H9XzZ5qM9+KxgOvMqynAU2gDKHG6k0rB+Re9tyJR7bQ==
-releaseDate: '2025-12-27T11:23:17.427Z'
+  - url: SubCloudy Setup 1.0.0.exe
+    sha512: 3oQC/s3eyKQQFxq8a4lAyV3WOE4NoEPGZH8yRekyFjg4Y0oqe/fbdzXgVTtb5iehnApsnkMy81FHOezg7k7O8Q==
+    size: 86048281
+path: SubCloudy Setup 1.0.0.exe
+sha512: 3oQC/s3eyKQQFxq8a4lAyV3WOE4NoEPGZH8yRekyFjg4Y0oqe/fbdzXgVTtb5iehnApsnkMy81FHOezg7k7O8Q==
+releaseDate: '2025-12-27T11:36:19.253Z'
