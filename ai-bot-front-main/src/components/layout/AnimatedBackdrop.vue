@@ -25,9 +25,10 @@ defineProps<{
         rgba(0, 123, 255, 0.45) 90%
     );
     animation: gradientMove 45s ease-in-out infinite;
-    will-change: transform;
-    transform: translateZ(0); /* Force GPU acceleration */
+    will-change: transform, opacity;
+    transform: translate3d(-18%, -18%, 0);
     backface-visibility: hidden;
+    perspective: 1000px;
 }
 
 @keyframes gradientMove {

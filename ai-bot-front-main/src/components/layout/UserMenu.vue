@@ -33,21 +33,19 @@
         </button>
 
         <!-- Dropdown Menu -->
-        <Teleport to="body">
-            <Transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="opacity-0 -translate-y-2"
-                enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition duration-150 ease-in"
-                leave-from-class="opacity-100 translate-y-0"
-                leave-to-class="opacity-0 -translate-y-2"
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 -translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-2"
+        >
+            <div
+                v-if="isOpen"
+                ref="menuRef"
+                class="user-menu-dropdown absolute top-full mt-2 right-0 min-w-[160px] z-[9999]"
             >
-                <div
-                    v-if="isOpen"
-                    ref="menuRef"
-                    :style="dropdownStyle"
-                    class="user-menu-dropdown fixed min-w-[160px] z-[9999]"
-                >
                     <div class="liquid-glass-effect"></div>
                     <div class="liquid-glass-tint"></div>
                     <div class="liquid-glass-shine"></div>
@@ -82,7 +80,6 @@
                     </div>
                 </div>
             </Transition>
-        </Teleport>
     </div>
     <div v-else id="loginMenu" ref="dropdownRef" class="flex items-center top-3 right-6 z-50">
         <button
@@ -112,23 +109,7 @@ const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const buttonRef = ref<HTMLElement | null>(null);
 const menuRef = ref<HTMLElement | null>(null);
-const dropdownStyle = ref({ top: '0px', right: '0px' });
 const isAuthenticated = computed(() => !!authStore.user);
-
-const updateDropdownPosition = () => {
-    if (!buttonRef.value || !isOpen.value) return;
-    
-    nextTick(() => {
-        // Используем requestAnimationFrame для батчинга чтений layout свойств
-        requestAnimationFrame(() => {
-            const rect = buttonRef.value!.getBoundingClientRect();
-            dropdownStyle.value = {
-                top: `${rect.bottom + 5}px`,
-                right: `${window.innerWidth - rect.right}px`
-            };
-        });
-    });
-};
 
 const handleAuthAction = () => {
     if (isAuthenticated.value) {
@@ -148,9 +129,6 @@ const navigateTo = async (path: string) => {
 
 const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
-    if (isOpen.value) {
-        updateDropdownPosition();
-    }
 };
 
 const handleClickOutside = (event: MouseEvent) => {
@@ -172,32 +150,19 @@ const handleClickOutside = (event: MouseEvent) => {
     }
 };
 
-watch(isOpen, (newVal) => {
-    if (newVal) {
-        updateDropdownPosition();
-        window.addEventListener('scroll', updateDropdownPosition);
-        window.addEventListener('resize', updateDropdownPosition);
-    } else {
-        window.removeEventListener('scroll', updateDropdownPosition);
-        window.removeEventListener('resize', updateDropdownPosition);
-    }
-});
-
 onMounted(() => {
     document.addEventListener('mousedown', handleClickOutside);
 });
 
 onUnmounted(() => {
     document.removeEventListener('mousedown', handleClickOutside);
-    window.removeEventListener('scroll', updateDropdownPosition);
-    window.removeEventListener('resize', updateDropdownPosition);
 });
 </script>
 
 <style scoped>
 /* Liquid Glass Effect для dropdown меню пользователя */
 .user-menu-dropdown {
-    position: fixed;
+    position: absolute;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem; /* rounded-lg */
     overflow: hidden;

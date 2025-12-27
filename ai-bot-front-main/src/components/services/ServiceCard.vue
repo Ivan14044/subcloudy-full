@@ -1,9 +1,9 @@
 <template>
     <div
         ref="cardRef"
-        class="service-card relative group rounded-3xl transform-gpu"
+        class="service-card relative group transform-gpu"
         :class="{ 'theme-dark': isDark, 'theme-light': !isDark, flipped: isFlipped }"
-        :style="[tiltStyle, containerHeightStyle]"
+        :style="[tiltStyle]"
         tabindex="0"
         @pointermove.passive="onPointerMove"
         @pointerenter="onPointerEnter"
@@ -250,16 +250,13 @@
                 </div>
             </section>
 
-            <div class="absolute inset-0 rounded-3xl pointer-events-none overlay-wrap z-0">
-                <div class="absolute inset-0 rounded-3xl glass-overlay"></div>
-                <div
-                    class="absolute inset-0 rounded-3xl glass-shine"
-                    :style="{ '--shine-x': shineX, '--shine-y': shineY }"
-                ></div>
+                    <div
+                        class="absolute inset-0 rounded-[1.5rem] pointer-events-none glass-shine z-5"
+                        :style="{ '--shine-x': shineX, '--shine-y': shineY }"
+                    ></div>
+                </div>
             </div>
-        </div>
-    </div>
-</template>
+        </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
@@ -384,19 +381,14 @@ const frontVisible = ref(true);
 
 const isMobile = ref(false);
 
-const targetX = ref(0.5);
-const targetY = ref(0.5);
-const displayX = ref(0.5);
-const displayY = ref(0.5);
-let rafId: number | null = null;
+        const targetX = ref(0.5);
+        const targetY = ref(0.5);
+        const displayX = ref(0.5);
+        const displayY = ref(0.5);
+        let rafId: number | null = null;
 
-const containerHeight = ref<number | null>(null);
-const containerHeightStyle = computed(() =>
-    containerHeight.value ? { height: `${containerHeight.value}px` } : { height: 'auto' }
-);
-
-const shineX = computed(() => `${(displayX.value * 100).toFixed(2)}%`);
-const shineY = computed(() => `${(displayY.value * 100).toFixed(2)}%`);
+        const shineX = computed(() => `${(displayX.value * 100).toFixed(2)}%`);
+        const shineY = computed(() => `${(displayY.value * 100).toFixed(2)}%`);
 
 const baseMaxTilt = 4;
 const tiltStyle = computed(() => {
@@ -459,23 +451,22 @@ const onPointerMove = (e: PointerEvent) => {
     displayX.value = targetX.value;
     displayY.value = targetY.value;
 };
-const onPointerEnter = () => {
-    if (cardRef.value) {
-        // Первый RAF для изменения DOM
-        requestAnimationFrame(() => {
+        const onPointerEnter = () => {
             if (cardRef.value) {
-                cardRef.value.classList.add('is-active');
-                // Второй RAF для чтения layout свойств после применения изменений
+                // Первый RAF для изменения DOM
                 requestAnimationFrame(() => {
                     if (cardRef.value) {
-                        cardRect = cardRef.value.getBoundingClientRect();
-                        updateContainerHeight();
+                        cardRef.value.classList.add('is-active');
+                        // Второй RAF для чтения layout свойств после применения изменений
+                        requestAnimationFrame(() => {
+                            if (cardRef.value) {
+                                cardRect = cardRef.value.getBoundingClientRect();
+                            }
+                        });
                     }
                 });
             }
-        });
-    }
-};
+        };
 const onPointerLeave = () => {
     targetX.value = 0.5;
     targetY.value = 0.5;
@@ -489,19 +480,6 @@ const onPointerUp = (e: PointerEvent) => {
     (e.target as Element).releasePointerCapture?.(e.pointerId);
 };
 
-const updateContainerHeight = async () => {
-    await nextTick();
-    const frontEl = frontRef.value as HTMLElement | null;
-    const backEl = backRef.value as HTMLElement | null;
-    if (!frontEl || !backEl) return;
-
-    // Используем проверенный способ расчета высоты для сохранения дизайна
-    const frontH = frontEl.scrollHeight;
-    const backH = backEl.scrollHeight;
-    const desired = Math.max(frontH, backH, 440);
-    containerHeight.value = Math.ceil(desired);
-};
-
 let innerTransitionHandler: ((e: TransitionEvent) => void) | null = null;
 let innerWebkitHandler: ((e: Event) => void) | null = null;
 let transitionFallbackId: number | null = null;
@@ -513,32 +491,29 @@ const clearTransitionFallback = () => {
         transitionFallbackId = null;
     }
 };
-const scheduleFallback = () => {
-    clearTransitionFallback();
-    transitionFallbackId = window.setTimeout(() => {
-        frontVisible.value = !isFlipped.value;
-        transitionFallbackId = null;
-        requestAnimationFrame(updateContainerHeight);
-    }, TRANSITION_EXPECTED_MS);
-};
+        const scheduleFallback = () => {
+            clearTransitionFallback();
+            transitionFallbackId = window.setTimeout(() => {
+                frontVisible.value = !isFlipped.value;
+                transitionFallbackId = null;
+            }, TRANSITION_EXPECTED_MS);
+        };
 
-const onInnerTransitionEnd = (e?: TransitionEvent | Event) => {
-    if (e && 'propertyName' in e) {
-        const te = e as TransitionEvent;
-        if (!te.propertyName || te.propertyName.indexOf('transform') === -1) return;
-    }
-    clearTransitionFallback();
-    frontVisible.value = !isFlipped.value;
-    requestAnimationFrame(updateContainerHeight);
-};
+        const onInnerTransitionEnd = (e?: TransitionEvent | Event) => {
+            if (e && 'propertyName' in e) {
+                const te = e as TransitionEvent;
+                if (!te.propertyName || te.propertyName.indexOf('transform') === -1) return;
+            }
+            clearTransitionFallback();
+            frontVisible.value = !isFlipped.value;
+        };
 
-const flipCard = async () => {
-    isFlipped.value = !isFlipped.value;
-    if (innerRef.value) frontVisible.value = false;
-    scheduleFallback();
-    await nextTick();
-    requestAnimationFrame(updateContainerHeight);
-};
+        const flipCard = async () => {
+            isFlipped.value = !isFlipped.value;
+            if (innerRef.value) frontVisible.value = false;
+            scheduleFallback();
+            await nextTick();
+        };
 
 const onBackClick = () => {
     if (isFlipped.value) flipCard();
@@ -569,12 +544,6 @@ const handleResize = () => {
     }
 };
 
-let resizeTimeout: number | null = null;
-const debouncedUpdateHeight = () => {
-    if (resizeTimeout) clearTimeout(resizeTimeout);
-    resizeTimeout = window.setTimeout(updateContainerHeight, 100);
-};
-
 onMounted(() => {
     handleResize();
     rafId = requestAnimationFrame(tick);
@@ -587,11 +556,6 @@ onMounted(() => {
     }
 
     window.addEventListener('resize', handleResize, { passive: true });
-    window.addEventListener('resize', updateContainerHeight, { passive: true });
-    
-    // Принудительно вызываем расчет высоты при загрузке для сохранения дизайна
-    setTimeout(updateContainerHeight, 100);
-    setTimeout(updateContainerHeight, 500); // Повторный вызов после подгрузки шрифтов/картинок
 });
 
 onUnmounted(() => {
@@ -599,9 +563,7 @@ onUnmounted(() => {
         cancelAnimationFrame(rafId);
         rafId = null;
     }
-    if (resizeTimeout) clearTimeout(resizeTimeout);
     window.removeEventListener('resize', handleResize);
-    window.removeEventListener('resize', debouncedUpdateHeight);
     if (innerTransitionHandler && innerRef.value)
         innerRef.value.removeEventListener(
             'transitionend',
@@ -620,10 +582,10 @@ onUnmounted(() => {
 .service-card {
     position: relative;
     z-index: 1;
-    isolation: isolate;
-    will-change: auto;
     width: 100%;
     min-height: 440px;
+    display: flex;
+    flex-direction: column;
 }
 
 .service-card:hover,
@@ -671,6 +633,8 @@ onUnmounted(() => {
 
 .card-inner {
     width: 100%;
+    height: 100%;
+    flex: 1;
     transition: transform 0.85s cubic-bezier(0.22, 0.9, 0.36, 1);
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
@@ -678,6 +642,9 @@ onUnmounted(() => {
     z-index: 2;
     backface-visibility: hidden;
     will-change: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
 }
 
 .service-card:hover .card-inner,
@@ -693,7 +660,7 @@ onUnmounted(() => {
 .card-side {
     box-sizing: border-box;
     padding: 1.5rem;
-    border-radius: 1rem;
+    border-radius: 1.5rem;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     transform-style: preserve-3d;
@@ -701,6 +668,9 @@ onUnmounted(() => {
     transition: opacity 0.35s ease;
     width: 100%;
     height: 100%;
+    grid-area: 1 / 1 / 2 / 2;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .card-side.front {
@@ -710,8 +680,7 @@ onUnmounted(() => {
 }
 
 .card-side.back {
-    position: absolute;
-    inset: 0;
+    position: relative;
     transform: rotateY(180deg);
     width: 100%;
     z-index: 2;
@@ -729,30 +698,25 @@ onUnmounted(() => {
     z-index: 4;
 }
 
-.overlay-wrap {
-    pointer-events: none;
-    z-index: 0;
-    border-radius: 1rem;
-    overflow: hidden;
-}
-
-.service-card .glass-overlay {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-}
-
-.service-card:hover .glass-overlay,
-.service-card.is-active .glass-overlay {
+.service-card:hover .card-side,
+.service-card.is-active .card-side {
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    background: rgba(255, 255, 255, 0.035);
-    border-color: rgba(255, 255, 255, 0.06);
+}
+
+.service-card.theme-light:hover .card-side,
+.service-card.theme-light.is-active .card-side {
     box-shadow: 0 12px 36px rgba(10, 12, 25, 0.12);
 }
 
+.service-card.theme-dark:hover .card-side,
+.service-card.theme-dark.is-active .card-side {
+    box-shadow: 0 15px 50px rgba(1, 4, 10, 0.7);
+}
+
 .service-card .glass-shine {
+    position: absolute;
+    inset: 0;
     pointer-events: none;
     mix-blend-mode: overlay;
     background: radial-gradient(
@@ -766,6 +730,8 @@ onUnmounted(() => {
         opacity 160ms linear,
         background-position 120ms linear;
     opacity: 0.95;
+    z-index: 5;
+    border-radius: 1.5rem;
 }
 
 .glass-dark {

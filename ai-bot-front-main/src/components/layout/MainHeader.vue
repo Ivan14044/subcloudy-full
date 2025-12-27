@@ -187,7 +187,6 @@ onUnmounted(() => {
 .liquid-glass-wrapper {
     position: relative;
     display: flex;
-    overflow: hidden;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
     /* Медленная плавная анимация раскрытия по ширине */
     transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1), 

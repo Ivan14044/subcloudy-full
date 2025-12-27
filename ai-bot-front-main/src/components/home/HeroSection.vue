@@ -57,13 +57,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { scrollToElement } from '@/utils/scrollToElement';
 import { useTheme } from '@/composables/useTheme';
 
 const { isDark } = useTheme();
 const lottieContainer = ref<HTMLElement | null>(null);
 let animInstance: any = null;
+let visibilityObserver: IntersectionObserver | null = null;
 
 const loadAnimation = async () => {
     try {
@@ -137,13 +138,32 @@ const loadAnimation = async () => {
                 subtree: true
             });
             
-            animInstance = lottie.loadAnimation({
-                container: container,
-                renderer: 'svg',
-                loop: false,
-                autoplay: true,
-                animationData: data.default
-            });
+                    animInstance = lottie.loadAnimation({
+                        container: container,
+                        renderer: 'svg',
+                        loop: false,
+                        autoplay: true,
+                        animationData: data.default
+                    });
+
+                    // Оптимизация: пауза анимации, когда она вне зоны видимости
+                    if (visibilityObserver) {
+                        visibilityObserver.disconnect();
+                    }
+                    
+                    visibilityObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (animInstance) {
+                                if (entry.isIntersecting) {
+                                    animInstance.play();
+                                } else {
+                                    animInstance.pause();
+                                }
+                            }
+                        });
+                    }, { threshold: 0.1 });
+                    
+                    visibilityObserver.observe(container);
 
             // Функция для установки размеров SVG
             const setSvgSize = () => {
@@ -220,12 +240,23 @@ watch(isDark, () => {
     loadAnimation();
 });
 
-onMounted(() => {
-    // Еще больше откладываем инициализацию анимации (с 1.5 до 2.5 сек), 
-    // чтобы дать приоритет отрисовке текста (LCP)
-    setTimeout(loadAnimation, 2500);
-});
-</script>
+        onMounted(() => {
+            // Еще больше откладываем инициализацию анимации (с 1.5 до 2.5 сек), 
+            // чтобы дать приоритет отрисовке текста (LCP)
+            setTimeout(loadAnimation, 2500);
+        });
+
+        onBeforeUnmount(() => {
+            if (animInstance) {
+                animInstance.destroy();
+                animInstance = null;
+            }
+            if (visibilityObserver) {
+                visibilityObserver.disconnect();
+                visibilityObserver = null;
+            }
+        });
+        </script>
 
 <style scoped>
 @keyframes spin-reverse-slower {

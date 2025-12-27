@@ -24,21 +24,19 @@
         </div>
 
         <!-- Dropdown -->
-        <Teleport to="body">
-            <Transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="opacity-0 -translate-y-2"
-                enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition duration-150 ease-in"
-                leave-from-class="opacity-100 translate-y-0"
-                leave-to-class="opacity-0 -translate-y-2"
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 -translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-2"
+        >
+            <div
+                v-if="dropdownOpen"
+                ref="dropdownRef"
+                class="notification-menu-dropdown absolute top-full mt-2 right-0 w-80 z-[9999]"
             >
-                <div
-                    v-if="dropdownOpen"
-                    ref="dropdownRef"
-                    :style="dropdownStyle"
-                    class="notification-menu-dropdown fixed w-80 z-[9999]"
-                >
                     <div class="liquid-glass-effect"></div>
                     <div class="liquid-glass-tint"></div>
                     <div class="liquid-glass-shine"></div>
@@ -97,7 +95,6 @@
                     </div>
                 </div>
             </Transition>
-        </Teleport>
     </div>
 </template>
 
@@ -123,7 +120,6 @@ const isFirstLoad = ref(true);
 const dropdownRef = ref(null);
 const buttonRef = ref(null);
 const containerRef = ref(null);
-const dropdownStyle = ref({ top: '0px', right: '0px' });
 
 const notificationStore = useNotificationStore();
 const serviceStore = useServiceStore();
@@ -182,21 +178,6 @@ function setItemRef(el, id) {
     else delete itemRefs.value[id];
 }
 
-const updateDropdownPosition = () => {
-    if (!buttonRef.value || !dropdownOpen.value) return;
-    
-    nextTick(() => {
-        // Используем requestAnimationFrame для батчинга чтений layout свойств
-        requestAnimationFrame(() => {
-            const rect = buttonRef.value.getBoundingClientRect();
-            dropdownStyle.value = {
-                top: `${rect.bottom + 5}px`,
-                right: `${window.innerWidth - rect.right}px`
-            };
-        });
-    });
-};
-
 function handleClickOutside(event) {
     const target = event.target;
     
@@ -221,7 +202,6 @@ function toggleDropdown() {
     dropdownOpen.value = !dropdownOpen.value;
 
     if (dropdownOpen.value) {
-        updateDropdownPosition();
         const unreadItems = store.items.filter(n => !n.read_at);
         const unreadIds = unreadItems.map(n => n.id);
 
@@ -233,17 +213,6 @@ function toggleDropdown() {
         recentlyRead.value.clear();
     }
 }
-
-watch(dropdownOpen, (newVal) => {
-    if (newVal) {
-        updateDropdownPosition();
-        window.addEventListener('scroll', updateDropdownPosition);
-        window.addEventListener('resize', updateDropdownPosition);
-    } else {
-        window.removeEventListener('scroll', updateDropdownPosition);
-        window.removeEventListener('resize', updateDropdownPosition);
-    }
-});
 
 function getTranslation(item, key) {
     const translations = item.template?.translations || {};
@@ -276,8 +245,6 @@ function formatDate(dateStr) {
 onUnmounted(() => {
     clearInterval(intervalId.value);
     document.removeEventListener('click', handleClickOutside);
-    window.removeEventListener('scroll', updateDropdownPosition);
-    window.removeEventListener('resize', updateDropdownPosition);
 });
 
 watch(unread, newVal => {
@@ -386,7 +353,7 @@ watch(
 
 /* Liquid Glass Effect для dropdown уведомлений */
 .notification-menu-dropdown {
-    position: fixed;
+    position: absolute;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
     overflow: hidden;

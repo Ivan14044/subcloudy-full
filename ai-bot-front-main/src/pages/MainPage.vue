@@ -8,7 +8,7 @@
 
     <div class="mx-auto px-4 pt-5 md:pt-24 pb-7 md:pb-16 sm:px-6 lg:px-8">
         <!-- Savings Section -->
-        <section id="savings" class="mb-16 min-h-[400px]" style="content-visibility: auto; contain-intrinsic-size: 1px 400px;">
+        <section id="savings" class="mb-16 min-h-[400px]">
             <div class="text-center mb-8">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] font-medium text-gray-900 dark:text-white mt-3"
@@ -23,7 +23,7 @@
         </section>
 
         <!-- Steps Section -->
-        <section id="steps" class="min-h-[300px]" style="content-visibility: auto; contain-intrinsic-size: 1px 300px;">
+        <section id="steps" class="min-h-[300px]">
             <div class="text-center mb-8 relative z-2">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] text-gray-900 dark:text-white mt-3 leading-none"
@@ -36,7 +36,7 @@
 
     <div class="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <!-- Services Section -->
-        <section id="services" class="mb-16 min-h-[600px]" style="content-visibility: auto; contain-intrinsic-size: 1px 600px;">
+        <section id="services" class="mb-16 min-h-[600px]">
             <div class="text-center mb-16">
                 <h2
                     class="text-[32px] md:text-[48px] lg:text-[64px] text-gray-900 dark:text-white mt-3 leading-none"
@@ -47,7 +47,7 @@
         </section>
 
         <!-- Articles Section -->
-        <section id="articles" class="mb-16 min-h-[500px]" style="content-visibility: auto; contain-intrinsic-size: 1px 500px;">
+        <section id="articles" class="mb-16 min-h-[500px]">
             <ArticleSection />
         </section>
 

@@ -22,21 +22,19 @@
         </button>
 
         <!-- Dropdown Menu -->
-        <Teleport to="body">
-            <Transition
-                enter-active-class="transition duration-200 ease-out"
-                enter-from-class="opacity-0 -translate-y-2"
-                enter-to-class="opacity-100 translate-y-0"
-                leave-active-class="transition duration-150 ease-in"
-                leave-from-class="opacity-100 translate-y-0"
-                leave-to-class="opacity-0 -translate-y-2"
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 -translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 -translate-y-2"
+        >
+            <div
+                v-if="isOpen"
+                ref="dropdownMenuRef"
+                class="language-dropdown absolute top-full mt-2 left-0 min-w-[160px] z-[9999]"
             >
-                <div
-                    v-if="isOpen"
-                    ref="dropdownMenuRef"
-                    :style="dropdownStyle"
-                    class="language-dropdown fixed min-w-[160px] z-[9999]"
-                >
                     <div class="liquid-glass-effect"></div>
                     <div class="liquid-glass-tint"></div>
                     <div class="liquid-glass-shine"></div>
@@ -70,7 +68,6 @@
                     </div>
                 </div>
             </Transition>
-        </Teleport>
     </div>
 </template>
 
@@ -106,41 +103,9 @@ const currentLanguage = computed(() => {
     return lang;
 });
 
-const dropdownStyle = ref({ top: '0px', left: '0px' });
-
-const updateDropdownPosition = () => {
-    if (!buttonRef.value || !isOpen.value) return;
-    
-    nextTick(() => {
-        // Используем requestAnimationFrame для батчинга чтений layout свойств
-        requestAnimationFrame(() => {
-            const rect = buttonRef.value!.getBoundingClientRect();
-            // Для position: fixed используем только координаты viewport, без scrollY/scrollX
-            dropdownStyle.value = {
-                top: `${rect.bottom + 5}px`,
-                left: `${rect.left}px`
-            };
-        });
-    });
-};
-
 const toggleDropdown = () => {
     isOpen.value = !isOpen.value;
-    if (isOpen.value) {
-        updateDropdownPosition();
-    }
 };
-
-watch(isOpen, (newVal) => {
-    if (newVal) {
-        updateDropdownPosition();
-        window.addEventListener('scroll', updateDropdownPosition);
-        window.addEventListener('resize', updateDropdownPosition);
-    } else {
-        window.removeEventListener('scroll', updateDropdownPosition);
-        window.removeEventListener('resize', updateDropdownPosition);
-    }
-});
 
 const changeLanguage = async (code: string) => {
     locale.value = code;
@@ -208,7 +173,7 @@ onUnmounted(() => {
 <style scoped>
 /* Liquid Glass Effect для dropdown меню языка */
 .language-dropdown {
-    position: fixed;
+    position: absolute;
     box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem; /* rounded-lg */
     overflow: hidden;
