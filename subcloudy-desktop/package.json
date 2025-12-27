@@ -18,6 +18,7 @@
   "dependencies": {
     "axios": "^1.7.9",
     "electron-store": "^8.1.0",
+    "lucide-vue-next": "^0.562.0",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
     "vue-i18n": "^10.0.4",
@@ -46,13 +47,19 @@
       "package.json"
     ],
     "win": {
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     },
     "mac": {
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     },
     "linux": {
-      "target": ["AppImage"]
+      "target": [
+        "AppImage"
+      ]
     }
   }
 }

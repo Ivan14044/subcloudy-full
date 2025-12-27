@@ -12,6 +12,8 @@ const electronAPI = {
       ipcRenderer.invoke('auth:getUser'),
     isAuthenticated: () => 
       ipcRenderer.invoke('auth:isAuthenticated'),
+    getToken: () => 
+      ipcRenderer.invoke('auth:getToken'),
     // OAuth методы
     loginWithGoogle: () => 
       ipcRenderer.invoke('auth:loginWithGoogle'),

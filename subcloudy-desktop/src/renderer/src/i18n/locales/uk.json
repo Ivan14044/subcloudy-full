@@ -140,6 +140,47 @@
       "startDate": "Дата початку",
       "endDate": "Дата закінчення"
     }
+  },
+  "support": {
+    "button": "Підтримка",
+    "title": "Служба підтримки",
+    "selectChannel": "Виберіть спосіб зв'язку",
+    "channelWeb": "Чат у додатку",
+    "channelWebDesc": "Продовжити діалог у додатку",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Перейти для спілкування в Telegram",
+    "enterEmail": "Введіть ваш email для продовження",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Почати чат",
+    "loading": "Завантаження...",
+    "messagePlaceholder": "Введіть ваше повідомлення...",
+    "switchToTelegram": "Перейти в Telegram",
+    "send": "Надіслати",
+    "close": "Закрити",
+    "back": "Назад",
+    "chatInitError": "Не вдалося ініціалізувати чат",
+    "statuses": {
+      "open": "Відкрито",
+      "in_progress": "В роботі",
+      "closed": "Закрито"
+    },
+    "statusChangedTo": "Статус змінено на: {status}",
+    "systemNotifications": {
+      "statusChanged": "Статус тікета змінено на: {status}",
+      "adminRepliedIn": "Адміністратор відповів вам у {channel}",
+      "ticketClosed": "Це звернення закрите. Ви можете написати нове повідомлення, щоб відновити діалог."
+    },
+    "errors": {
+      "ticketNotFound": "Тикет не знайдено",
+      "createTicketFailed": "Не вдалося створити тикет",
+      "sendMessageFailed": "Не вдалося надіслати повідомлення",
+      "createTicketError": "Помилка при створенні тикету",
+      "sendMessageError": "Помилка при надсиланні повідомлення",
+      "telegramLinkFailed": "Не вдалося отримати посилання Telegram",
+      "telegramLinkError": "Помилка при отриманні посилання Telegram",
+      "accessDeniedSession": "Помилка доступу: невірний токен сесії. Почніть новий діалог.",
+      "accessDeniedEmail": "Помилка доступу: email не збігається."
+    }
   }
 }
 

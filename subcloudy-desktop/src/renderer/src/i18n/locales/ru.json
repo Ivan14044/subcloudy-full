@@ -140,6 +140,47 @@
       "startDate": "Дата начала",
       "endDate": "Дата окончания"
     }
+  },
+  "support": {
+    "button": "Поддержка",
+    "title": "Служба поддержки",
+    "selectChannel": "Выберите способ связи",
+    "channelWeb": "Чат в приложении",
+    "channelWebDesc": "Продолжить диалог в приложении",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Перейти для общения в Telegram",
+    "enterEmail": "Введите ваш email для продолжения",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Начать чат",
+    "loading": "Загрузка...",
+    "messagePlaceholder": "Введите ваше сообщение...",
+    "switchToTelegram": "Перейти в Telegram",
+    "send": "Отправить",
+    "close": "Закрыть",
+    "back": "Назад",
+    "chatInitError": "Не удалось инициализировать чат",
+    "statuses": {
+      "open": "Открыто",
+      "in_progress": "В работе",
+      "closed": "Закрыто"
+    },
+    "statusChangedTo": "Статус изменен на: {status}",
+    "systemNotifications": {
+      "statusChanged": "Статус тикета изменен на: {status}",
+      "adminRepliedIn": "Администратор ответил вам в {channel}",
+      "ticketClosed": "Это обращение закрыто. Вы можете написать новое сообщение, чтобы возобновить диалог."
+    },
+    "errors": {
+      "ticketNotFound": "Тикет не найден",
+      "createTicketFailed": "Не удалось создать тикет",
+      "sendMessageFailed": "Не удалось отправить сообщение",
+      "createTicketError": "Ошибка при создании тикета",
+      "sendMessageError": "Ошибка при отправке сообщения",
+      "telegramLinkFailed": "Не удалось получить ссылку Telegram",
+      "telegramLinkError": "Ошибка при получении ссылки Telegram",
+      "accessDeniedSession": "Ошибка доступа: неверный токен сессии. Начните новый диалог.",
+      "accessDeniedEmail": "Ошибка доступа: email не совпадает."
+    }
   }
 }
 

@@ -140,6 +140,47 @@
       "startDate": "Start Date",
       "endDate": "End Date"
     }
+  },
+  "support": {
+    "button": "Support",
+    "title": "Support Service",
+    "selectChannel": "Select communication channel",
+    "channelWeb": "Chat in app",
+    "channelWebDesc": "Continue conversation in app",
+    "channelTelegram": "Telegram",
+    "channelTelegramDesc": "Switch to Telegram for communication",
+    "enterEmail": "Enter your email to continue",
+    "emailPlaceholder": "your@email.com",
+    "startChat": "Start chat",
+    "loading": "Loading...",
+    "messagePlaceholder": "Enter your message...",
+    "switchToTelegram": "Switch to Telegram",
+    "send": "Send",
+    "close": "Close",
+    "back": "Back",
+    "chatInitError": "Failed to initialize chat",
+    "statuses": {
+      "open": "Open",
+      "in_progress": "In Progress",
+      "closed": "Closed"
+    },
+    "statusChangedTo": "Status changed to: {status}",
+    "systemNotifications": {
+      "statusChanged": "Ticket status changed to: {status}",
+      "adminRepliedIn": "Administrator replied to you in {channel}",
+      "ticketClosed": "This request is closed. You can send a new message to resume the conversation."
+    },
+    "errors": {
+      "ticketNotFound": "Ticket not found",
+      "createTicketFailed": "Failed to create ticket",
+      "sendMessageFailed": "Failed to send message",
+      "createTicketError": "Error creating ticket",
+      "sendMessageError": "Error sending message",
+      "telegramLinkFailed": "Failed to get Telegram link",
+      "telegramLinkError": "Error getting Telegram link",
+      "accessDeniedSession": "Access denied: invalid session token. Please start a new chat.",
+      "accessDeniedEmail": "Access denied: email mismatch."
+    }
   }
 }
 

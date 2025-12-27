@@ -123,6 +123,10 @@ function setupIPCHandlers() {
     return authManager.isAuthenticated();
   });
 
+  ipcMain.handle('auth:getToken', async () => {
+    return authManager.getToken();
+  });
+
   ipcMain.handle('auth:updateProfile', async (_, data) => {
     return await authManager.updateProfile(data);
   });

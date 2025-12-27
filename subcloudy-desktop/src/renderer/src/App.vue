@@ -1,14 +1,27 @@
 <template>
   <router-view />
   <UpdateNotification />
+  <SupportButton />
+  <SupportModal ref="supportModalRef" />
 </template>
 
 <script setup lang="ts">
-import { onMounted, onErrorCaptured } from 'vue';
+import { onMounted, onErrorCaptured, ref, provide } from 'vue';
 import { useDarkMode } from './composables/useDarkMode';
 import UpdateNotification from './components/UpdateNotification.vue';
+import SupportButton from './components/SupportButton.vue';
+import SupportModal from './components/SupportModal.vue';
 
 const { init } = useDarkMode();
+const supportModalRef = ref<any>(null);
+
+const openSupportModal = () => {
+  if (supportModalRef.value) {
+    supportModalRef.value.open();
+  }
+};
+
+provide('openSupportModal', openSupportModal);
 
 onMounted(() => {
   try {
