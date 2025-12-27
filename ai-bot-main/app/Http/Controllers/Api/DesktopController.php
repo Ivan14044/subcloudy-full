@@ -303,6 +303,38 @@ class DesktopController extends Controller
     {
         return in_array($serviceId, $this->getUserActiveServices($user));
     }
+
+    /**
+     * Скачивание десктоп-приложения
+     * GET /api/desktop/download/{os}
+     */
+    public function download($os)
+    {
+        if ($os !== 'windows') {
+            return response()->json(['error' => 'Only Windows is supported at the moment'], 404);
+        }
+
+        $latestYmlPath = base_path('../updates/latest.yml');
+        
+        if (!file_exists($latestYmlPath)) {
+            \Log::error('[Desktop] latest.yml not found at ' . $latestYmlPath);
+            return response()->json(['error' => 'Installation file not found'], 404);
+        }
+
+        $content = file_get_contents($latestYmlPath);
+        
+        // Простой поиск имени файла через regex
+        if (preg_match('/path:\s*(.+)/', $content, $matches)) {
+            $filename = trim($matches[1]);
+            // Убираем кавычки если есть
+            $filename = trim($filename, '"\'');
+            
+            // Редиректим на прямой URL файла, который обслуживается Nginx
+            return redirect('https://subcloudy.com/updates/' . rawurlencode($filename));
+        }
+
+        return response()->json(['error' => 'Invalid latest.yml format'], 500);
+    }
 }
 
 
