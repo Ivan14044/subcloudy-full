@@ -20,7 +20,7 @@
                         id="name"
                         v-model="name"
                         type="text"
-                        class="w-full pl-10 pr-4 py-2 border rounded-lg dark:!border-gray-500 dark:text-gray-300"
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                         :placeholder="$t('profile.namePlaceholder')"
                         required
                     />
@@ -42,7 +42,7 @@
                         id="email"
                         v-model="email"
                         type="email"
-                        class="w-full pl-10 pr-4 py-2 border dark:!border-gray-500 rounded-lg dark:text-gray-300"
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                         :placeholder="$t('profile.emailPlaceholder')"
                         required
                     />
@@ -65,7 +65,7 @@
                         v-model="password"
                         type="password"
                         autocomplete="off"
-                        class="w-full pl-10 pr-4 py-2 border dark:!border-gray-500 rounded-lg dark:text-gray-300"
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                         :placeholder="$t('profile.passwordPlaceholder')"
                     />
                 </div>
@@ -89,7 +89,7 @@
                         v-model="password_confirmation"
                         type="password"
                         autocomplete="off"
-                        class="w-full pl-10 pr-4 py-2 border dark:!border-gray-500 rounded-lg dark:text-gray-300"
+                        class="w-full pl-10 pr-4 py-2 border rounded-lg bg-white text-gray-900 dark:!bg-gray-700 dark:!border-gray-500 dark:!text-gray-300"
                         :placeholder="$t('profile.confirmPasswordPlaceholder')"
                     />
                 </div>
